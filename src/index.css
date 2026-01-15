@@ -3,60 +3,117 @@
 @import 'tailwindcss';
 
 @theme {
-	--color-mainColor: #608e63;
+	--color-mainColor: #5fab18;
 	--color-backgroundColor: #ffffff;
 	--color-surfaceColor: #eff3ef;
 	--color-textColor: #1f2933;
 	--color-accentColor: #c9a227;
 
-	--font-1: Inter, system-ui, sans-serif;
-	--font-2: 'Source Sans 3', system-ui, sans-serif;
-	--font-3: Manrope, system-ui, sans-serif;
-	--font-4: 'DM Sans', system-ui, sans-serif;
-	--font-5: 'IBM Plex Sans', system-ui, sans-serif;
-	--font-6: Nunito, system-ui, sans-serif;
-	--font-7: 'Work Sans', system-ui, sans-serif;
-	--font-8: 'Public Sans', system-ui, sans-serif;
-	--font-9: 'Plus Jakarta Sans', system-ui, sans-serif;
-	--font-10: Urbanist, system-ui, sans-serif;
-	--container-padding: 2rem;
-	--container-max-width-xl: 1200px;
-	--container-center: true;
+	--font-1: Manrope, system-ui, sans-serif;
+	--font-2: 'IBM Plex Sans', system-ui, sans-serif;
+}
+
+@layer base {
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+
+	html,
+	body {
+		margin: 0;
+		padding: 0;
+		min-height: 100%;
+		/* Kolor tla tymczasowy */
+		background: #eff3ef;
+	}
+
+	body {
+		line-height: 1.5;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+
+	img,
+	picture,
+	video,
+	canvas,
+	svg {
+		display: block;
+		max-width: 100%;
+	}
+
+	button,
+	input,
+	textarea,
+	select {
+		font: inherit;
+		color: inherit;
+	}
 }
 
 @layer utilities {
-	.font-1 {
-		font-family: var(--font-1);
+	.primaryFont {
+		font-family: var(--font-);
 	}
-	.font-2 {
+	.secondaryFont {
 		font-family: var(--font-2);
-	}
-	.font-3 {
-		font-family: var(--font-3);
-	}
-	.font-4 {
-		font-family: var(--font-4);
-	}
-	.font-5 {
-		font-family: var(--font-5);
-	}
-	.font-6 {
-		font-family: var(--font-6);
-	}
-	.font-7 {
-		font-family: var(--font-7);
-	}
-	.font-8 {
-		font-family: var(--font-8);
-	}
-	.font-9 {
-		font-family: var(--font-9);
-	}
-	.font-10 {
-		font-family: var(--font-10);
 	}
 
 	.container {
+		width: 100%;
 		margin-inline: auto;
+		@media (width >= 40rem /* 640px */) {
+			max-width: 38rem /* 640px */;
+		}
+		@media (width >= 48rem /* 768px */) {
+			max-width: 45rem /* 768px */;
+		}
+		@media (width >= 64rem /* 1024px */) {
+			max-width: 60rem /* 1024px */;
+		}
+		@media (width >= 80rem /* 1280px */) {
+			max-width: 70rem /* 1280px */;
+		}
+		@media (width >= 96rem /* 1536px */) {
+			max-width: 80rem /* 1536px */;
+		}
 	}
 }
+
+.navigation-shadow {
+	box-shadow: -5px 5px 10px rgba(0, 0, 0, 0.35), /* dół + lewa (główny cień) */ 1px -1px 2px rgba(0, 0, 0, 0.15); /* góra + prawa (lekki cień) */
+}
+
+.navigation-shadow-2 {
+	box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.35), /* dół + lewa (główny cień) */ 1px -1px 2px rgba(0, 0, 0, 0.15); /* góra + prawa (lekki cień) */
+}
+
+.nav-link {
+	@apply relative
+	  text-textColor
+	  uppercase
+	  font-bold
+	  cursor-pointer
+	  transition-colors
+	  hover:text-mainColor;
+	  padding: 10px 20px;
+  }
+  
+  .nav-link::before {
+	content: "";
+	position: absolute;
+	left: 50%;
+	bottom: -4px;
+	width: 0;
+	height: 3px;
+	background-color: theme('colors.mainColor');
+	transform: translateX(-50%);
+	transition: width 0.3s ease;
+  }
+  
+  .nav-link:hover::before {
+	width: 70%;
+  }
+  
