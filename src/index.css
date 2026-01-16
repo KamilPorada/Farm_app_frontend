@@ -64,6 +64,8 @@
 	.container {
 		width: 100%;
 		margin-inline: auto;
+		padding-inline: 2rem;
+
 		@media (width >= 40rem /* 640px */) {
 			max-width: 38rem /* 640px */;
 		}
@@ -98,11 +100,11 @@
 	  cursor-pointer
 	  transition-colors
 	  hover:text-mainColor;
-	  padding: 10px 20px;
-  }
-  
-  .nav-link::before {
-	content: "";
+	padding: 10px 20px;
+}
+
+.nav-link::before {
+	content: '';
 	position: absolute;
 	left: 50%;
 	bottom: -4px;
@@ -111,13 +113,13 @@
 	background-color: theme('colors.mainColor');
 	transform: translateX(-50%);
 	transition: width 0.3s ease;
-  }
-  
-  .nav-link:hover::before {
-	width: 70%;
-  }
+}
 
-  /* ===============================
+.nav-link:hover::before {
+	width: 70%;
+}
+
+/* ===============================
    SLIDE-IN PANEL
 ================================ */
 @keyframes slide-in {
@@ -176,7 +178,7 @@
 	background: none;
 	border: none;
 	cursor: pointer;
-	
+
 	transition: transform 0.2s ease;
 }
 
@@ -198,4 +200,3 @@
 .hero-clip {
 	clip-path: polygon(12% 0%, 100% 0%, 100% 100%, 0% 100%);
 }
-

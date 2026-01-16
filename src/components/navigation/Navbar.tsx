@@ -26,10 +26,13 @@ function SideMenu({ onClose }: { onClose: () => void }) {
 
 				{/* HEADER */}
 				<div className='flex justify-between items-center p-5 border-b border-gray-200'>
-					<img src={logo} alt='Logo' className='h-13 md:h-15 w-auto cursor-pointer' />
-					
+					<img src={logo} alt='Logo' className='h-14 md:h-15 w-auto cursor-pointer' />
+
 					<button onClick={onClose}>
-						<FontAwesomeIcon icon={faXmark} className='text-2xl text-gray-700 hover:rotate-90 hover:cursor-pointer transition-transform' />
+						<FontAwesomeIcon
+							icon={faXmark}
+							className='text-2xl text-gray-700 hover:rotate-90 hover:cursor-pointer transition-transform'
+						/>
 					</button>
 				</div>
 
@@ -67,40 +70,59 @@ function Navbar() {
 
 	return (
 		<>
-			<nav className='fixed top-5 left-0 flex justify-center items-center w-full z-50'>
-				{/* GŁÓWNY BOX (LOGO + MENU / HAMBURGER) */}
-				<div className=' flex items-center justify-between h-20 w-4/5 sm:w-2/3 lg:w-4/5 navigation-shadow bg-white px-4'>
-					{/* LOGO + HAMBURGER (SM) */}
-					<div className='flex flex-row justify-around lg:justify-between items-center w-full lg:w-1/3'>
-						<img src={logo} alt='Logo' className='h-13 md:h-15 w-auto cursor-pointer' />
+			<nav className='fixed top-5 left-0 w-full z-50 flex justify-center'>
+				{/* CONTAINER = JEDYNA KONTROLA SZEROKOŚCI */}
+				<div className='container flex items-center'>
+					{/* LEWA / ŚRODEK – LOGO + MENU */}
+					<div className='flex flex-1 items-center justify-between h-20 navigation-shadow bg-white px-4'>
+						{/* LOGO + HAMBURGER (MOBILE) */}
+						<div className='flex items-center justify-around gap-4 w-full sm:w-auto'>
+							<img src={logo} alt='Logo' className='h-14 md:h-15 w-auto cursor-pointer' />
 
-						{/* HAMBURGER – < md */}
-						<button onClick={() => setMenuOpen(true)} className='sm:hidden'>
+							{/* HAMBURGER – < sm */}
+							<button onClick={() => setMenuOpen(true)} className='sm:hidden'>
+								<FontAwesomeIcon icon={faBars} className='text-2xl text-gray-800 hover:cursor-pointer' />
+							</button>
+						</div>
+
+						{/* MENU DESKTOP – lg+ */}
+						<div className='hidden lg:flex'>
+							<button className='nav-link border-r border-r-gray-200'>O nas</button>
+							<button className='nav-link border-r border-r-gray-200'>Funkcje</button>
+							<button className='nav-link border-r border-r-gray-200'>Dane</button>
+							<button className='nav-link'>Kontakt</button>
+						</div>
+					</div>
+
+					{/* PRAWA CZĘŚĆ – LOGIN + HAMBURGER (sm → lg) */}
+					<div
+						className="
+          hidden sm:flex
+          h-20
+          items-center
+          gap-7
+          px-10
+          bg-white
+          navigation-shadow-2
+          relative
+          -top-2
+          left-2
+          before:content-['']
+          before:absolute
+          before:h-full
+          before:w-2
+          before:bg-[#e3e3e3]
+          before:-left-2
+          before:top-1
+          before:[transform:skewX(0deg)_skewY(-45deg)]
+        ">
+						<Button>Zaloguj się</Button>
+
+						{/* HAMBURGER – sm → lg */}
+						<button onClick={() => setMenuOpen(true)} className='sm:flex lg:hidden'>
 							<FontAwesomeIcon icon={faBars} className='text-2xl text-gray-800 hover:cursor-pointer' />
 						</button>
 					</div>
-
-					{/* MENU DESKTOP – md+ */}
-					<div className='hidden lg:flex'>
-						<button className='nav-link border-r border-r-gray-200'>O nas</button>
-						<button className='nav-link border-r border-r-gray-200'>Funkcje</button>
-						<button className='nav-link border-r border-r-gray-200'>Dane</button>
-						<button className='nav-link'>Kontakt</button>
-					</div>
-				</div>
-
-				{/* PRAWA CZĘŚĆ – LOGIN + HAMBURGER (md → sm) */}
-				<div
-					className="
-						hidden sm:flex
-						w-1/3 lg:w-1/5 h-20 sm:justify-around lg:justify-center items-center bg-white -top-2 -right-2 navigation-shadow-2 relative before:content-[''] before:block before:absolute before:h-full before:w-2 before:bg-[#e3e3e3] before:-left-2 before:top-1 before:transform-[skewX(0deg)_skewY(-45deg)]
-					">
-					<Button>Zaloguj się</Button>
-
-					{/* HAMBURGER – md → sm */}
-					<button onClick={() => setMenuOpen(true)} className='md:flex lg:hidden'>
-						<FontAwesomeIcon icon={faBars} className='text-2xl text-gray-800 hover:cursor-pointer' />
-					</button>
 				</div>
 			</nav>
 
