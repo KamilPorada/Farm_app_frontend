@@ -26,7 +26,7 @@
 		padding: 0;
 		min-height: 100%;
 		/* Kolor tla tymczasowy */
-		background: #eff3ef;
+		/* background: #eff3ef; */
 	}
 
 	body {
@@ -116,4 +116,86 @@
   .nav-link:hover::before {
 	width: 70%;
   }
-  
+
+  /* ===============================
+   SLIDE-IN PANEL
+================================ */
+@keyframes slide-in {
+	from {
+		transform: translateX(100%);
+	}
+	to {
+		transform: translateX(0);
+	}
+}
+
+.animate-slide-in {
+	animation: slide-in 0.35s ease-out;
+}
+
+/* ===============================
+   NAV LINK – ANIMACJA WEJŚCIA
+================================ */
+@keyframes link-in {
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+.mobile-nav-item {
+	opacity: 0;
+	transform: translateX(10px);
+	animation: link-in 0.4s ease-out forwards;
+}
+
+/* DELAYE */
+.delay-75 {
+	animation-delay: 75ms;
+}
+.delay-100 {
+	animation-delay: 100ms;
+}
+.delay-150 {
+	animation-delay: 150ms;
+}
+.delay-200 {
+	animation-delay: 200ms;
+}
+
+/* ===============================
+   NAV LINK – STYL + HOVER
+================================ */
+.mobile-nav-link {
+	position: relative;
+	text-align: left;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #374151;
+	padding-left: 1rem;
+	background: none;
+	border: none;
+	cursor: pointer;
+	
+	transition: transform 0.2s ease;
+}
+
+.mobile-nav-link::before {
+	transform: translateY(-50%);
+	transition: transform 0.2s ease;
+}
+
+/* 🔥 HOVER */
+.mobile-nav-link:hover {
+	transform: translateX(6px);
+	color: #5fab18;
+}
+
+.mobile-nav-link:hover::before {
+	transform: translateY(-50%) scale(1.4);
+}
+
+.hero-clip {
+	clip-path: polygon(12% 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+

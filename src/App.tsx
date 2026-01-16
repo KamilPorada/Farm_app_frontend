@@ -1,7 +1,7 @@
 import { BrowserRouter } from 'react-router'
 import { Routes, Route } from 'react-router'
 
-import LandingPage from './components/pages/LandingPage.tsx'
+import LandingPage from './pages/LandingPage.tsx'
 import Navbar from './components/navigation/Navbar.tsx'
 
 function App() {
