@@ -2,12 +2,13 @@ import React from 'react'
 
 type ButtonProps = {
 	className?: string
+	href?: string
 	onClick?: () => void
 	disabled?: boolean
 	children: React.ReactNode
 }
 
-const Button: React.FC<ButtonProps> = ({ className = '', onClick, disabled = false, children }) => {
+const Button: React.FC<ButtonProps> = ({ className = '', href, onClick, disabled = false, children }) => {
 	const baseClasses = `
 		relative overflow-hidden
 		bg-mainColor text-white
@@ -53,6 +54,14 @@ const Button: React.FC<ButtonProps> = ({ className = '', onClick, disabled = fal
 		${disabled ? disabledClasses : ''}
 		${className}
 	`
+
+	if (href) {
+		return (
+			<a href={href} className={finalClassName}>
+				{children}
+			</a>
+		)
+	}
 
 	return (
 		<button className={finalClassName} onClick={onClick} disabled={disabled}>

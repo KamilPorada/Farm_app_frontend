@@ -5,11 +5,12 @@ import { faBrain, faChartLine, faCoins } from '@fortawesome/free-solid-svg-icons
 
 import Button from '../../ui/Button'
 
-import heroImg1 from '../../../assets/img/hero-img2.png'
-import heroImg2 from '../../../assets/img/hero-img5.png'
-import heroImg3 from '../../../assets/img/hero-img8.png'
+import heroImg1 from '../../../assets/img/hero-img-1.png'
+import heroImg2 from '../../../assets/img/hero-img-2.png'
+import heroImg3 from '../../../assets/img/hero-img-3.png'
+import heroImg4 from '../../../assets/img/hero-img-4.png'
 
-const heroImages = [heroImg1, heroImg2, heroImg3, heroImg2]
+const heroImages = [heroImg1, heroImg2, heroImg3, heroImg4]
 
 function HeroSection() {
 	const [currentImage, setCurrentImage] = useState(0)
@@ -77,7 +78,7 @@ function HeroSection() {
 							{/* KRESKA 1 */}
 							<div
 								className={`
-					w-12 transition-all duration-100 rounded-3xl
+					w-12 mb-12 transition-all duration-100 rounded-3xl
 					${activeIndex === 1 ? 'h-0.5 bg-mainColor' : 'h-px bg-gray-300'}
 				`}
 							/>
@@ -103,7 +104,7 @@ function HeroSection() {
 							{/* KRESKA 2 */}
 							<div
 								className={`
-					w-12 transition-all duration-100 rounded-3xl
+					w-12 mb-12 transition-all duration-100 rounded-3xl
 					${activeIndex === 3 ? 'h-0.5 bg-mainColor' : 'h-px bg-gray-300'}
 				`}
 							/>
@@ -128,14 +129,14 @@ function HeroSection() {
 						</div>
 
 						<div className='mt-10 text-center'>
-							<Button>Dowiedz się więcej</Button>
+							<Button href='#mission'>Dowiedz się więcej</Button>
 						</div>
 					</div>
 				</div>
 				<div className='hidden lg:block'>
 					{/* PRAWA STRONA – FULL BLEED IMAGE */}
 					{heroImages.map((img, index) => {
-						const positionClass = index === 0 || index === 2 ? 'bg-[center_20%]' : 'bg-[right_30%]'
+						const positionClass = index === 0 || index === 2 ? 'bg-[center_20%]' : 'bg-[right_50%]'
 
 						return (
 							<div

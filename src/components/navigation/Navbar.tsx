@@ -1,5 +1,5 @@
 import React from 'react'
-import logo from '../../assets/img/logoo.png'
+import logo from '../../assets/img/logo.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons'
 import Button from '../ui/Button'
@@ -39,19 +39,19 @@ function SideMenu({ onClose }: { onClose: () => void }) {
 				{/* NAV LINKI */}
 				<div className='flex flex-col gap-6 px-6 mt-10'>
 					<div className='mobile-nav-item delay-75'>
-						<button className='mobile-nav-link'>O nas</button>
+						<a className='mobile-nav-link' href='#mission'>Misja</a>
 					</div>
 
 					<div className='mobile-nav-item delay-100'>
-						<button className='mobile-nav-link'>Funkcje</button>
+						<a className='mobile-nav-link' href='#history'>Historia regionu</a>
 					</div>
 
 					<div className='mobile-nav-item delay-150'>
-						<button className='mobile-nav-link'>Dane</button>
+						<a className='mobile-nav-link'>Dane</a>
 					</div>
 
 					<div className='mobile-nav-item delay-200'>
-						<button className='mobile-nav-link'>Kontakt</button>
+						<a className='mobile-nav-link'>Kontakt</a>
 					</div>
 				</div>
 
@@ -87,10 +87,10 @@ function Navbar() {
 
 						{/* MENU DESKTOP – lg+ */}
 						<div className='hidden lg:flex'>
-							<button className='nav-link border-r border-r-gray-200'>O nas</button>
-							<button className='nav-link border-r border-r-gray-200'>Funkcje</button>
-							<button className='nav-link border-r border-r-gray-200'>Dane</button>
-							<button className='nav-link'>Kontakt</button>
+							<a className='nav-link border-r border-r-gray-200' href='#mission'>Misja</a>
+							<a className='nav-link border-r border-r-gray-200' href='#history'>Historia regionu</a>
+							<a className='nav-link border-r border-r-gray-200'>Dane</a>
+							<a className='nav-link'>Kontakt</a>
 						</div>
 					</div>
 
