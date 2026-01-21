@@ -129,7 +129,7 @@ function HeroSection() {
 						</div>
 
 						<div className='mt-10 text-center'>
-							<Button href='#mission'>Dowiedz się więcej</Button>
+							<Button href='#aboutRegion'>Dowiedz się więcej</Button>
 						</div>
 					</div>
 				</div>

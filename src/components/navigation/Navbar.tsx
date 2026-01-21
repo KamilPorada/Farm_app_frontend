@@ -39,11 +39,11 @@ function SideMenu({ onClose }: { onClose: () => void }) {
 				{/* NAV LINKI */}
 				<div className='flex flex-col gap-6 px-6 mt-10'>
 					<div className='mobile-nav-item delay-75'>
-						<a className='mobile-nav-link' href='#mission'>Misja</a>
+						<a className='mobile-nav-link' href='#aboutRegion'>Misja</a>
 					</div>
 
 					<div className='mobile-nav-item delay-100'>
-						<a className='mobile-nav-link' href='#history'>Historia regionu</a>
+						<a className='mobile-nav-link' href='#timeline'>Historia regionu</a>
 					</div>
 
 					<div className='mobile-nav-item delay-150'>
@@ -87,8 +87,8 @@ function Navbar() {
 
 						{/* MENU DESKTOP – lg+ */}
 						<div className='hidden lg:flex'>
-							<a className='nav-link border-r border-r-gray-200' href='#mission'>Misja</a>
-							<a className='nav-link border-r border-r-gray-200' href='#history'>Historia regionu</a>
+							<a className='nav-link border-r border-r-gray-200' href='#aboutRegion'>Misja</a>
+							<a className='nav-link border-r border-r-gray-200' href='#timeline'>Historia regionu</a>
 							<a className='nav-link border-r border-r-gray-200'>Dane</a>
 							<a className='nav-link'>Kontakt</a>
 						</div>

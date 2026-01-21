@@ -1,13 +1,15 @@
 import React from 'react'
 import HeroSection from '../components/layouts/Home/HeroSection'
-import PepperRegionSection from '../components/layouts/Home/PepperRegionSection'
+import AboutRegionSection from '../components/layouts/Home/AboutRegionSection'
+import TimeLineSecton from '../components/layouts/Home/TimeLineSecton'
 
 function LandingPage() {
 	return (
 		<>
 			<main >
 				<HeroSection />
-        <PepperRegionSection/>
+        <AboutRegionSection/>
+        <TimeLineSecton/>
 			</main>
 		</>
 	)
