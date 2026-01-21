@@ -9,7 +9,6 @@ import {
 	faDroplet,
 	faStickyNote,
 	faStore,
-	faCircleInfo,
 } from '@fortawesome/free-solid-svg-icons'
 
 import logoImage from '../../../assets/img/logotype.png'
@@ -91,7 +90,7 @@ function PlatformToolsSection() {
 	const radius = 210
 
 	return (
-		<section className='w-full bg-white py-25'>
+		<section className='w-full bg-white py-25' id='tools'>
 			<div className='container'>
 				{/* HEADER */}
 				<div className='text-center max-w-2xl mx-auto'>

@@ -47,7 +47,7 @@ function SideMenu({ onClose }: { onClose: () => void }) {
 					</div>
 
 					<div className='mobile-nav-item delay-150'>
-						<a className='mobile-nav-link'>Dane</a>
+						<a className='mobile-nav-link' href='#tools'>Narzędzia</a>
 					</div>
 
 					<div className='mobile-nav-item delay-200'>
@@ -89,7 +89,7 @@ function Navbar() {
 						<div className='hidden lg:flex'>
 							<a className='nav-link border-r border-r-gray-200' href='#aboutRegion'>Misja</a>
 							<a className='nav-link border-r border-r-gray-200' href='#timeline'>Historia regionu</a>
-							<a className='nav-link border-r border-r-gray-200'>Dane</a>
+							<a className='nav-link border-r border-r-gray-200' href='#tools'>Narzędzia</a>
 							<a className='nav-link'>Kontakt</a>
 						</div>
 					</div>
