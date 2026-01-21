@@ -23,7 +23,7 @@ function TimeLineSecton() {
 	}, [])
 
 	return (
-		<section className="relative mt-24 w-full overflow-hidden" id="timeline">
+		<section className="relative mt-10 w-full overflow-hidden" id="timeline">
 			{/* TŁO */}
 			<div
 				className="absolute inset-0 bg-center bg-cover"
