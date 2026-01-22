@@ -3,6 +3,7 @@ import logo from '../../assets/img/logo.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons'
 import Button from '../ui/Button'
+import Brand from '../ui/Brand'
 
 /* ===== MENU BOCZNE ===== */
 function SideMenu({ onClose }: { onClose: () => void }) {
@@ -26,8 +27,7 @@ function SideMenu({ onClose }: { onClose: () => void }) {
 
 				{/* HEADER */}
 				<div className='flex justify-between items-center p-5 border-b border-gray-200'>
-					<img src={logo} alt='Logo' className='h-14 md:h-15 w-auto cursor-pointer' />
-
+					<Brand />
 					<button onClick={onClose}>
 						<FontAwesomeIcon
 							icon={faXmark}
@@ -39,19 +39,27 @@ function SideMenu({ onClose }: { onClose: () => void }) {
 				{/* NAV LINKI */}
 				<div className='flex flex-col gap-6 px-6 mt-10'>
 					<div className='mobile-nav-item delay-75'>
-						<a className='mobile-nav-link' href='#aboutRegion'>Misja</a>
+						<a className='mobile-nav-link' href='#aboutRegion' onClick={onClose}>
+							Misja
+						</a>
 					</div>
 
 					<div className='mobile-nav-item delay-100'>
-						<a className='mobile-nav-link' href='#timeline'>Historia regionu</a>
+						<a className='mobile-nav-link' href='#timeline' onClick={onClose}>
+							Historia regionu
+						</a>
 					</div>
 
 					<div className='mobile-nav-item delay-150'>
-						<a className='mobile-nav-link' href='#tools'>Narzędzia</a>
+						<a className='mobile-nav-link' href='#tools' onClick={onClose}>
+							Narzędzia
+						</a>
 					</div>
 
 					<div className='mobile-nav-item delay-200'>
-						<a className='mobile-nav-link' href='#keyFeatures'>Cechy</a>
+						<a className='mobile-nav-link' href='#keyFeatures' onClick={onClose}>
+							Cechy
+						</a>
 					</div>
 				</div>
 
@@ -77,8 +85,7 @@ function Navbar() {
 					<div className='flex flex-1 items-center justify-between h-20 navigation-shadow bg-white px-4'>
 						{/* LOGO + HAMBURGER (MOBILE) */}
 						<div className='flex items-center justify-around gap-4 w-full sm:w-auto'>
-							<img src={logo} alt='Logo' className='h-14 md:h-15 w-auto cursor-pointer' />
-
+							<Brand />
 							{/* HAMBURGER – < sm */}
 							<button onClick={() => setMenuOpen(true)} className='sm:hidden'>
 								<FontAwesomeIcon icon={faBars} className='text-2xl text-gray-800 hover:cursor-pointer' />
@@ -87,10 +94,18 @@ function Navbar() {
 
 						{/* MENU DESKTOP – lg+ */}
 						<div className='hidden lg:flex'>
-							<a className='nav-link border-r border-r-gray-200' href='#aboutRegion'>Misja</a>
-							<a className='nav-link border-r border-r-gray-200' href='#timeline'>Historia regionu</a>
-							<a className='nav-link border-r border-r-gray-200' href='#tools'>Narzędzia</a>
-							<a className='nav-link' href='#keyFeatures'>Cechy</a>
+							<a className='nav-link border-r border-r-gray-200' href='#aboutRegion'>
+								Misja
+							</a>
+							<a className='nav-link border-r border-r-gray-200' href='#timeline'>
+								Historia regionu
+							</a>
+							<a className='nav-link border-r border-r-gray-200' href='#tools'>
+								Narzędzia
+							</a>
+							<a className='nav-link' href='#keyFeatures'>
+								Cechy
+							</a>
 						</div>
 					</div>
 

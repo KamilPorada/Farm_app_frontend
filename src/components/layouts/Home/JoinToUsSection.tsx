@@ -5,15 +5,15 @@ import farmersImg from '../../../assets/img/hero-farmers.png'
 
 function JoinToUsSection() {
 	return (
-		<section className="w-full bg-white pt-5">
+		<section className="w-full bg-white pt-10 md:pt-20">
 			<div className="w-full bg-mainColor">
 				<div
 					className="
 						container
 						flex flex-col md:flex-col lg:flex-row
 						items-center justify-center
-						gap-10 lg:gap-16
-						py-16
+						gap-10 lg:gap-25
+						py-16 md:py-0
 					"
 				>
 					{/* OBRAZ */}
@@ -24,7 +24,7 @@ function JoinToUsSection() {
 							rounded-xl overflow-hidden
 							shadow-[0_30px_60px_rgba(0,0,0,0.15)]
 							bg-gray-100
-							lg:scale-110
+							lg:scale-120
 						"
 					>
 						<img

@@ -46,7 +46,7 @@ function HeroSection() {
 				<div className='w-full bg-white flex items-center container mt-15'>
 					<div className='w-full lg:w-2/5'>
 						<h2 className=' text-center text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 '>
-							Asystent danych <br />
+							Asystent producenta <br />
 							<span className='text-mainColor'>od pierwszych decyzji aż po zbiory</span>
 						</h2>
 

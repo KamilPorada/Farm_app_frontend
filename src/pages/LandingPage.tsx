@@ -6,18 +6,20 @@ import PlatformToolsSection from '../components/layouts/Home/PlatformToolsSectio
 import HeroSeedling from '../components/layouts/Home/HeroSeedling'
 import KeyFeatures from '../components/layouts/Home/KeyFeatures'
 import JoinToUsSection from '../components/layouts/Home/JoinToUsSection'
+import Footer from '../components/layouts/Home/Footer'
 
 function LandingPage() {
 	return (
 		<>
-			<main >
+			<main>
 				<HeroSection />
-        <AboutRegionSection/>
-        <TimeLineSecton/>
-        <PlatformToolsSection/>
-        <HeroSeedling/>
-        <KeyFeatures/>
-        <JoinToUsSection/>
+				<AboutRegionSection />
+				<TimeLineSecton />
+				<PlatformToolsSection />
+				<HeroSeedling />
+				<KeyFeatures />
+				<JoinToUsSection />
+				<Footer/>
 			</main>
 		</>
 	)

@@ -171,13 +171,14 @@
 .mobile-nav-link {
 	position: relative;
 	text-align: left;
-	font-size: 1.125rem;
+	font-size: 1.1rem;
 	font-weight: 600;
 	color: #374151;
 	padding-left: 1rem;
 	background: none;
 	border: none;
 	cursor: pointer;
+	text-transform: uppercase;
 
 	transition: transform 0.2s ease;
 }
