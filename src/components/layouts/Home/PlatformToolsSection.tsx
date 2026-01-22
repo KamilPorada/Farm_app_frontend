@@ -72,6 +72,32 @@ const tools = [
 	},
 ]
 
+function useResponsiveRadius() {
+	const [radius, setRadius] = useState(220)
+
+	useEffect(() => {
+		const updateRadius = () => {
+			const width = window.innerWidth
+
+			if (width < 640) {
+				setRadius(140) // mobile
+			} else if (width < 768) {
+				setRadius(170) // sm
+			} else if (width < 1024) {
+				setRadius(200) // md
+			} else {
+				setRadius(220) // lg+
+			}
+		}
+
+		updateRadius()
+		window.addEventListener('resize', updateRadius)
+		return () => window.removeEventListener('resize', updateRadius)
+	}, [])
+
+	return radius
+}
+
 function PlatformToolsSection() {
 	const [activeIndex, setActiveIndex] = useState(0)
 	const [isHovering, setIsHovering] = useState(false)
@@ -87,10 +113,10 @@ function PlatformToolsSection() {
 	}, [isHovering])
 
 	const activeTool = tools[activeIndex]
-	const radius = 210
+	const radius = useResponsiveRadius()
 
 	return (
-		<section className='w-full bg-white py-25' id='tools'>
+		<section className='w-full bg-white py-10 lg:py-30' id='tools'>
 			<div className='container'>
 				{/* HEADER */}
 				<div className='text-center max-w-2xl mx-auto'>
@@ -103,9 +129,9 @@ function PlatformToolsSection() {
 				</div>
 
 				{/* CONTENT */}
-				<div className='mt-10 flex flex-col md:flex-row-reverse gap-16 items-center'>
+				<div className='lg:mt-10 flex flex-col lg:flex-row-reverse sm:gap-16 items-center'>
 					{/* KOŁO – 1/2 */}
-					<div className='relative w-full md:w-1/2 h-130 flex items-center justify-center'>
+					<div className='relative w-5 sm:w-1/2 h-130 flex items-center justify-center'>
 						{/* PIERŚCIEŃ */}
 						<div
 							className='absolute rounded-full border border-gray-300'
@@ -113,8 +139,8 @@ function PlatformToolsSection() {
 						/>
 
 						{/* LOGO */}
-						<div className='absolute z-10 w-40 h-40 rounded-full bg-white shadow-lg flex items-center justify-center'>
-							<img src={logoImage} alt='Logo' className='w-24 h-24' />
+						<div className='absolute z-10 w-30 h-30 md:w-40 md:h-40 rounded-full bg-white shadow-lg flex items-center justify-center'>
+							<img src={logoImage} alt='Logo' className='w-18 h-18 md:w-24 md:h-24' />
 						</div>
 
 						{/* IKONY */}
@@ -141,13 +167,13 @@ function PlatformToolsSection() {
 										<div
 											onMouseEnter={() => setActiveIndex(index)}
 											className={`
-												w-20 h-20 rounded-full flex items-center justify-center
+												w-12 h-12 md:w-20 md:h-20 rounded-full flex items-center justify-center
 												transition-all duration-500 cursor-pointer
 												${isActive ? 'bg-mainColor scale-125 shadow-xl' : 'bg-white scale-100 shadow-md hover:scale-110'}
 											`}>
 											<FontAwesomeIcon
 												icon={tool.icon}
-												className={`text-2xl ${isActive ? 'text-white' : 'text-gray-800'}`}
+												className={`text-xl md:text-2xl ${isActive ? 'text-white' : 'text-gray-800'}`}
 											/>
 										</div>
 									</div>

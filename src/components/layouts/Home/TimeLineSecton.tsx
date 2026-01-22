@@ -29,7 +29,7 @@ function TimeLineSecton() {
 				className="absolute inset-0 bg-center bg-cover"
 				style={{ backgroundImage: `url(${timeLineBg})` }}
 			/>
-			<div className="absolute inset-0 bg-white/75" />
+			<div className="absolute inset-0 bg-white/65" />
 
 			{/* ================= DESKTOP (md+) ================= */}
 			<div className="relative container py-24 hidden md:block">

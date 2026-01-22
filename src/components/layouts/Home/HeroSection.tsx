@@ -56,7 +56,7 @@ function HeroSection() {
 						</p>
 
 						{/* PRAWA STRONA – IKONY ETAPÓW */}
-						<div className='flex items-center gap-10'>
+						<div className='flex items-center justify-center gap-10'>
 							{/* KROPKA 1  */}
 							<div className='flex flex-col items-center text-center'>
 								<div
@@ -77,7 +77,7 @@ function HeroSection() {
 
 							{/* KRESKA 1 */}
 							<div
-								className={`
+								className={`hidden sm:block
 					w-12 mb-12 transition-all duration-100 rounded-3xl
 					${activeIndex === 1 ? 'h-0.5 bg-mainColor' : 'h-px bg-gray-300'}
 				`}
@@ -103,7 +103,7 @@ function HeroSection() {
 
 							{/* KRESKA 2 */}
 							<div
-								className={`
+								className={`hidden sm:block
 					w-12 mb-12 transition-all duration-100 rounded-3xl
 					${activeIndex === 3 ? 'h-0.5 bg-mainColor' : 'h-px bg-gray-300'}
 				`}

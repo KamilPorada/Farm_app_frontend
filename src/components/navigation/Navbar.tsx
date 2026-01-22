@@ -51,7 +51,7 @@ function SideMenu({ onClose }: { onClose: () => void }) {
 					</div>
 
 					<div className='mobile-nav-item delay-200'>
-						<a className='mobile-nav-link'>Kontakt</a>
+						<a className='mobile-nav-link' href='#keyFeatures'>Cechy</a>
 					</div>
 				</div>
 
@@ -90,7 +90,7 @@ function Navbar() {
 							<a className='nav-link border-r border-r-gray-200' href='#aboutRegion'>Misja</a>
 							<a className='nav-link border-r border-r-gray-200' href='#timeline'>Historia regionu</a>
 							<a className='nav-link border-r border-r-gray-200' href='#tools'>Narzędzia</a>
-							<a className='nav-link'>Kontakt</a>
+							<a className='nav-link' href='#keyFeatures'>Cechy</a>
 						</div>
 					</div>
 
