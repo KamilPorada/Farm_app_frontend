@@ -1,9 +1,9 @@
 import React from 'react'
-import logo from '../../assets/img/logo.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons'
 import Button from '../ui/Button'
 import Brand from '../ui/Brand'
+import { useKindeAuth } from '@kinde-oss/kinde-auth-react'
 
 /* ===== MENU BOCZNE ===== */
 function SideMenu({ onClose }: { onClose: () => void }) {
@@ -74,6 +74,8 @@ function SideMenu({ onClose }: { onClose: () => void }) {
 
 /* ===== NAVBAR ===== */
 function Navbar() {
+	const { login, logout, isAuthenticated, user } = useKindeAuth()
+
 	const [menuOpen, setMenuOpen] = React.useState(false)
 
 	return (
@@ -131,7 +133,7 @@ function Navbar() {
           before:top-1
           before:[transform:skewX(0deg)_skewY(-45deg)]
         ">
-						<Button>Zaloguj się</Button>
+						<Button onClick={login}>Zaloguj się</Button>
 
 						{/* HAMBURGER – sm → lg */}
 						<button onClick={() => setMenuOpen(true)} className='sm:flex lg:hidden'>
