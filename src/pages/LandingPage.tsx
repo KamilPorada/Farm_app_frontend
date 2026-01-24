@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { useKindeAuth } from '@kinde-oss/kinde-auth-react'
 
 import Navbar from '../components/navigation/Navbar'
-import HeroSection from '../components/layouts/Home/HeroSection'
-import AboutRegionSection from '../components/layouts/Home/AboutRegionSection'
-import TimeLineSecton from '../components/layouts/Home/TimeLineSecton'
-import PlatformToolsSection from '../components/layouts/Home/PlatformToolsSection'
-import HeroSeedling from '../components/layouts/Home/HeroSeedling'
-import KeyFeatures from '../components/layouts/Home/KeyFeatures'
-import JoinToUsSection from '../components/layouts/Home/JoinToUsSection'
-import Footer from '../components/layouts/Home/Footer'
+import HeroSection from '../components/Home/HeroSection'
+import AboutRegionSection from '../components/Home/AboutRegionSection'
+import TimeLineSecton from '../components/Home/TimeLineSecton'
+import PlatformToolsSection from '../components/Home/PlatformToolsSection'
+import HeroSeedling from '../components/Home/HeroSeedling'
+import KeyFeatures from '../components/Home/KeyFeatures'
+import JoinToUsSection from '../components/Home/JoinToUsSection'
+import Footer from '../components/Home/Footer'
 
 function LandingPage() {
 	const { isAuthenticated, isLoading } = useKindeAuth()
@@ -18,7 +18,9 @@ function LandingPage() {
 
 	useEffect(() => {
 		if (!isLoading && isAuthenticated) {
-			navigate('/dashboard')
+			console.log('auth:', isAuthenticated, 'loading:', isLoading)
+
+			navigate('/app')
 		}
 	}, [isAuthenticated, isLoading, navigate])
 

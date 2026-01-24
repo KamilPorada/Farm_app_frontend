@@ -1,26 +1,32 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import ProtectedRoute from './routes/ProtectedRoute'
+import AppLayout from './components/layouts/AppLayout'
 
 import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
-import Navbar from './components/navigation/Navbar'
-import ProtectedRoute from './routes/ProtectedRoute'
+import TradeOfPepper from './pages/TradeOfPepper'
+import { SidebarProvider } from './context/SidebarContext'
 
 function App() {
 	return (
-		<BrowserRouter>
-			<Navbar />
-			<Routes>
-				<Route path='/' element={<LandingPage />} />
-				<Route
-					path='/dashboard'
-					element={
-						<ProtectedRoute>
-							<Dashboard />
-						</ProtectedRoute>
-					}
-				/>
-			</Routes>
-		</BrowserRouter>
+		<SidebarProvider>
+			<BrowserRouter>
+				<Routes>
+					<Route path='/' element={<LandingPage />} />
+
+					<Route
+						path='/app'
+						element={
+							<ProtectedRoute>
+								<AppLayout />
+							</ProtectedRoute>
+						}>
+						<Route index element={<Dashboard />} />
+						<Route path='trade' element={<TradeOfPepper />} />
+					</Route>
+				</Routes>
+			</BrowserRouter>
+		</SidebarProvider>
 	)
 }
 

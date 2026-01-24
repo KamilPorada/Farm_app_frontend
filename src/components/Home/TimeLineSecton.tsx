@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import timeLineBg from '../../../assets/img/hero-img-timeline.png'
+import timeLineBg from '../../assets/img/hero-img-timeline.png'
 
 function TimeLineSecton() {
 	const timelineData = [

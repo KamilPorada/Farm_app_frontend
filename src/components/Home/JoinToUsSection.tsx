@@ -1,7 +1,7 @@
 import React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUsers } from '@fortawesome/free-solid-svg-icons'
-import farmersImg from '../../../assets/img/hero-farmers.png'
+import farmersImg from '../../assets/img/hero-farmers.png'
 
 function JoinToUsSection() {
 	return (

@@ -5,6 +5,7 @@ import Button from '../ui/Button'
 import Brand from '../ui/Brand'
 import { useKindeAuth } from '@kinde-oss/kinde-auth-react'
 
+
 /* ===== MENU BOCZNE ===== */
 function SideMenu({ onClose }: { onClose: () => void }) {
 	return (

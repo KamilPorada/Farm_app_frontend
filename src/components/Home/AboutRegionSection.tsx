@@ -1,4 +1,4 @@
-import mapImage from '../../../assets/img/map-pepper.png'
+import mapImage from '../../assets/img/map-pepper.png'
 function PepperDataRegionSection() {
 	return (
 		<section

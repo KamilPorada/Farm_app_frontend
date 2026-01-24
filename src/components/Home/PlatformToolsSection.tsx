@@ -11,7 +11,7 @@ import {
 	faStore,
 } from '@fortawesome/free-solid-svg-icons'
 
-import logoImage from '../../../assets/img/logotype.png'
+import logoImage from '../../assets/img/logotype.png'
 
 const tools = [
 	{

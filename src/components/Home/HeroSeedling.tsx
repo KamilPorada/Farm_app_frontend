@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import heroSeedlingSmall from '../../../assets/img/seedling-small.jpg'
-import heroSeedlingBig from '../../../assets/img/seedling-big.jpg'
+import heroSeedlingSmall from '../../assets/img/seedling-small.jpg'
+import heroSeedlingBig from '../../assets/img/seedling-big.jpg'
 
 const steps = ['Sprzedaż', 'Wydatki', 'Zbiory', 'Analiza', 'Zabiegi']
 

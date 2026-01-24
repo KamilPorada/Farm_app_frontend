@@ -3,12 +3,12 @@ import { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBrain, faChartLine, faCoins } from '@fortawesome/free-solid-svg-icons'
 
-import Button from '../../ui/Button'
+import Button from '../ui/Button'
 
-import heroImg1 from '../../../assets/img/hero-img-1.png'
-import heroImg2 from '../../../assets/img/hero-img-2.png'
-import heroImg3 from '../../../assets/img/hero-img-3.png'
-import heroImg4 from '../../../assets/img/hero-img-4.png'
+import heroImg1 from '../../assets/img/hero-img-1.png'
+import heroImg2 from '../../assets/img/hero-img-2.png'
+import heroImg3 from '../../assets/img/hero-img-3.png'
+import heroImg4 from '../../assets/img/hero-img-4.png'
 
 const heroImages = [heroImg1, heroImg2, heroImg3, heroImg4]
 

@@ -1,5 +1,5 @@
 'use client'
-import Brand from '../../ui/Brand'
+import Brand from '../ui/Brand'
 
 const Footer = () => {
 	return (
