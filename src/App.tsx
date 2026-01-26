@@ -5,6 +5,7 @@ import AppLayout from './components/layouts/AppLayout'
 import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
 import TradeOfPepper from './pages/TradeOfPepper'
+import SettingsPage from './pages/SettingsPage'
 import { SidebarProvider } from './context/SidebarContext'
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
 						}>
 						<Route index element={<Dashboard />} />
 						<Route path='trade' element={<TradeOfPepper />} />
+						<Route path='settings' element={<SettingsPage />} />
 					</Route>
 				</Routes>
 			</BrowserRouter>

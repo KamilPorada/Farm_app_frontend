@@ -11,7 +11,7 @@ type SidebarContextType = {
 const SidebarContext = createContext<SidebarContextType | null>(null)
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
-	const [isOpen, setIsOpen] = useState(false)
+	const [isOpen, setIsOpen] = useState(true)
 
 	const value: SidebarContextType = {
 		isOpen,

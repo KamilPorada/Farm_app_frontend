@@ -79,7 +79,7 @@ function Dashboard() {
 	}
 
 	return (
-		<div className='flex flex-col min-h-screen items-center justify-center bg-gray-50'>
+		<div className='flex flex-col min-h-screen items-center justify-center'>
 			<div className='w-full max-w-2xl rounded-xl border border-gray-200 bg-white p-6 shadow-sm'>
 				<h2 className='mb-6 text-2xl font-bold text-gray-800'>👤 Dashboard</h2>
 
@@ -88,7 +88,7 @@ function Dashboard() {
 					<h3 className='mb-4 text-lg font-semibold text-gray-700'>Dane autoryzacyjne (Kinde)</h3>
 
 					<div className='space-y-4'>
-						<UserRow label='ID (Kinde)' value={user?.id} />
+						<UserRow label='ID (Kinde)' value={user?.externalId} />
 						<UserRow label='Email' value={user?.email} />
 						<UserRow label='Imię' value={user?.firstName} />
 						<UserRow label='Nazwisko' value={user?.lastName} />
