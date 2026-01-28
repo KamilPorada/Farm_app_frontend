@@ -261,11 +261,13 @@ export default function FarmSection({
 														setNewYear(t.year)
 														setNewCount(t.count)
 													}}
-													className='p-1 text-gray-400 hover:text-mainColor'>
+													className='p-1 text-gray-400 hover:text-mainColor hover:cursor-pointer'>
 													<FontAwesomeIcon icon={faPen} />
 												</button>
 
-												<button onClick={() => handleDelete(t.year)} className='p-1 text-gray-400 hover:text-red-600'>
+												<button
+													onClick={() => handleDelete(t.year)}
+													className='p-1 text-gray-400 hover:text-red-600 hover:cursor-pointer'>
 													<FontAwesomeIcon icon={faTrash} />
 												</button>
 											</div>

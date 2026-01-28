@@ -21,8 +21,18 @@ type FarmerDetailsDto = {
 	crops: string | null
 }
 
+type AppSettingsForm = {
+	language: string
+	weightUnit: string
+	currency: string
+	dateFormat: string
+	useThousandsSeparator: boolean
+	boxWeightKg: string
+	notificationsEnabled: boolean
+}
+
 function SettingsPage() {
-	const { user, getToken, isLoading } = useAuthUser()
+	const { user, getToken, isLoading, logout } = useAuthUser()
 
 	const [tunnels, setTunnels] = useState<TunnelYear[]>([])
 	const [cropInput, setCropInput] = useState('')
@@ -39,6 +49,18 @@ function SettingsPage() {
 		farmAreaHa: '',
 		settlementType: '',
 	})
+
+	const [appSettings, setAppSettings] = useState<AppSettingsForm>({
+		language: 'pl',
+		weightUnit: 'kg',
+		currency: 'PLN',
+		dateFormat: 'DD-MM-YYYY',
+		useThousandsSeparator: true,
+		boxWeightKg: '',
+		notificationsEnabled: true,
+	})
+
+	const [appSettingsExist, setAppSettingsExist] = useState(false)
 
 	const handleSaveFarmDetails = async () => {
 		try {
@@ -107,6 +129,57 @@ function SettingsPage() {
 	const handleSaveAll = async () => {
 		await handleSaveFarmDetails()
 		await handleSaveTunnels()
+	}
+
+	const handleSaveAppSettings = async () => {
+		const token = await getToken()
+		if (!token || !user) return
+
+		const payload = {
+			farmerId: user.id,
+			language: appSettings.language,
+			weightUnit: appSettings.weightUnit,
+			currency: appSettings.currency,
+			dateFormat: appSettings.dateFormat,
+			useThousandsSeparator: appSettings.useThousandsSeparator,
+			boxWeightKg: appSettings.boxWeightKg ? Number(appSettings.boxWeightKg) : null,
+			notificationsEnabled: appSettings.notificationsEnabled,
+		}
+
+		const res = await fetch(`http://localhost:8080/api/app-settings${appSettingsExist ? `/${user.id}` : ''}`, {
+			method: appSettingsExist ? 'PUT' : 'POST',
+			headers: {
+				Authorization: `Bearer ${token}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(payload),
+		})
+
+		if (!res.ok) {
+			console.error('Błąd zapisu ustawień')
+			return
+		}
+
+		setAppSettingsExist(true)
+	}
+
+	const handleDeleteAccount = async () => {
+		const token = await getToken()
+		if (!token) return
+
+		const res = await fetch('http://localhost:8080/api/account', {
+			method: 'DELETE',
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		})
+
+		if (!res.ok) {
+			throw new Error('Delete account failed')
+		}
+
+		await logout()
+		window.location.href = '/'
 	}
 
 	useEffect(() => {
@@ -203,6 +276,56 @@ function SettingsPage() {
 		fetchTunnels()
 	}, [user?.id])
 
+	useEffect(() => {
+		if (!user?.id) return
+
+		const fetchAppSettings = async () => {
+			const token = await getToken()
+			if (!token || !user) return
+
+			const res = await fetch(`http://localhost:8080/api/app-settings/${user.id}`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			if (res.status === 404) {
+				// 🔥 pierwszy raz – ustaw defaulty
+				setAppSettings({
+					language: 'pl',
+					weightUnit: 'kg',
+					currency: 'PLN',
+					dateFormat: 'DD-MM-YYYY',
+					useThousandsSeparator: true,
+					boxWeightKg: '',
+					notificationsEnabled: true,
+				})
+				setAppSettingsExist(false)
+				return
+			}
+
+			if (!res.ok) {
+				console.error('Błąd pobierania ustawień')
+				return
+			}
+
+			const data = await res.json()
+			setAppSettings({
+				language: data.language,
+				weightUnit: data.weightUnit,
+				currency: data.currency,
+				dateFormat: data.dateFormat,
+				useThousandsSeparator: data.useThousandsSeparator,
+				boxWeightKg: data.boxWeightKg?.toString() ?? '',
+				notificationsEnabled: data.notificationsEnabled,
+			})
+
+			setAppSettingsExist(true)
+		}
+
+		fetchAppSettings()
+	}, [user?.id])
+
 	/* ===== BLOKADY RENDERU ===== */
 
 	if (isLoading || loadingDetails) {
@@ -232,8 +355,8 @@ function SettingsPage() {
 				onSave={handleSaveAll}
 			/>
 
-			<SystemSettingsSection />
-			<SecuritySection />
+			<SystemSettingsSection form={appSettings} setForm={setAppSettings} onSave={handleSaveAppSettings} />
+			<SecuritySection userEmail={user.email} onDeactivateAccount={handleDeleteAccount} />
 		</div>
 	)
 }

@@ -8,6 +8,8 @@ import { useKindeAuth } from '@kinde-oss/kinde-auth-react'
 
 /* ===== MENU BOCZNE ===== */
 function SideMenu({ onClose }: { onClose: () => void }) {
+	const { login} = useKindeAuth()
+
 	return (
 		<div className='fixed inset-0 z-50'>
 			{/* OVERLAY */}
@@ -66,7 +68,7 @@ function SideMenu({ onClose }: { onClose: () => void }) {
 
 				{/* CTA */}
 				<div className='mt-auto p-6 border-t border-gray-200'>
-					<Button className='w-full'>Zaloguj się</Button>
+					<Button onClick={login} className='w-full'>Zaloguj się</Button>
 				</div>
 			</div>
 		</div>
@@ -75,7 +77,7 @@ function SideMenu({ onClose }: { onClose: () => void }) {
 
 /* ===== NAVBAR ===== */
 function Navbar() {
-	const { login, logout, isAuthenticated, user } = useKindeAuth()
+	const { login} = useKindeAuth()
 
 	const [menuOpen, setMenuOpen] = React.useState(false)
 

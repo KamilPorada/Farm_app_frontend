@@ -2,8 +2,11 @@ import React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUsers } from '@fortawesome/free-solid-svg-icons'
 import farmersImg from '../../assets/img/hero-farmers.png'
+import { useKindeAuth } from '@kinde-oss/kinde-auth-react'
 
 function JoinToUsSection() {
+	const { login} = useKindeAuth()
+
 	return (
 		<section className="w-full bg-white pt-10 md:pt-20">
 			<div className="w-full bg-mainColor">
@@ -80,6 +83,7 @@ function JoinToUsSection() {
 								hover:-translate-y-1 hover:shadow-xl
 								cursor-pointer
 							"
+							onClick={()=>login()}
 						>
 							Załóż konto →
 						</button>

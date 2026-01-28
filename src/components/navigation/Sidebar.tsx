@@ -122,8 +122,8 @@ function Sidebar() {
 					<div className='relative'>
 						{/* AVATAR USERA */}
 						<div className='h-28 w-28 rounded-full border-2 border-white overflow-hidden flex items-center justify-center bg-white'>
-							{hasRealAvatar(user?.picture) ? (
-								<img src={user!.picture} alt='Avatar' className='h-full w-full object-cover' />
+							{hasRealAvatar(user?.picture ?? undefined) ? (
+								<img src={user!.picture!} alt='Avatar' className='h-full w-full object-cover' />
 							) : (
 								<span className='text-mainColor text-5xl font-bold select-none'>
 									{getInitials(user?.firstName, user?.lastName)}
@@ -191,13 +191,13 @@ function Sidebar() {
 				<div>
 					<NavLink
 						to='/app/settings'
-						className='flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm md:text-base hover:bg-white/10'>
+						className='flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm md:text-base hover:bg-white/10 hover:cursor-pointer'>
 						<FontAwesomeIcon icon={faGears} className='text-white' />
 						Ustawienia
 					</NavLink>
 					<button
 						onClick={() => logout()}
-						className='flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm md:text-base hover:bg-white/10'>
+						className='flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm md:text-base hover:bg-white/10 hover:cursor-pointer'>
 						<FontAwesomeIcon icon={faRightFromBracket} className='text-white' />
 						Wyloguj się
 					</button>
