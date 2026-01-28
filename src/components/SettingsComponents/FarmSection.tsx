@@ -55,6 +55,7 @@ export default function FarmSection({
 	const [newYear, setNewYear] = useState('')
 	const [newCount, setNewCount] = useState('')
 	const [error, setError] = useState<string | null>(null)
+	const [formError, setFormError] = useState<string | null>(null)
 
 	/* ===== UPRAWY ===== */
 
@@ -73,6 +74,41 @@ export default function FarmSection({
 		setNewYear('')
 		setNewCount('')
 		setError(null)
+	}
+
+	const validateForm = (): boolean => {
+		if (!form.voivodeship) {
+			setFormError('Wybierz województwo')
+			return false
+		}
+
+		if (!form.district.trim()) {
+			setFormError('Podaj powiat')
+			return false
+		}
+
+		if (!form.commune.trim()) {
+			setFormError('Podaj gminę')
+			return false
+		}
+
+		if (!form.locality.trim()) {
+			setFormError('Podaj miejscowość')
+			return false
+		}
+
+		if (!form.farmAreaHa || Number(form.farmAreaHa) <= 0) {
+			setFormError('Podaj poprawną powierzchnię gospodarstwa')
+			return false
+		}
+
+		if (!form.settlementType) {
+			setFormError('Wybierz formę rozliczenia')
+			return false
+		}
+
+		setFormError(null)
+		return true
 	}
 
 	const handleSave = () => {
@@ -200,49 +236,43 @@ export default function FarmSection({
 
 				{/* ===== LISTA ===== */}
 				{tunnels.length > 0 && (
-					<div className='mt-4 md:w-1/2 space-y-2'>
-						{[...tunnels]
-							.sort((a, b) => Number(a.year) - Number(b.year))
-							.map(t => (
-								<div key={t.year} className='flex items-center gap-4 rounded-md border bg-white px-4 py-2 text-sm'>
-									{/* ROK */}
-									<div className='flex-1'>
-										<p className='text-xs text-gray-500'>Rok</p>
-										<p className='font-medium text-gray-900'>{t.year}</p>
-									</div>
+					<div className='mt-4 md:w-1/2 '>
+						<div className='rounded-md border bg-white'>
+							{/* HEADER */}
+							<div className='flex text-xs font-bold text-white bg-mainColor px-3 py-2 '>
+								<div className='w-20 text-center'>Rok</div>
+								<div className='flex-1 text-center'>Tunele</div>
+								<div className='w-20 text-center'>Akcja</div>
+							</div>
 
-									{/* TUNELE */}
-									<div className='flex-1 text-right'>
-										<p className='text-xs text-gray-500'>Tunele</p>
-										<p className='font-medium text-gray-900'>{t.count}</p>
-									</div>
+							{/* BODY */}
+							<div className='max-h-60 overflow-y-auto divide-y'>
+								{[...tunnels]
+									.sort((a, b) => Number(a.year) - Number(b.year))
+									.map(t => (
+										<div key={t.year} className='flex items-center px-3 py-2 text-sm'>
+											<div className='w-20 font-medium  text-center'>{t.year}</div>
+											<div className='flex-1 text-center '>{t.count}</div>
+											<div className='w-20 flex justify-center gap-1'>
+												<button
+													onClick={() => {
+														setMode('edit')
+														setEditingYear(t.year)
+														setNewYear(t.year)
+														setNewCount(t.count)
+													}}
+													className='p-1 text-gray-400 hover:text-mainColor'>
+													<FontAwesomeIcon icon={faPen} />
+												</button>
 
-									{/* ACTIONS */}
-									<div className='flex items-center gap-1'>
-										<button
-											type='button'
-											onClick={() => {
-												setMode('edit')
-												setEditingYear(t.year)
-												setNewYear(t.year)
-												setNewCount(t.count)
-												setError(null)
-											}}
-											className='flex h-8 w-8 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-mainColor hover:cursor-pointer'
-											aria-label={`Edytuj rok ${t.year}`}>
-											<FontAwesomeIcon icon={faPen} />
-										</button>
-
-										<button
-											type='button'
-											onClick={() => handleDelete(t.year)}
-											className='flex h-8 w-8 items-center justify-center rounded-md text-gray-400 hover:bg-red-50 hover:text-red-600 hover:cursor-pointer'
-											aria-label={`Usuń rok ${t.year}`}>
-											<FontAwesomeIcon icon={faTrash} />
-										</button>
-									</div>
-								</div>
-							))}
+												<button onClick={() => handleDelete(t.year)} className='p-1 text-gray-400 hover:text-red-600'>
+													<FontAwesomeIcon icon={faTrash} />
+												</button>
+											</div>
+										</div>
+									))}
+							</div>
+						</div>
 					</div>
 				)}
 
@@ -364,7 +394,14 @@ export default function FarmSection({
 					</div>
 				)}
 			</div>
-			<Button className='mt-4' onClick={onSave}>
+			{formError && <p className='mt-3 text-sm text-red-600'>{formError}</p>}
+
+			<Button
+				className='mt-4'
+				onClick={() => {
+					if (!validateForm()) return
+					onSave()
+				}}>
 				Zapisz dane
 			</Button>
 		</section>

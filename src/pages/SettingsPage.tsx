@@ -77,6 +77,38 @@ function SettingsPage() {
 		}
 	}
 
+	const handleSaveTunnels = async () => {
+		const token = await getToken()
+		if (!token || !user) return
+
+		const payload = {
+			farmerId: user.id,
+			tunnels: tunnels.map(t => ({
+				year: Number(t.year),
+				count: Number(t.count),
+			})),
+		}
+
+		const res = await fetch('http://localhost:8080/api/farmer-tunnels/sync', {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${token}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(payload),
+		})
+
+		if (!res.ok) {
+			console.error('Błąd zapisu tuneli', await res.text())
+			return
+		}
+	}
+
+	const handleSaveAll = async () => {
+		await handleSaveFarmDetails()
+		await handleSaveTunnels()
+	}
+
 	useEffect(() => {
 		if (!user?.id) return
 
@@ -136,6 +168,41 @@ function SettingsPage() {
 		fetchDetails()
 	}, [user?.id])
 
+	useEffect(() => {
+		if (!user?.id) return
+
+		const fetchTunnels = async () => {
+			try {
+				const token = await getToken()
+				if (!token) return
+
+				const res = await fetch(`http://localhost:8080/api/farmer-tunnels/${user.id}`, {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				})
+
+				if (!res.ok) {
+					console.error('Błąd pobierania tuneli')
+					return
+				}
+
+				const data: { year: number; count: number }[] = await res.json()
+
+				setTunnels(
+					data.map(t => ({
+						year: String(t.year),
+						count: String(t.count),
+					}))
+				)
+			} catch (e) {
+				console.error('Błąd pobierania tuneli', e)
+			}
+		}
+
+		fetchTunnels()
+	}, [user?.id])
+
 	/* ===== BLOKADY RENDERU ===== */
 
 	if (isLoading || loadingDetails) {
@@ -162,7 +229,7 @@ function SettingsPage() {
 				setCrops={setCrops}
 				cropInput={cropInput}
 				setCropInput={setCropInput}
-				onSave={handleSaveFarmDetails}
+				onSave={handleSaveAll}
 			/>
 
 			<SystemSettingsSection />
