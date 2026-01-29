@@ -1,8 +1,11 @@
 import Button from '../components/ui/Button'
 import { useAuthUser } from '../hooks/useAuthUser'
+import { useMeData } from '../hooks/useMeData'
 
 function Dashboard() {
 	const { user, logout } = useAuthUser()
+	const data = useMeData()
+	console.log(data)
 
 	return (
 		<div className='flex flex-col min-h-screen items-center justify-center'>

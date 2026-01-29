@@ -4,6 +4,11 @@ import UserSection from '../components/SettingsComponents/UserSection'
 import FarmSection from '../components/SettingsComponents/FarmSection'
 import SystemSettingsSection from '../components/SettingsComponents/SystemSettingsSection'
 import SecuritySection from '../components/SettingsComponents/SecuritySection'
+import { notify } from '../utils/notify'
+import { useMeData } from '../hooks/useMeData'
+import {
+	MoonLoader,
+} from 'react-spinners'
 
 export type TunnelYear = {
 	year: string
@@ -33,12 +38,13 @@ type AppSettingsForm = {
 
 function SettingsPage() {
 	const { user, getToken, isLoading, logout } = useAuthUser()
+	const { appSettings: globalSettings } = useMeData()
+	const notificationsEnabled = globalSettings?.notificationsEnabled
 
 	const [tunnels, setTunnels] = useState<TunnelYear[]>([])
 	const [cropInput, setCropInput] = useState('')
 	const [crops, setCrops] = useState<string[]>([])
 
-	const [farmerDetails, setFarmerDetails] = useState<FarmerDetailsDto | null>(null)
 	const [detailsExist, setDetailsExist] = useState(false)
 	const [loadingDetails, setLoadingDetails] = useState(false)
 	const [form, setForm] = useState({
@@ -75,9 +81,8 @@ function SettingsPage() {
 				locality: form.locality || null,
 				farmAreaHa: form.farmAreaHa ? Number(form.farmAreaHa) : null,
 				settlementType: form.settlementType,
-				crops: crops.join(','), // 🔥 string do backendu
+				crops: crops.join(','),
 			}
-			console.log(payload)
 
 			const res = await fetch(`http://localhost:8080/api/farmer-details${detailsExist ? `/${user.id}` : ''}`, {
 				method: detailsExist ? 'PUT' : 'POST',
@@ -89,14 +94,11 @@ function SettingsPage() {
 			})
 
 			if (!res.ok) {
-				console.error(await res.text())
 				return
 			}
 
 			setDetailsExist(true)
-		} catch (e) {
-			console.error('Błąd zapisu danych gospodarstwa', e)
-		}
+		} catch {}
 	}
 
 	const handleSaveTunnels = async () => {
@@ -121,7 +123,6 @@ function SettingsPage() {
 		})
 
 		if (!res.ok) {
-			console.error('Błąd zapisu tuneli', await res.text())
 			return
 		}
 	}
@@ -129,6 +130,8 @@ function SettingsPage() {
 	const handleSaveAll = async () => {
 		await handleSaveFarmDetails()
 		await handleSaveTunnels()
+
+		notify(notificationsEnabled, 'success', 'Dane gospodarstwa zostały zapisane!')
 	}
 
 	const handleSaveAppSettings = async () => {
@@ -156,11 +159,12 @@ function SettingsPage() {
 		})
 
 		if (!res.ok) {
-			console.error('Błąd zapisu ustawień')
+			notify(notificationsEnabled, 'error', 'Błąd zapisu ustawień aplikacji!')
 			return
 		}
 
 		setAppSettingsExist(true)
+		notify(notificationsEnabled, 'success', 'Ustawienia aplikacji zostały zapisane!')
 	}
 
 	const handleDeleteAccount = async () => {
@@ -175,9 +179,11 @@ function SettingsPage() {
 		})
 
 		if (!res.ok) {
-			throw new Error('Delete account failed')
+			notify(notificationsEnabled, 'error', 'Nie udało się dezaktywować konta!')
+			return
 		}
 
+		notify(notificationsEnabled, 'warning', 'Konto zostało dezaktywowane!')
 		await logout()
 		window.location.href = '/'
 	}
@@ -199,7 +205,6 @@ function SettingsPage() {
 				})
 
 				if (res.status === 404) {
-					setFarmerDetails(null)
 					setDetailsExist(false)
 					return
 				}
@@ -213,7 +218,6 @@ function SettingsPage() {
 				// ✅ JEDYNE MIEJSCE json()
 				const data: FarmerDetailsDto = await res.json()
 
-				setFarmerDetails(data)
 				setDetailsExist(true)
 
 				setForm({
@@ -329,7 +333,11 @@ function SettingsPage() {
 	/* ===== BLOKADY RENDERU ===== */
 
 	if (isLoading || loadingDetails) {
-		return <div className='p-8'>Ładowanie…</div>
+		return (
+			<div className='absolute top-0 left-0 flex justify-center py-6'>
+				<MoonLoader size={50} />
+			</div>
+		)
 	}
 
 	if (!user) {

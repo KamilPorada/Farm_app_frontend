@@ -63,6 +63,8 @@ export function useAuthUser() {
       } finally {
         setLoadingUser(false)
       }
+
+      
     }
 
     syncUser()

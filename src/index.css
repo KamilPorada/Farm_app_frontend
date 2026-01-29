@@ -51,6 +51,13 @@
 		font: inherit;
 		color: inherit;
 	}
+	html{
+		background-color: white;
+	}
+
+	html.is-authenticated {
+		background-color: #5fab18; /* po zalogowaniu */
+	}
 }
 
 @layer utilities {
