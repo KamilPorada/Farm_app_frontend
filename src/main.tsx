@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import 'leaflet/dist/leaflet.css'
 import { KindeProvider } from '@kinde-oss/kinde-auth-react'
 
 import App from './App'

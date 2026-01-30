@@ -1,4 +1,5 @@
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
 
 type ButtonProps = {
 	className?: string
@@ -49,11 +50,7 @@ const Button: React.FC<ButtonProps> = ({ className = '', href, onClick, disabled
 
 	`
 
-	const finalClassName = `
-		${baseClasses}
-		${disabled ? disabledClasses : ''}
-		${className}
-	`
+	const finalClassName = twMerge(baseClasses, disabled ? disabledClasses : '', className)
 
 	if (href) {
 		return (

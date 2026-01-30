@@ -345,7 +345,7 @@ function SettingsPage() {
 	}
 
 	return (
-		<div className='max-w-5xl p-8'>
+		<div className='p-8 container'>
 			<h1 className='text-3xl font-bold text-gray-900'>Ustawienia</h1>
 			<p className='mt-1 text-sm text-gray-500'>Zarządzaj ustawieniami konta, gospodarstwa i działania systemu.</p>
 
