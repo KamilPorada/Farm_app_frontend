@@ -31,13 +31,13 @@ export default function PointOfSaleRow({ point, onView, onEdit, onDelete }: Prop
 			<div className='col-span-4 text-gray-700 truncate'>{point.address}</div>
 
 			{/* KONTAKT */}
-			<div className='col-span-3 text-xs text-gray-600 leading-tight'>
+			<div className='col-span-2 lg:col-span-3 text-xs text-gray-600 leading-tight'>
 				<p>{point.phone}</p>
 				<p className='truncate'>{point.email}</p>
 			</div>
 
 			{/* AKCJE */}
-			<div className='col-span-1 flex justify-start gap-3'>
+			<div className='col-span-2 lg:col-span-1 flex justify-start gap-3'>
 				<button
 					onClick={() => onView(point)}
 					className='
@@ -45,9 +45,9 @@ export default function PointOfSaleRow({ point, onView, onEdit, onDelete }: Prop
 			rounded-md
 			text-gray-500
 			transition
-			hover:text-mainColor hover:cursor-pointer
+			hover:text-blue-500 hover:cursor-pointer
 		'>
-					<FontAwesomeIcon icon={faEye} />
+					<FontAwesomeIcon icon={faEye}/>
 				</button>
 
 				<button
@@ -69,7 +69,7 @@ export default function PointOfSaleRow({ point, onView, onEdit, onDelete }: Prop
 			rounded-md
 			text-gray-500
 			transition
-			hover:text-red-600 hover:cursor-pointer
+			hover:text-red-500 hover:cursor-pointer
 		'>
 					<FontAwesomeIcon icon={faTrash} />
 				</button>
