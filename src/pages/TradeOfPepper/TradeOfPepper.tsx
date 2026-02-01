@@ -77,7 +77,7 @@ export default function TradeOfPepperPage() {
 	}, [user, year])
 
 	/* =======================
-	   FETCH TRADES BY YEAR
+	   FETCH TRADES BY FARMER
 	======================= */
 	useEffect(() => {
 		if (!user?.id) return

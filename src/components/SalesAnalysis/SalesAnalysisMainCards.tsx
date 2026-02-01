@@ -9,8 +9,8 @@ import { useCountUp } from '../../hooks/useCountUp'
    PROPS
 ======================= */
 type Props = {
-	items: TradeOfPepper[] // aktualny zakres
-	allTrades: TradeOfPepper[] // wszystkie (do trendu r/r)
+	actualTrades: TradeOfPepper[] // aktualny zakres
+	previousTrades: TradeOfPepper[] // wszystkie (do trendu r/r)
 }
 
 /* =======================
@@ -23,12 +23,6 @@ function formatNumber(value: number, decimals: number, useThousands?: boolean) {
 	const [intPart, decPart] = fixed.split('.')
 	const spaced = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 	return decPart ? `${spaced}.${decPart}` : spaced
-}
-
-function minusOneYear(date: string) {
-	const d = new Date(date)
-	d.setFullYear(d.getFullYear() - 1)
-	return d.toISOString().slice(0, 10)
 }
 
 function aggregateTrades(trades: TradeOfPepper[]) {
@@ -74,7 +68,7 @@ function calculateTrend(current: number, previous?: number): Trend | null {
 /* =======================
    COMPONENT
 ======================= */
-export default function TradeOfPepperSummary({ items, allTrades }: Props) {
+export default function SalesAnalysisMainCards({ actualTrades, previousTrades }: Props) {
 	const { appSettings } = useMeData()
 	const [eurRate, setEurRate] = useState(1)
 
@@ -100,22 +94,12 @@ export default function TradeOfPepperSummary({ items, allTrades }: Props) {
 	/* =======================
 	   CURRENT AGG (BAZA)
 	======================= */
-	const currentAgg = useMemo(() => aggregateTrades(items), [items])
+	const currentAgg = useMemo(() => aggregateTrades(actualTrades), [actualTrades])
 
 	/* =======================
-	   PREVIOUS YEAR AGG (BAZA)
-	======================= */
-	const previousAgg = useMemo(() => {
-		if (!items.length) return null
-
-		const dates = items.map(t => t.tradeDate).sort()
-		const from = minusOneYear(dates[0])
-		const to = minusOneYear(dates[dates.length - 1])
-
-		const prevItems = allTrades.filter(t => t.tradeDate >= from && t.tradeDate <= to)
-
-		return prevItems.length ? aggregateTrades(prevItems) : null
-	}, [items, allTrades])
+   PREVIOUS YEAR AGG (BAZA)
+======================= */
+	const previousAgg = useMemo(() => (previousTrades.length ? aggregateTrades(previousTrades) : null), [previousTrades])
 
 	/* =======================
 	   BASE TRENDS (BAZA)

@@ -8,6 +8,7 @@ import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
 import TradeOfPepper from './pages/TradeOfPepper/TradeOfPepper'
 import PointOfSalePage from './pages/TradeOfPepper/PointOfSalePage'
+import SalesAnalysisPage from './pages/TradeOfPepper/SalesAnalysisPage'
 import SettingsPage from './pages/SettingsPage'
 import { SidebarProvider } from './context/SidebarContext'
 import { Toaster } from 'sonner'
@@ -51,6 +52,7 @@ function App() {
 							<Route path='trade' element={<TradeOfPepper />} />
 							<Route path='settings' element={<SettingsPage />} />
 							<Route path='point-of-sale' element={<PointOfSalePage />} />
+							<Route path='sales-analysis' element={<SalesAnalysisPage />} />
 						</Route>
 					</Routes>
 				</BrowserRouter>
