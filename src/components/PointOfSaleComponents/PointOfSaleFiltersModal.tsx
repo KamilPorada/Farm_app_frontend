@@ -28,11 +28,11 @@ export default function PointOfSaleFiltersModal({ filters, onChange, onClose, on
 						value={filters.type}
 						onChange={e => onChange({ ...filters, type: e.target.value as any })}
 						className='mt-1 w-full rounded-md border px-3 py-2 text-sm'>
-						<option value='ALL'>Wszystkie</option>
-						<option value='RYNEK'>Rynek hurtowy</option>
-						<option value='SKUP'>Skup</option>
-						<option value='KLIENT'>Klient prywatny</option>
-						<option value='INNE'>Inne</option>
+						<option value='wszytskie'>Wszystkie</option>
+						<option value='Rynek hurtowy'>Rynek hurtowy</option>
+						<option value='Skup'>Skup</option>
+						<option value='Klient prywatny'>Klient prywatny</option>
+						<option value='Inne'>Inne</option>
 					</select>
 				</div>
 

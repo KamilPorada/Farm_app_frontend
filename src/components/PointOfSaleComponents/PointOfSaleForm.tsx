@@ -97,10 +97,10 @@ export default function PointOfSaleForm({ initial, onSave, onCancel }: Props) {
 
 				<Select label="Typ punktu" value={form.type} error={errors.type}
 					options={[
-						{ label: 'Rynek hurtowy', value: 'RYNEK' },
-						{ label: 'Skup', value: 'SKUP' },
-						{ label: 'Klient prywatny', value: 'KLIENT' },
-						{ label: 'Inne', value: 'INNE' },
+						{ label: 'Rynek hurtowy', value: 'Rynek hurtowy' },
+						{ label: 'Skup', value: 'Skup' },
+						{ label: 'Klient prywatny', value: 'Klient prywatny' },
+						{ label: 'Inne', value: 'Inne' },
 					]}
 					onChange={e => setForm(p => ({ ...p, type: e.target.value as any }))} />
 

@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from 'react'
 
 import SalesAnalysisHeader from '../../components/SalesAnalysis/SalesAnalysisHeader'
 import SalesAnalysisMainCards from '../../components/SalesAnalysis/SalesAnalysisMainCards'
+import TradesAndHarvestByMonthChart from '../../components/SalesAnalysis/TradesAndHarvestByMonthChart'
 import { useAuthUser } from '../../hooks/useAuthUser'
 import { MoonLoader } from 'react-spinners'
 import { notify } from '../../utils/notify'
@@ -21,11 +22,11 @@ function SalesAnalysisPage() {
 
 	const today = new Date()
 	const todayISO = today.toISOString().slice(0, 10)
-	const [year, setYear] = useState(today.getFullYear())
+	const [year, setYear] = useState(today.getFullYear() - 1) //POPRAW!!!!!!
 	const [toDate, setToDate] = useState(todayISO)
 
 	// 👉 zakres analizy (JEDNO ŹRÓDŁO PRAWDY)
-	const dateRange = useMemo(()  => {
+	const dateRange = useMemo(() => {
 		return {
 			from: `${year}-01-01`,
 			to: toDate,
@@ -43,25 +44,28 @@ function SalesAnalysisPage() {
 		})
 	}, [trades, dateRange])
 
-    const filteredPreviousYearTrades = useMemo(() => {
-	const previousYear = year - 1
+	const filteredPreviousYearTrades = useMemo(() => {
+		const previousYear = year - 1
 
-	const from = new Date(`${previousYear}-01-01`)
+		const from = new Date(`${previousYear}-01-01`)
 
-	// 👉 bierzemy dzień + miesiąc z toDate
-	const [, month, day] = toDate.split('-')
-	const to = new Date(`${previousYear}-${month}-${day}`)
+		let to: Date
 
-	return allFarmerTrades.filter(trade => {
-		const tradeDate = new Date(trade.tradeDate)
-		return (
-			tradeDate >= from &&
-			tradeDate <= to &&
-			tradeDate.getFullYear() === previousYear
-		)
-	})
-}, [allFarmerTrades, year, toDate])
+		// 🔹 jeżeli toDate = dzisiejsza data → pełny poprzedni rok
+		if (toDate === todayISO) {
+			to = new Date(`${previousYear}-12-31`)
+		} else {
+			// 🔹 jeżeli user zmienił datę → ten sam dzień/miesiąc rok wcześniej
+			const [, month, day] = toDate.split('-')
+			to = new Date(`${previousYear}-${month}-${day}`)
+		}
 
+		return allFarmerTrades.filter(trade => {
+			const tradeDate = new Date(trade.tradeDate)
+
+			return tradeDate >= from && tradeDate <= to && tradeDate.getFullYear() === previousYear
+		})
+	}, [allFarmerTrades, year, toDate, todayISO])
 
 	/* =======================
 	   FETCH POINTS OF SALE
@@ -155,6 +159,7 @@ function SalesAnalysisPage() {
 		<div className='container p-8'>
 			<SalesAnalysisHeader year={year} setYear={setYear} toDate={toDate} setToDate={setToDate} />{' '}
 			<SalesAnalysisMainCards actualTrades={filteredTrades} previousTrades={filteredPreviousYearTrades} />
+			<TradesAndHarvestByMonthChart actualTrades={filteredTrades} />
 		</div>
 	)
 }

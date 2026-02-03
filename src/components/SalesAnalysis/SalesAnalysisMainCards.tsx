@@ -56,8 +56,7 @@ type Trend = {
 }
 
 function calculateTrend(current: number, previous?: number): Trend | null {
-	if (previous === undefined || previous === null) return null
-
+	if (previous === undefined || previous === null || current == 0) return null
 	const diff = current - previous
 
 	if (diff > 0) return { direction: 'up', diff }
@@ -71,6 +70,15 @@ function calculateTrend(current: number, previous?: number): Trend | null {
 export default function SalesAnalysisMainCards({ actualTrades, previousTrades }: Props) {
 	const { appSettings } = useMeData()
 	const [eurRate, setEurRate] = useState(1)
+	const [activeIndex, setActiveIndex] = useState(0)
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setActiveIndex(i => (i + 1) % 4)
+		}, 5000)
+
+		return () => clearInterval(interval)
+	}, [])
 
 	/* =======================
 	   EUR RATE
@@ -170,7 +178,7 @@ export default function SalesAnalysisMainCards({ actualTrades, previousTrades }:
 	   RENDER
 	======================= */
 	return (
-		<div className='mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4'>
+		<div className='my-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4'>
 			<SummaryCard
 				label='Łączny dochód'
 				value={`${valueUi} ${currencySymbol}`}
@@ -179,6 +187,7 @@ export default function SalesAnalysisMainCards({ actualTrades, previousTrades }:
 				trendUnit={currencySymbol}
 				trendDecimals={2}
 				useThousands={appSettings?.useThousandsSeparator}
+				active={activeIndex === 0}
 			/>
 
 			<SummaryCard
@@ -189,6 +198,7 @@ export default function SalesAnalysisMainCards({ actualTrades, previousTrades }:
 				trendUnit={appSettings?.weightUnit}
 				trendDecimals={appSettings?.weightUnit === 't' ? 3 : 0}
 				useThousands={appSettings?.useThousandsSeparator}
+				active={activeIndex === 1}
 			/>
 
 			<SummaryCard
@@ -199,6 +209,7 @@ export default function SalesAnalysisMainCards({ actualTrades, previousTrades }:
 				trendUnit={`${currencySymbol}/kg`}
 				trendDecimals={2}
 				useThousands={appSettings?.useThousandsSeparator}
+				active={activeIndex === 2}
 			/>
 
 			<SummaryCard
@@ -207,6 +218,7 @@ export default function SalesAnalysisMainCards({ actualTrades, previousTrades }:
 				icon={faListOl}
 				trend={countTrend}
 				trendDecimals={0}
+				active={activeIndex === 3}
 			/>
 		</div>
 	)
@@ -267,6 +279,7 @@ function SummaryCard({
 	trendUnit,
 	trendDecimals = 2,
 	useThousands,
+	active = false,
 }: {
 	label: string
 	value: string
@@ -275,30 +288,30 @@ function SummaryCard({
 	trendUnit?: string
 	trendDecimals?: number
 	useThousands?: boolean
+	active?: boolean
 }) {
 	return (
 		<div
-			className='
-				group relative overflow-hidden
-				rounded-xl
-				bg-gradient-to-br from-white to-gray-50
-				p-4
-				shadow-sm hover:shadow-md
-				transition-all duration-300
-				hover:-translate-y-[2px]
-			'>
+			className={`
+		group relative overflow-hidden
+		rounded-xl
+		bg-gradient-to-br from-white to-gray-50
+		p-4
+		shadow-sm
+		transition-all duration-500
+		${active ? 'shadow-md -translate-y-[2px]' : ''}
+	`}>
 			{/* akcent */}
 			<div className='absolute left-0 top-0 h-full w-1 bg-mainColor/60' />
 
 			{/* ikona (watermark) */}
 			<div
-				className='
+				className={`
 		absolute right-3 top-3
 		text-4xl
-		text-mainColor/20
-		transition-colors duration-300
-		group-hover:text-mainColor
-	'>
+		transition-colors duration-500
+		${active ? 'text-mainColor' : 'text-mainColor/20'}
+	`}>
 				<FontAwesomeIcon icon={icon} />
 			</div>
 
