@@ -178,7 +178,7 @@ export default function SalesAnalysisMainCards({ actualTrades, previousTrades }:
 	   RENDER
 	======================= */
 	return (
-		<div className='my-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4'>
+		<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4'>
 			<SummaryCard
 				label='Łączny dochód'
 				value={`${valueUi} ${currencySymbol}`}
@@ -302,7 +302,7 @@ function SummaryCard({
 		${active ? 'shadow-md -translate-y-[2px]' : ''}
 	`}>
 			{/* akcent */}
-			<div className='absolute left-0 top-0 h-full w-1 bg-mainColor/60' />
+			<div className='absolute left-0 top-0 h-full w-1 bg-mainColor' />
 
 			{/* ikona (watermark) */}
 			<div

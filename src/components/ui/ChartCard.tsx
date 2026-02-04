@@ -12,7 +12,7 @@ export default function ChartCard({ title, children, className = '' }: Props) {
 			className={`
 				relative
 				bg-white
-				p-6
+				p-3 md:p-6
 				border border-gray-300 shadow-md
 				rounded-lg
 				${className}

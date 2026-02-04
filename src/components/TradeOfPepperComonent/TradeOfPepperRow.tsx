@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons'
 import type { TradeOfPepper } from '../../types/TradeOfPepper'
 import { useMeData } from '../../hooks/useMeData'
+import { useCurrencyRate } from '../../hooks/useCurrencyRate'
 
 type RowItem = TradeOfPepper & {
 	lp: number

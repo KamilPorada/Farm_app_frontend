@@ -173,11 +173,54 @@ export default function TradesAndHarvestByMonthChart({ actualTrades }: Props) {
 			strokeDashArray: 0,
 			borderColor: '#dddddd',
 		},
+		responsive: [
+			{
+				breakpoint: 768, // mobile + small tablets
+				options: {
+					plotOptions: {
+						bar: {
+							columnWidth: '65%',
+						},
+					},
+
+					xaxis: {
+						labels: {
+							rotate: -45,
+							style: {
+								fontSize: '10px',
+							},
+						},
+					},
+
+					yaxis: [
+						{
+							title: { text: '' },
+							labels: {
+								style: { fontSize: '10px' },
+							},
+						},
+					],
+
+					legend: {
+						position: 'bottom',
+						fontSize: '11px',
+						itemMargin: {
+							horizontal: 8,
+							vertical: 4,
+						},
+					},
+
+					chart: {
+						height: 260,
+					},
+				},
+			},
+		],
 	}
 
 	return (
 		<ChartCard title='Wykres zależności dochodu oraz masy zbiorów w ujęciu miesięcznym'>
-			<div className='h-[350px] w-full'>
+			<div className='h-[260px] md:h-[350px] w-full'>
 				<Chart options={options} series={series} type='bar' height='100%' width='100%' />
 			</div>
 		</ChartCard>

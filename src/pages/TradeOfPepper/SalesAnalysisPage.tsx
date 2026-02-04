@@ -4,6 +4,11 @@ import { useEffect, useState, useMemo } from 'react'
 import SalesAnalysisHeader from '../../components/SalesAnalysis/SalesAnalysisHeader'
 import SalesAnalysisMainCards from '../../components/SalesAnalysis/SalesAnalysisMainCards'
 import TradesAndHarvestByMonthChart from '../../components/SalesAnalysis/TradesAndHarvestByMonthChart'
+import AveragePriceChart from '../../components/SalesAnalysis/AveragePriceChart'
+import PepperClassDonutCards from '../../components/SalesAnalysis/PepperClassDonutCards'
+import PepperColorRadialChart from '../../components/SalesAnalysis/PepperColorRadialChart'
+import PepperTransactionsRadarChart from '../../components/SalesAnalysis/PepperTransactionRadarChart'
+import SeasonTunnelStatsCards from '../../components/SalesAnalysis/SeasonTunnelStatsCards'
 import { useAuthUser } from '../../hooks/useAuthUser'
 import { MoonLoader } from 'react-spinners'
 import { notify } from '../../utils/notify'
@@ -13,8 +18,9 @@ import type { PointOfSale } from '../../types/PointOfSale'
 
 function SalesAnalysisPage() {
 	const { user, getToken, isLoading } = useAuthUser()
-	const { appSettings, farmerTunnels } = useMeData()
-	const notificationsEnabled = appSettings?.notificationsEnabled
+	const { farmerTunnels } = useMeData() as unknown as {
+		farmerTunnels: { year: number; count: number }[]
+	}
 
 	const [allFarmerTrades, setAllFarmerTrades] = useState<TradeOfPepper[]>([])
 	const [trades, setTrades] = useState<TradeOfPepper[]>([])
@@ -24,6 +30,9 @@ function SalesAnalysisPage() {
 	const todayISO = today.toISOString().slice(0, 10)
 	const [year, setYear] = useState(today.getFullYear() - 1) //POPRAW!!!!!!
 	const [toDate, setToDate] = useState(todayISO)
+	const tunnelsInActualSeason = farmerTunnels.find(t => t.year === year)?.count ?? 0
+	const tunnelsInPreviousSeason = farmerTunnels.find(t => t.year === year - 1)?.count ?? 0
+	console.log(tunnelsInPreviousSeason)
 
 	// 👉 zakres analizy (JEDNO ŹRÓDŁO PRAWDY)
 	const dateRange = useMemo(() => {
@@ -156,10 +165,22 @@ function SalesAnalysisPage() {
 		)
 	}
 	return (
-		<div className='container p-8'>
+		<div className='flex flex-col gap-6 container p-8'>
 			<SalesAnalysisHeader year={year} setYear={setYear} toDate={toDate} setToDate={setToDate} />{' '}
 			<SalesAnalysisMainCards actualTrades={filteredTrades} previousTrades={filteredPreviousYearTrades} />
 			<TradesAndHarvestByMonthChart actualTrades={filteredTrades} />
+			<PepperClassDonutCards actualTrades={filteredTrades} />
+			<div className='flex flex-col md:flex-row justify-between items-center gap-6'>
+				<PepperColorRadialChart actualTrades={filteredTrades} />
+				<PepperTransactionsRadarChart actualTrades={filteredTrades} />
+			</div>
+			<SeasonTunnelStatsCards
+				tunnelsInActualSeason={tunnelsInActualSeason}
+				tunnelsInPreviousSeason={tunnelsInPreviousSeason}
+				actualTrades={filteredTrades}
+				previousTrades={filteredPreviousYearTrades}
+			/>
+			<AveragePriceChart actualTrades={filteredTrades} />
 		</div>
 	)
 }
