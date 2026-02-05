@@ -1,6 +1,4 @@
-import React from 'react'
 import { useEffect, useState, useMemo } from 'react'
-
 import SalesAnalysisHeader from '../../components/SalesAnalysis/SalesAnalysisHeader'
 import SalesAnalysisMainCards from '../../components/SalesAnalysis/SalesAnalysisMainCards'
 import TradesAndHarvestByMonthChart from '../../components/SalesAnalysis/TradesAndHarvestByMonthChart'
@@ -9,9 +7,10 @@ import PepperClassDonutCards from '../../components/SalesAnalysis/PepperClassDon
 import PepperColorRadialChart from '../../components/SalesAnalysis/PepperColorRadialChart'
 import PepperTransactionsRadarChart from '../../components/SalesAnalysis/PepperTransactionRadarChart'
 import SeasonTunnelStatsCards from '../../components/SalesAnalysis/SeasonTunnelStatsCards'
+import PointOfSaleDashboardCard from '../../components/SalesAnalysis/PointOfSaleDashboardCard'
+import SalesIntensityHeatmap from '../../components/SalesAnalysis/SalesIntensityHeatmap'
 import { useAuthUser } from '../../hooks/useAuthUser'
 import { MoonLoader } from 'react-spinners'
-import { notify } from '../../utils/notify'
 import { useMeData } from '../../hooks/useMeData'
 import type { TradeOfPepper } from '../../types/TradeOfPepper'
 import type { PointOfSale } from '../../types/PointOfSale'
@@ -75,6 +74,21 @@ function SalesAnalysisPage() {
 			return tradeDate >= from && tradeDate <= to && tradeDate.getFullYear() === previousYear
 		})
 	}, [allFarmerTrades, year, toDate, todayISO])
+
+	const sortedPoints = useMemo(() => {
+		if (!points.length || !allFarmerTrades.length) return points
+
+		const countMap = allFarmerTrades.reduce<Record<number, number>>((acc, t) => {
+			acc[t.pointOfSaleId] = (acc[t.pointOfSaleId] ?? 0) + 1
+			return acc
+		}, {})
+
+		return [...points].sort((a, b) => {
+			const aCount = countMap[a.id] ?? 0
+			const bCount = countMap[b.id] ?? 0
+			return bCount - aCount
+		})
+	}, [points, allFarmerTrades])
 
 	/* =======================
 	   FETCH POINTS OF SALE
@@ -181,6 +195,8 @@ function SalesAnalysisPage() {
 				previousTrades={filteredPreviousYearTrades}
 			/>
 			<AveragePriceChart actualTrades={filteredTrades} />
+			<SalesIntensityHeatmap actualTrades={filteredTrades} />
+			<PointOfSaleDashboardCard points={sortedPoints} actualTrades={filteredTrades} />
 		</div>
 	)
 }

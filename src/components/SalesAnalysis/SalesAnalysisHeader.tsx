@@ -72,7 +72,7 @@ export default function SalesAnalysisHeader({ year, setYear, toDate, setToDate }
 											setYear(y)
 											setOpen(false)
 										}}
-										className={`block w-full px-4 py-2 text-left text-sm transition hover:bg-gray-100 ${
+										className={`block w-full px-4 py-2 text-left text-sm transition hover:bg-gray-100 hover:cursor-pointer ${
 											y === year ? 'font-semibold text-mainColor' : 'text-gray-700'
 										}`}>
 										{y}

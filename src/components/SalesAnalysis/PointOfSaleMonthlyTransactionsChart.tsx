@@ -8,9 +8,6 @@ type Props = {
 	actualTrades: TradeOfPepper[]
 }
 
-/* =======================
-   CONSTANTS
-======================= */
 const SEASON_MONTHS = [
 	{ label: 'Lipiec', index: 6 },
 	{ label: 'Sierpień', index: 7 },
@@ -19,10 +16,7 @@ const SEASON_MONTHS = [
 	{ label: 'Listopad', index: 10 },
 ]
 
-/* =======================
-   COMPONENT
-======================= */
-export default function PepperTransactionsRadarChart({ actualTrades }: Props) {
+export default function PointOfSaleMonthlyTransactionsChart({ actualTrades }: Props) {
 	const { series, categories } = useMemo(() => {
 		const monthlyCounts = Array(12).fill(0)
 
@@ -45,35 +39,51 @@ export default function PepperTransactionsRadarChart({ actualTrades }: Props) {
 		}
 	}, [actualTrades])
 
+	if (!series.length) return null
+
 	const options: ApexCharts.ApexOptions = {
 		chart: {
 			type: 'radar',
 			offsetX: 15,
 			toolbar: { show: false },
 		},
-		xaxis: {
-			categories: SEASON_MONTHS.map(m => m.label),
-		},
-		stroke: {
-			width: 2,
-		},
+
+		colors: [greenPalette[5]],
+
 		plotOptions: {
 			radar: {
 				size: 120,
 			},
 		},
-		fill: {
-			opacity: 0.25,
+
+		stroke: {
+			width: 2,
 		},
+
+		fill: {
+			opacity: 0.15,
+		},
+
 		markers: {
 			size: 4,
+			colors: [greenPalette[5]],
+			strokeWidth: 0,
 		},
-		colors: [greenPalette[5]],
-		yaxis: {
+
+		xaxis: {
+			categories,
 			labels: {
-				formatter: val => Math.round(val).toString(),
+				style: {
+					colors: '#6b7280',
+					fontSize: '11px',
+				},
 			},
 		},
+
+		yaxis: {
+			show: false,
+		},
+
 		tooltip: {
 			shared: false,
 			custom: ({ dataPointIndex }) => {
@@ -99,8 +109,8 @@ export default function PepperTransactionsRadarChart({ actualTrades }: Props) {
 
 	return (
 		<div className='w-full md:w-1/2'>
-			<ChartCard title='Wykres zależności liczby transakcji od miesiąca'>
-				<Chart type='radar' series={series} options={options} height={305} />
+			<ChartCard title='Liczba transakcji w miesiącach'>
+				<Chart type='radar' options={options} series={series} height={260} />
 			</ChartCard>
 		</div>
 	)

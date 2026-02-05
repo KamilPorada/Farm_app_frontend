@@ -81,6 +81,7 @@ export function MonthlyAverageCards({
 						key={m.month}
 						className='relative overflow-hidden rounded-xl bg-gradient-to-br from-white to-gray-50 p-3 shadow-sm'
 					>
+						<div className='absolute left-0 top-0 h-full w-1 bg-mainColor' />
 						{/* nagłówek */}
 						<p className='text-[11px] uppercase tracking-wide text-gray-500 mb-1'>
 							{m.month}

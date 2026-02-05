@@ -143,7 +143,9 @@ export default function AveragePriceChart({ actualTrades }: Props) {
 
 	const options: ApexCharts.ApexOptions = {
 		chart: {
-			type: 'line',
+			type: 'area',
+			zoom: { enabled: false }, 
+
 			toolbar: { show: false },
 			fontFamily: 'inherit',
 		},

@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import Chart from 'react-apexcharts'
 import ChartCard from '../ui/ChartCard'
 import { greenPalette } from '../../theme/greenPalette'
 import type { TradeOfPepper } from '../../types/TradeOfPepper'
 import { useMeData } from '../../hooks/useMeData'
+import { useCurrencyRate } from '../../hooks/useCurrencyRate'
 
 type Props = {
 	actualTrades: TradeOfPepper[]
@@ -17,28 +18,49 @@ const MONTHS = [
 	{ key: 10, label: 'Listopad' },
 ]
 
-export default function TradesAndHarvestByMonthChart({ actualTrades }: Props) {
+/* =======================
+   HELPERS
+======================= */
+function formatNumber(
+	value: number,
+	useSeparator: boolean,
+	decimals: number,
+) {
+	return useSeparator
+		? new Intl.NumberFormat('pl-PL', {
+				minimumFractionDigits: decimals,
+				maximumFractionDigits: decimals,
+			}).format(value)
+		: value.toFixed(decimals)
+}
+
+function convertCurrency(
+	valuePln: number,
+	currency: 'PLN' | 'EUR',
+	eurRate?: number,
+) {
+	if (currency === 'EUR' && eurRate) {
+		return valuePln / eurRate
+	}
+	return valuePln
+}
+
+function convertWeight(valueKg: number, unit: 'kg' | 't') {
+	return unit === 't' ? valueKg / 1000 : valueKg
+}
+
+/* =======================
+   COMPONENT
+======================= */
+export default function TradesAndHarvestByMonthChart({
+	actualTrades,
+}: Props) {
 	const { appSettings } = useMeData()
-	const [eurRate, setEurRate] = useState(1)
+	const { currency, eurRate } = useCurrencyRate()
 
-	/* =======================
-	   KURS EUR
-	======================= */
-	useEffect(() => {
-		if (appSettings?.currency !== 'EUR') return
-
-		async function fetchRate() {
-			try {
-				const res = await fetch('https://api.nbp.pl/api/exchangerates/rates/a/eur/?format=json')
-				const data = await res.json()
-				setEurRate(data.rates[0].mid)
-			} catch {
-				setEurRate(1)
-			}
-		}
-
-		fetchRate()
-	}, [appSettings?.currency])
+	const useSeparator = appSettings?.useThousandsSeparator ?? true
+	const weightUnit: 'kg' | 't' =
+		appSettings?.weightUnit === 't' ? 't' : 'kg'
 
 	/* =======================
 	   AGREGACJA DANYCH
@@ -54,34 +76,31 @@ export default function TradesAndHarvestByMonthChart({ actualTrades }: Props) {
 			const monthIndex = MONTHS.findIndex(mm => mm.key === m)
 			if (monthIndex === -1) return
 
-			const net = t.tradePrice * t.tradeWeight
-			const gross = net * (1 + t.vatRate / 100)
+			const gross =
+				t.tradePrice * t.tradeWeight * (1 + t.vatRate / 100)
 
 			profit[monthIndex] += gross
 			weight[monthIndex] += t.tradeWeight
 		})
 
 		return {
-			profitByMonth: profit.map(v => Math.round(v * 100) / 100),
+			profitByMonth: profit,
 			weightByMonth: weight,
 		}
 	}, [actualTrades])
 
 	/* =======================
-	   DANE PO USTAWIENIACH
+	   KONWERSJE
 	======================= */
-	const currencySymbol = appSettings?.currency === 'EUR' ? '€' : 'zł'
-	const weightUnit = appSettings?.weightUnit === 't' ? 't' : 'kg'
+	const profitData = profitByMonth.map(v =>
+		convertCurrency(v, currency, eurRate),
+	)
 
-	const profitData = appSettings?.currency === 'EUR' ? profitByMonth.map(v => v / eurRate) : profitByMonth
+	const weightData = weightByMonth.map(v =>
+		convertWeight(v, weightUnit),
+	)
 
-	const weightData = appSettings?.weightUnit === 't' ? weightByMonth.map(v => v / 1000) : weightByMonth
-
-	const numberFormatter = (value: number, decimals = 0) => {
-		const fixed = value.toFixed(decimals)
-		if (!appSettings?.useThousandsSeparator) return fixed
-		return fixed.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-	}
+	const currencySymbol = currency === 'EUR' ? '€' : 'zł'
 
 	/* =======================
 	   SERIE
@@ -114,9 +133,7 @@ export default function TradesAndHarvestByMonthChart({ actualTrades }: Props) {
 			},
 		},
 
-		dataLabels: {
-			enabled: false,
-		},
+		dataLabels: { enabled: false },
 
 		colors: [greenPalette[5], greenPalette[2]],
 
@@ -135,14 +152,20 @@ export default function TradesAndHarvestByMonthChart({ actualTrades }: Props) {
 			{
 				title: { text: `Dochód (${currencySymbol})` },
 				labels: {
-					formatter: v => `${numberFormatter(v, 0)} ${currencySymbol}`,
+					formatter: v =>
+						`${formatNumber(v, useSeparator, 0)} ${currencySymbol}`,
 				},
 			},
 			{
 				opposite: true,
 				title: { text: `Zbiory (${weightUnit})` },
 				labels: {
-					formatter: v => `${numberFormatter(v, weightUnit === 't' ? 2 : 0)} ${weightUnit}`,
+					formatter: v =>
+						`${formatNumber(
+							v,
+							useSeparator,
+							weightUnit === 't' ? 2 : 0,
+						)} ${weightUnit}`,
 				},
 			},
 		],
@@ -154,7 +177,7 @@ export default function TradesAndHarvestByMonthChart({ actualTrades }: Props) {
 			fontSize: '12px',
 			markers: {
 				size: 8,
-				shape: 'square', // albo 'circle'
+				shape: 'square',
 			},
 		},
 
@@ -164,8 +187,12 @@ export default function TradesAndHarvestByMonthChart({ actualTrades }: Props) {
 			y: {
 				formatter: (val, { seriesIndex }) =>
 					seriesIndex === 0
-						? `${numberFormatter(val, 2)} ${currencySymbol}`
-						: `${numberFormatter(val, weightUnit === 't' ? 2 : 0)} ${weightUnit}`,
+						? `${formatNumber(val, true, 2)} ${currencySymbol}`
+						: `${formatNumber(
+								val,
+								true,
+								weightUnit === 't' ? 2 : 0,
+						  )} ${weightUnit}`,
 			},
 		},
 
@@ -173,55 +200,18 @@ export default function TradesAndHarvestByMonthChart({ actualTrades }: Props) {
 			strokeDashArray: 0,
 			borderColor: '#dddddd',
 		},
-		responsive: [
-			{
-				breakpoint: 768, // mobile + small tablets
-				options: {
-					plotOptions: {
-						bar: {
-							columnWidth: '65%',
-						},
-					},
-
-					xaxis: {
-						labels: {
-							rotate: -45,
-							style: {
-								fontSize: '10px',
-							},
-						},
-					},
-
-					yaxis: [
-						{
-							title: { text: '' },
-							labels: {
-								style: { fontSize: '10px' },
-							},
-						},
-					],
-
-					legend: {
-						position: 'bottom',
-						fontSize: '11px',
-						itemMargin: {
-							horizontal: 8,
-							vertical: 4,
-						},
-					},
-
-					chart: {
-						height: 260,
-					},
-				},
-			},
-		],
 	}
 
 	return (
 		<ChartCard title='Wykres zależności dochodu oraz masy zbiorów w ujęciu miesięcznym'>
 			<div className='h-[260px] md:h-[350px] w-full'>
-				<Chart options={options} series={series} type='bar' height='100%' width='100%' />
+				<Chart
+					options={options}
+					series={series}
+					type='bar'
+					height='100%'
+					width='100%'
+				/>
 			</div>
 		</ChartCard>
 	)
