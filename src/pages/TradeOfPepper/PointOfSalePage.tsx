@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import PointOfSaleHeader from '../../components/PointOfSaleComponents/PointOfSaleHeader'
 import PointOfSaleList from '../../components/PointOfSaleComponents/PointOfSaleList'
 import PointOfSaleForm from '../../components/PointOfSaleComponents/PointOfSaleForm'
 import PointOfSaleDetails from '../../components/PointOfSaleComponents/PointOfSaleDetails'
 import type { PointOfSale } from '../../types/PointOfSale'
+import type { TradeOfPepper } from '../../types/TradeOfPepper'
 import { useAuthUser } from '../../hooks/useAuthUser'
 import { MoonLoader } from 'react-spinners'
 import { notify } from '../../utils/notify'
@@ -13,12 +14,42 @@ export default function PointOfSalePage() {
 	const { user, getToken, isLoading } = useAuthUser()
 	const { appSettings: globalSettings } = useMeData()
 	const notificationsEnabled = globalSettings?.notificationsEnabled
+	const [allFarmerTrades, setAllFarmerTrades] = useState<TradeOfPepper[]>([])
 
 	const [year, setYear] = useState(new Date().getFullYear())
 	const [points, setPoints] = useState<PointOfSale[]>([])
 	const [mode, setMode] = useState<'list' | 'add' | 'edit' | 'details'>('list')
 	const [active, setActive] = useState<PointOfSale | null>(null)
 	const [loading, setLoading] = useState(false)
+
+	const hasPoints = points.length > 0
+
+	/* =======================
+	   FETCH TRADES BY FARMER
+	======================= */
+	useEffect(() => {
+		if (!user?.id) return
+
+		async function fetchTrades() {
+			setLoading(true)
+			try {
+				const token = await getToken()
+				const res = await fetch(`http://localhost:8080/api/trades-of-pepper/farmer/${user?.id}`, {
+					headers: { Authorization: `Bearer ${token}` },
+				})
+
+				if (!res.ok) {
+					return
+				}
+
+				setAllFarmerTrades(await res.json())
+			} finally {
+				setLoading(false)
+			}
+		}
+
+		fetchTrades()
+	}, [user, year])
 
 	/* =======================
 	   FETCH LISTY
@@ -127,8 +158,7 @@ export default function PointOfSalePage() {
 			notify(notificationsEnabled, 'success', 'Punkt sprzedaży został usunięty pomyślnie!')
 
 			setMode('list')
-		} catch (err) {
-		}
+		} catch (err) {}
 	}
 
 	/* =======================
@@ -155,21 +185,42 @@ export default function PointOfSalePage() {
 				}}
 			/>
 
-			{mode === 'list' && (
-				<PointOfSaleList
-					items={points}
-					onView={p => {
-						setActive(p)
-						setMode('details')
-					}}
-					onEdit={p => {
-						setActive(p)
-						setMode('edit')
-					}}
-					onDelete={handleDelete}
-				/>
-			)}
+			{!hasPoints && mode === 'list' ? (
+				<div className='flex flex-col items-center justify-center py-24 text-center'>
+					<p className='text-base font-medium text-gray-700'>Brak punktów sprzedaży!</p>
 
+					<p className='mt-2 text-sm text-gray-500 max-w-md'>
+						Dodaj punkt sprzedaży, aby rozpocząć organizację i późniejszą analizę sprzedaży.
+					</p>
+				</div>
+			) : (
+				<>
+					{mode === 'list' && (
+						<PointOfSaleList
+							items={points}
+							onView={p => {
+								setActive(p)
+								setMode('details')
+							}}
+							onEdit={p => {
+								setActive(p)
+								setMode('edit')
+							}}
+							onDelete={handleDelete}
+						/>
+					)}
+
+					{mode === 'details' && active && (
+						<PointOfSaleDetails
+							point={active}
+							onBack={() => {
+								setActive(null)
+								setMode('list')
+							}}
+						/>
+					)}
+				</>
+			)}
 			{(mode === 'add' || mode === 'edit') && (
 				<PointOfSaleForm
 					initial={active}
@@ -178,16 +229,6 @@ export default function PointOfSalePage() {
 						setMode('list')
 					}}
 					onSave={handleSave}
-				/>
-			)}
-
-			{mode === 'details' && active && (
-				<PointOfSaleDetails
-					point={active}
-					onBack={() => {
-						setActive(null)
-						setMode('list')
-					}}
 				/>
 			)}
 		</div>

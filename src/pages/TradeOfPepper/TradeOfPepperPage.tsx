@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import TradeOfPepperHeader from '../../components/TradeOfPepperComonent/TradeOfPepperHeader'
 import TradeOfPepperForm from '../../components/TradeOfPepperComonent/TradeOfPepperForm'
 import TradeOfPepperList from '../../components/TradeOfPepperComonent/TradeOfPepperList'
@@ -21,6 +21,21 @@ export default function TradeOfPepperPage() {
 	const [mode, setMode] = useState<'list' | 'add' | 'edit'>('list')
 	const [active, setActive] = useState<TradeOfPepper | null>(null)
 	const [loading, setLoading] = useState(false)
+
+	const sortedPoints = useMemo(() => {
+		if (!points.length || !allFarmerTrades.length) return points
+
+		const countMap = allFarmerTrades.reduce<Record<number, number>>((acc, t) => {
+			acc[t.pointOfSaleId] = (acc[t.pointOfSaleId] ?? 0) + 1
+			return acc
+		}, {})
+
+		return [...points].sort((a, b) => {
+			const aCount = countMap[a.id] ?? 0
+			const bCount = countMap[b.id] ?? 0
+			return bCount - aCount
+		})
+	}, [points, allFarmerTrades])
 
 	/* =======================
 	   FETCH POINTS OF SALE
@@ -102,6 +117,8 @@ export default function TradeOfPepperPage() {
 
 		fetchTrades()
 	}, [user, year])
+
+	const hasTrades = trades.length > 0
 
 	/* =======================
 	   SAVE (ADD / EDIT)
@@ -205,30 +222,41 @@ export default function TradeOfPepperPage() {
 					setMode('add')
 				}}
 			/>
+			{!hasTrades && mode === 'list' ? (
+				<div className='flex flex-col items-center justify-center py-24 text-center'>
+					<p className='text-base font-medium text-gray-700'>Brak zarejestrowanych transakcji w wybranym okresie!</p>
 
-			{/* ===== LISTA ===== */}
-			{mode === 'list' && (
-				<TradeOfPepperList
-					items={trades}
-					allFarmerTrades={allFarmerTrades}
-					points={points}
-					onView={t => {
-						setActive(t)
-						setMode('edit')
-					}}
-					onEdit={t => {
-						setActive(t)
-						setMode('edit')
-					}}
-					onDelete={handleDelete}
-				/>
+					<p className='mt-2 text-sm text-gray-500 max-w-md'>
+						Dla tego zakresu dat nie ma jeszcze danych sprzedażowych. Wybierz inny okres, aby kontynuować przegląd
+						danych.
+					</p>
+				</div>
+			) : (
+				<>
+					{/* ===== LISTA ===== */}
+					{mode === 'list' && (
+						<TradeOfPepperList
+							items={trades}
+							allFarmerTrades={allFarmerTrades}
+							points={points}
+							onView={t => {
+								setActive(t)
+								setMode('edit')
+							}}
+							onEdit={t => {
+								setActive(t)
+								setMode('edit')
+							}}
+							onDelete={handleDelete}
+						/>
+					)}
+				</>
 			)}
-
 			{/* ===== FORM ===== */}
 			{(mode === 'add' || mode === 'edit') && (
 				<TradeOfPepperForm
 					initial={active}
-					points={points}
+					points={sortedPoints}
 					onCancel={() => {
 						setActive(null)
 						setMode('list')

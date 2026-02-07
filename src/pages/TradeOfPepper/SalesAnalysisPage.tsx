@@ -27,7 +27,7 @@ function SalesAnalysisPage() {
 
 	const today = new Date()
 	const todayISO = today.toISOString().slice(0, 10)
-	const [year, setYear] = useState(today.getFullYear() - 1) //POPRAW!!!!!!
+	const [year, setYear] = useState(today.getFullYear()) 
 	const [toDate, setToDate] = useState(todayISO)
 	const tunnelsInActualSeason = farmerTunnels.find(t => t.year === year)?.count ?? 0
 	const tunnelsInPreviousSeason = farmerTunnels.find(t => t.year === year - 1)?.count ?? 0
@@ -41,6 +41,19 @@ function SalesAnalysisPage() {
 		}
 	}, [year, toDate])
 	const [loading, setLoading] = useState(false)
+
+	useEffect(() => {
+		const currentYear = new Date().getFullYear()
+
+		if (year === currentYear) {
+			// ✅ bieżący rok → dzisiejsza data
+			const todayISO = new Date().toISOString().slice(0, 10)
+			setToDate(todayISO)
+		} else {
+			// ✅ poprzedni rok → ostatni dzień roku
+			setToDate(`${year}-12-31`)
+		}
+	}, [year])
 
 	const filteredTrades = useMemo(() => {
 		const from = new Date(dateRange.from)
@@ -89,6 +102,8 @@ function SalesAnalysisPage() {
 			return bCount - aCount
 		})
 	}, [points, allFarmerTrades])
+
+	const hasTrades = filteredTrades.length > 0
 
 	/* =======================
 	   FETCH POINTS OF SALE
@@ -180,23 +195,43 @@ function SalesAnalysisPage() {
 	}
 	return (
 		<div className='flex flex-col gap-6 container p-8'>
-			<SalesAnalysisHeader year={year} setYear={setYear} toDate={toDate} setToDate={setToDate} />{' '}
-			<SalesAnalysisMainCards actualTrades={filteredTrades} previousTrades={filteredPreviousYearTrades} />
-			<TradesAndHarvestByMonthChart actualTrades={filteredTrades} />
-			<PepperClassDonutCards actualTrades={filteredTrades} />
-			<div className='flex flex-col md:flex-row justify-between items-center gap-6'>
-				<PepperColorRadialChart actualTrades={filteredTrades} />
-				<PepperTransactionsRadarChart actualTrades={filteredTrades} />
-			</div>
-			<SeasonTunnelStatsCards
-				tunnelsInActualSeason={tunnelsInActualSeason}
-				tunnelsInPreviousSeason={tunnelsInPreviousSeason}
-				actualTrades={filteredTrades}
-				previousTrades={filteredPreviousYearTrades}
-			/>
-			<AveragePriceChart actualTrades={filteredTrades} />
-			<SalesIntensityHeatmap actualTrades={filteredTrades} />
-			<PointOfSaleDashboardCard points={sortedPoints} actualTrades={filteredTrades} />
+			<SalesAnalysisHeader year={year} setYear={setYear} toDate={toDate} setToDate={setToDate} />
+
+			{!hasTrades ? (
+				<div className='flex flex-col items-center justify-center py-24 text-center'>
+					<p className='text-base font-medium text-gray-700'>Brak zarejestrowanych transakcji w wybranym okresie!</p>
+
+					<p className='mt-2 text-sm text-gray-500 max-w-md'>
+						Dla tego zakresu dat nie ma jeszcze danych sprzedażowych. Wybierz inny okres, aby kontynuować analizę.
+					</p>
+				</div>
+			) : (
+				<>
+					<SalesAnalysisMainCards actualTrades={filteredTrades} previousTrades={filteredPreviousYearTrades} />
+
+					<TradesAndHarvestByMonthChart actualTrades={filteredTrades} />
+
+					<PepperClassDonutCards actualTrades={filteredTrades} />
+
+					<div className='flex flex-col md:flex-row justify-between items-center gap-6'>
+						<PepperColorRadialChart actualTrades={filteredTrades} />
+						<PepperTransactionsRadarChart actualTrades={filteredTrades} />
+					</div>
+
+					<SeasonTunnelStatsCards
+						tunnelsInActualSeason={tunnelsInActualSeason}
+						tunnelsInPreviousSeason={tunnelsInPreviousSeason}
+						actualTrades={filteredTrades}
+						previousTrades={filteredPreviousYearTrades}
+					/>
+
+					<AveragePriceChart actualTrades={filteredTrades} />
+
+					<SalesIntensityHeatmap actualTrades={filteredTrades} />
+
+					<PointOfSaleDashboardCard points={sortedPoints} actualTrades={filteredTrades} />
+				</>
+			)}
 		</div>
 	)
 }

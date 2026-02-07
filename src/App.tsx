@@ -6,7 +6,7 @@ import AppLayout from './components/layouts/AppLayout'
 
 import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
-import TradeOfPepper from './pages/TradeOfPepper/TradeOfPepper'
+import TradeOfPepper from './pages/TradeOfPepper/TradeOfPepperPage'
 import PointOfSalePage from './pages/TradeOfPepper/PointOfSalePage'
 import SalesAnalysisPage from './pages/TradeOfPepper/SalesAnalysisPage'
 import SettingsPage from './pages/SettingsPage'
