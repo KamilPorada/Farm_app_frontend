@@ -5,10 +5,15 @@ import ProtectedRoute from './routes/ProtectedRoute'
 import AppLayout from './components/layouts/AppLayout'
 
 import LandingPage from './pages/LandingPage'
+
 import Dashboard from './pages/Dashboard'
+
 import TradeOfPepper from './pages/TradeOfPepper/TradeOfPepperPage'
 import PointOfSalePage from './pages/TradeOfPepper/PointOfSalePage'
 import SalesAnalysisPage from './pages/TradeOfPepper/SalesAnalysisPage'
+
+import ExpensePage from './pages/ExpenseControl/ExpensePage'
+
 import SettingsPage from './pages/SettingsPage'
 import { SidebarProvider } from './context/SidebarContext'
 import { Toaster } from 'sonner'
@@ -50,9 +55,10 @@ function App() {
 							}>
 							<Route index element={<Dashboard />} />
 							<Route path='trade' element={<TradeOfPepper />} />
-							<Route path='settings' element={<SettingsPage />} />
 							<Route path='point-of-sale' element={<PointOfSalePage />} />
 							<Route path='sales-analysis' element={<SalesAnalysisPage />} />
+							<Route path='expense' element={<ExpensePage />} />
+							<Route path='settings' element={<SettingsPage />} />
 						</Route>
 					</Routes>
 				</BrowserRouter>

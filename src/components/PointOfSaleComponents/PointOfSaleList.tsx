@@ -237,7 +237,7 @@ export default function PointOfSaleList({
 			{/* 🖥 DESKTOP – TABELA */}
 			{/* ===================== */}
 			<div className="hidden md:block">
-				<div className="grid grid-cols-12 gap-3 px-3 py-2 text-xs font-medium bg-mainColor text-white rounded-sm">
+				<div className="grid grid-cols-12 gap-3 px-3 py-2 text-xs font-medium bg-mainColor text-white rounded-t-lg">
 					<div className="col-span-4">Nazwa</div>
 					<div className="col-span-4">Adres</div>
 					<div className="col-span-3">Kontakt</div>

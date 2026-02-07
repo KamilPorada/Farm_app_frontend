@@ -187,7 +187,7 @@ export default function TradeOfPepperList({ items, allFarmerTrades, points, onVi
 			{/* 🖥 DESKTOP – TABELA */}
 			{/* ===================== */}
 			<div>
-				<div className='hidden xl:grid  grid-cols-[1fr_2fr_1.5fr_2fr_1fr_2fr_1fr_2fr_5.5fr_1.5fr] py-2 text-xs font-semibold bg-mainColor text-white text-center'>
+				<div className='hidden xl:grid  grid-cols-[1fr_2fr_1.5fr_2fr_1fr_2fr_1fr_2fr_5.5fr_1.5fr] py-2 text-xs font-semibold bg-mainColor text-white text-center rounded-t-lg'>
 					<div>LP</div>
 					<div>Data</div>
 					<div>Klasa</div>

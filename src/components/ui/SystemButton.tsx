@@ -21,7 +21,7 @@ export default function SystemButton({
 	variant = 'primary',
 }: SystemButtonProps) {
 	const base =
-		'inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-mainColor/30 disabled:cursor-not-allowed disabled:opacity-50 hover:cursor-pointer'
+		'inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm text-center font-medium transition focus:outline-none focus:ring-2 focus:ring-mainColor/30 disabled:cursor-not-allowed disabled:opacity-50 hover:cursor-pointer'
 
 	const variants: Record<Variant, string> = {
 		primary:

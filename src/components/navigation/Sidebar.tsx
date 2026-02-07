@@ -41,7 +41,7 @@ const sections: Section[] = [
 		icon: faCoins,
 		items: [
 			{ label: 'Wydatki', path: '/app/expense' },
-			{ label: 'Faktury', path: '/app/finanse/invoice' },
+			{ label: 'Faktury', path: '/app/invoice' },
 			{ label: 'Przepływy finansowe', path: '/app/cash-flow' },
 		],
 	},
