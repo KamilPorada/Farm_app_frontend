@@ -4,6 +4,9 @@ import ExpenseCategoryHeader from '../../components/ExpenseControl/ExpenseCompon
 import ExpenseCategoryFormModal from '../../components/ExpenseControl/ExpenseComponents/ExpenseCategoryFormModal'
 import ConfirmDeleteCategoryModal from '../../components/ExpenseControl/ExpenseComponents/ConfirmDeleteCategoryModal'
 import ExpenseCategoryManageModal from '../../components/ExpenseControl/ExpenseComponents/ExpenseCategoryManageModal'
+import ConfirmDeleteModal from '../../components/PointOfSaleComponents/ConfirmDeleteModal'
+import ExpenseForm from '../../components/ExpenseControl/ExpenseComponents/ExpenseForm'
+import ExpenseList from '../../components/ExpenseControl/ExpenseComponents/ExpenseList'
 import type { Expense, ExpenseCategory } from '../../types/Expense'
 import { useAuthUser } from '../../hooks/useAuthUser'
 import { MoonLoader } from 'react-spinners'
@@ -19,17 +22,21 @@ export default function ExpensePage() {
 	const [mode, setMode] = useState<'list' | 'add' | 'edit' | 'details'>('list')
 	const [active, setActive] = useState<Expense | null>(null)
 
+	const [expenses, setExpenses] = useState<Expense[]>([])
 	const [categories, setCategories] = useState<ExpenseCategory[]>([])
 	const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null)
 
 	const [showCategoryFormModal, setShowCategoryFormModal] = useState(false)
 	const [showManageModal, setShowManageModal] = useState(false)
 	const [showDeleteModal, setShowDeleteModal] = useState(false)
+	const [toDeleteExpense, setToDeleteExpense] = useState<Expense | null>(null)
 
 	const [editingCategory, setEditingCategory] = useState<ExpenseCategory | null>(null)
 	const [deletingCategory, setDeletingCategory] = useState<ExpenseCategory | null>(null)
 
 	const [loading, setLoading] = useState(false)
+
+	const hasExpenses = expenses.length > 0
 
 	/* =======================
    		CREATE CATEGORY
@@ -162,6 +169,76 @@ export default function ExpensePage() {
 	}
 
 	/* =======================
+   		SAVE EXPENSE
+	======================= */
+	async function handleSaveExpense(data: Expense) {
+		if (!user) return
+		setLoading(true)
+
+		try {
+			const token = await getToken()
+			const isEdit = data.id !== 0
+
+			const url = isEdit
+				? `http://localhost:8080/api/expenses/${data.id}?farmerId=${user.id}`
+				: `http://localhost:8080/api/expenses?farmerId=${user.id}`
+
+			const res = await fetch(url, {
+				method: isEdit ? 'PUT' : 'POST',
+				headers: {
+					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(data),
+			})
+
+			if (!res.ok) {
+				notify(notificationsEnabled, 'error', 'Nie udało się zapisać wydatku')
+				return
+			}
+
+			const saved: Expense = await res.json()
+
+			setExpenses(prev => (isEdit ? prev.map(e => (e.id === saved.id ? saved : e)) : [...prev, saved]))
+
+			notify(notificationsEnabled, 'success', isEdit ? 'Wydatek został zaktualizowany' : 'Wydatek został dodany')
+
+			setMode('list')
+			setActive(null)
+		} catch {
+			notify(notificationsEnabled, 'error', 'Błąd podczas zapisu wydatku')
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	async function handleDeleteExpense(expense: Expense) {
+		if (!user) return
+		setLoading(true)
+
+		try {
+			const token = await getToken()
+
+			const res = await fetch(`http://localhost:8080/api/expenses/${expense.id}?farmerId=${user.id}`, {
+				method: 'DELETE',
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			if (!res.ok) {
+				notify(notificationsEnabled, 'error', 'Nie udało się usunąć wydatku')
+				return
+			}
+
+			setExpenses(prev => prev.filter(e => e.id !== expense.id))
+			notify(notificationsEnabled, 'success', 'Wydatek został usunięty')
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	/* =======================
 	   FETCH CATEGORIES
 	======================= */
 	useEffect(() => {
@@ -193,6 +270,46 @@ export default function ExpensePage() {
 
 		fetchCategories()
 	}, [user])
+
+	/* =======================
+   		FETCH EXPENSES
+	======================= */
+	useEffect(() => {
+	if (!user?.id) return
+
+	async function fetchExpenses() {
+		setLoading(true)
+
+		try {
+			const token = await getToken()
+
+			const url = activeCategoryId
+				? `http://localhost:8080/api/expenses/category/${activeCategoryId}?farmerId=${user?.id}&year=${year}`
+				: `http://localhost:8080/api/expenses?farmerId=${user?.id}&year=${year}`
+
+			const res = await fetch(url, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			if (!res.ok) {
+				notify(notificationsEnabled, 'error', 'Nie udało się pobrać wydatków')
+				return
+			}
+
+			const data: Expense[] = await res.json()
+			setExpenses(data)
+		} catch {
+			notify(notificationsEnabled, 'error', 'Błąd podczas pobierania wydatków')
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	fetchExpenses()
+}, [user, year, activeCategoryId])
+
 
 	/* =======================
 	   LOADING
@@ -281,11 +398,53 @@ export default function ExpensePage() {
 				/>
 			)}
 
-			{/* TU W KOLEJNYM KROKU:
-			    - listy wydatków
-			    - tabele per kategoria
-			    - tryby add / edit
-			*/}
+			{/* FORMULARZ WYDATKU */}
+			{mode !== 'list' && (
+				<ExpenseForm
+					initial={active}
+					categories={activeCategoryId ? categories.filter(c => c.id === activeCategoryId) : categories}
+					onSave={handleSaveExpense}
+					onCancel={() => {
+						setMode('list')
+						setActive(null)
+					}}
+				/>
+			)}
+
+			{!hasExpenses && mode === 'list' ? (
+				<div className='flex flex-col items-center justify-center py-24 text-center'>
+					<p className='text-base font-medium text-gray-700'>Brak zarejestrowanych wydatków w wybranym okresie</p>
+
+					<p className='mt-2 text-sm text-gray-500 max-w-md'>
+						Dla wybranego roku lub kategorii nie dodano jeszcze żadnych wydatków. Zmień rok, wybierz inną kategorię albo
+						dodaj nowy wydatek, aby rozpocząć ewidencję kosztów.
+					</p>
+				</div>
+			) : (
+				<>
+					{/* ===== LISTA WYDATKÓW ===== */}
+					{mode === 'list' && (
+						<ExpenseList
+							items={expenses}
+							onEdit={expense => {
+								setActive(expense)
+								setMode('edit')
+							}}
+							onDelete={expense => setToDeleteExpense(expense)}
+						/>
+					)}
+				</>
+			)}
+
+			{toDeleteExpense && (
+				<ConfirmDeleteModal
+					onCancel={() => setToDeleteExpense(null)}
+					onConfirm={async () => {
+						await handleDeleteExpense(toDeleteExpense)
+						setToDeleteExpense(null)
+					}}
+				/>
+			)}
 		</div>
 	)
 }

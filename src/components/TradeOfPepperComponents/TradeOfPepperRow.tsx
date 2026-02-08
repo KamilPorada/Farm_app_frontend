@@ -39,32 +39,13 @@ function formatNumber(value: number, useSeparator: boolean, decimals: number) {
 
 export default function TradeOfPepperRow({ item, onEdit, onDelete }: Props) {
 	const { appSettings } = useMeData()
+	const { eurRate } = useCurrencyRate()
 
 	const dateFormat = (appSettings?.dateFormat as 'DD-MM-YYYY' | 'YYYY-MM-DD') ?? 'DD-MM-YYYY'
 
 	const currency = appSettings?.currency ?? 'PLN'
 	const weightUnit = appSettings?.weightUnit ?? 'kg'
 	const useThousands = appSettings?.useThousandsSeparator ?? false
-
-	/* =======================
-	   EUR RATE
-	======================= */
-	const [eurRate, setEurRate] = useState<number>(4.5)
-
-	useEffect(() => {
-		if (currency !== 'EUR') return
-
-		async function fetchRate() {
-			try {
-				const res = await fetch('https://api.nbp.pl/api/exchangerates/rates/A/EUR/?format=json')
-				const data = await res.json()
-				const rate = data?.rates?.[0]?.mid
-				if (typeof rate === 'number') setEurRate(rate)
-			} catch {}
-		}
-
-		fetchRate()
-	}, [currency])
 
 	/* =======================
 	   UI CONVERSIONS

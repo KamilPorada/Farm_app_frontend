@@ -20,11 +20,11 @@ export default function ExpenseCategoryHeader({ categories, activeCategoryId, on
 				{/* Wszystkie */}
 				<button
 					onClick={() => onSelect(null)}
-					className={`flex items-center justify-center md:justify-start gap-2 rounded-xl border px-4 py-2 text-sm font-medium transition hover:cursor-pointer
+					className={`flex items-center justify-center md:justify-start gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium transition hover:cursor-pointer
 		${
 			activeCategoryId === null
 				? 'bg-mainColor text-white border-mainColor'
-				: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+				: 'bg-gray-50 text-gray-700 hover:bg-gray-200'
 		}`}>
 					<FontAwesomeIcon icon={faLayerGroup} />
 					Wszystkie
@@ -35,11 +35,11 @@ export default function ExpenseCategoryHeader({ categories, activeCategoryId, on
 					<button
 						key={cat.id}
 						onClick={() => onSelect(cat.id)}
-						className={`flex items-center justify-center md:justify-start gap-2 rounded-xl border px-4 py-2 text-sm font-medium transition hover:cursor-pointer
+						className={`flex items-center justify-center md:justify-start gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium transition hover:cursor-pointer
 		${
 			activeCategoryId === cat.id
 				? 'bg-mainColor text-white border-mainColor'
-				: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+				: 'bg-gray-50 text-gray-700 hover:bg-gray-200'
 		}`}>
 						{cat.icon && (
 							<FontAwesomeIcon icon={EXPENSE_CATEGORY_ICON_MAP[cat.icon] ?? EXPENSE_CATEGORY_ICON_MAP['fa-ellipsis']} />

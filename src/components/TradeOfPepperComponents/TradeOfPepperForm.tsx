@@ -3,6 +3,7 @@ import SystemButton from '../ui/SystemButton'
 import type { TradeOfPepper } from '../../types/TradeOfPepper'
 import type { PointOfSale } from '../../types/PointOfSale'
 import { useMeData } from '../../hooks/useMeData'
+import { useCurrencyRate } from '../../hooks/useCurrencyRate'
 
 /* =======================
    STRICT TYPES
@@ -62,6 +63,7 @@ type Errors = Partial<Record<keyof TradeOfPepperFormState, string>>
 ======================= */
 export default function TradeOfPepperForm({ initial, points, onSave, onCancel }: Props) {
 	const { appSettings } = useMeData()
+	const { eurRate } = useCurrencyRate()
 
 	/* =======================
 	   SAFE SETTINGS
@@ -74,25 +76,6 @@ export default function TradeOfPepperForm({ initial, points, onSave, onCancel }:
 	/* =======================
 	   FX RATE (EUR → PLN)
 	======================= */
-	const [eurRate, setEurRate] = useState<number>(4.5)
-
-	useEffect(() => {
-		if (currency !== 'EUR') return
-
-		async function fetchRate() {
-			try {
-				const res = await fetch('https://api.exchangerate.host/latest?base=EUR&symbols=PLN')
-				const data = await res.json()
-				if (data?.rates?.PLN) {
-					setEurRate(Number(data.rates.PLN))
-				}
-			} catch {
-				// fallback = 4.5
-			}
-		}
-
-		fetchRate()
-	}, [currency])
 
 	/* =======================
 	   STATE
