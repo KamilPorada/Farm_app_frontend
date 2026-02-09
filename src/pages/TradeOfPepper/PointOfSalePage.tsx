@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import PointOfSaleHeader from '../../components/PointOfSaleComponents/PointOfSaleHeader'
 import PointOfSaleList from '../../components/PointOfSaleComponents/PointOfSaleList'
 import PointOfSaleForm from '../../components/PointOfSaleComponents/PointOfSaleForm'
