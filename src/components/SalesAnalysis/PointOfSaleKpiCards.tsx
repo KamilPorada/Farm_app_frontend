@@ -2,31 +2,17 @@ import { useMemo } from 'react'
 import type { TradeOfPepper } from '../../types/TradeOfPepper'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faScaleBalanced, faSackDollar, faTag } from '@fortawesome/free-solid-svg-icons'
-import { useMeData } from '../../hooks/useMeData'
-import { useCurrencyRate } from '../../hooks/useCurrencyRate'
+import { useFormatUtils } from '../../hooks/useFormatUtils'
 
 type Props = {
 	actualTrades: TradeOfPepper[]
 }
 
-function formatNumber(value: number, { useSeparator, decimals }: { useSeparator: boolean; decimals: number }) {
-	if (useSeparator) {
-		return new Intl.NumberFormat('pl-PL', {
-			minimumFractionDigits: decimals,
-			maximumFractionDigits: decimals,
-		}).format(value)
-	}
-
-	return value.toFixed(decimals)
-}
-
 function KpiCard({ icon, label, value, unit }: { icon: any; label: string; value: string; unit?: string }) {
 	return (
 		<div className='w-full relative overflow-hidden rounded-xl bg-gradient-to-br from-white to-gray-50 p-3 shadow-sm'>
-			{/* accent */}
 			<div className='absolute left-0 top-0 h-full w-1 bg-mainColor' />
 
-			{/* watermark icon */}
 			<div className='absolute right-2 bottom-2 text-mainColor/20 text-4xl'>
 				<FontAwesomeIcon icon={icon} />
 			</div>
@@ -44,66 +30,45 @@ function KpiCard({ icon, label, value, unit }: { icon: any; label: string; value
 }
 
 export default function PointOfSaleKpiCards({ actualTrades }: Props) {
-	const { appSettings } = useMeData()
-	const { currency, eurRate } = useCurrencyRate()
+	const { formatNumber, convertWeight, toEURO, getCurrencySymbol, getWeightSymbol, userCurrency } =
+		useFormatUtils()
 
-	const { totalMass, massUnit, totalRevenue, currencyUnit, avgPrice, priceUnit } = useMemo(() => {
+	const { totalMassValue, totalRevenueValue, avgPriceValue } = useMemo(() => {
 		if (!actualTrades.length) {
 			return {
-				totalMass: '0',
-				massUnit: 'kg',
-				totalRevenue: '0',
-				currencyUnit: currency === 'PLN' ? 'zł' : '€',
-				avgPrice: '0',
-				priceUnit: `${currency === 'PLN' ? 'zł' : '€'}/kg`,
+				totalMassValue: '0',
+				totalRevenueValue: '0',
+				avgPriceValue: '0',
 			}
 		}
 
-		/* ===== MASA ===== */
 		const totalKg = actualTrades.reduce((acc, t) => acc + t.tradeWeight, 0)
+		const totalRevenuePln = actualTrades.reduce(
+			(acc, t) => acc + t.tradeWeight * t.tradePrice * (1 + t.vatRate / 100),
+			0,
+		)
 
-		const isTons = appSettings?.weightUnit === 't'
-		const massValue = isTons ? totalKg / 1000 : totalKg
-		const massDecimals = isTons ? 2 : 0
-
-		/* ===== PRZYCHÓD (BRUTTO) ===== */
-		const revenuePln = actualTrades.reduce((acc, t) => acc + t.tradeWeight * t.tradePrice * (1 + t.vatRate / 100), 0)
-
-		const revenue = currency === 'EUR' && eurRate ? revenuePln / eurRate : revenuePln
-
-		/* ===== ŚREDNIA CENA (WAŻONA) ===== */
-		const avgPriceValue = totalKg > 0 ? revenue / (isTons ? totalKg / 1000 : totalKg) : 0
-
-		const useSeparator = appSettings?.useThousandsSeparator ?? false
+		const avgPricePlnPerKg = totalKg > 0 ? totalRevenuePln / totalKg : 0
 
 		return {
-			totalMass: formatNumber(massValue, {
-				useSeparator,
-				decimals: massDecimals,
-			}),
-			massUnit: isTons ? 't' : 'kg',
-
-			totalRevenue: formatNumber(revenue, {
-				useSeparator,
-				decimals: 0,
-			}),
-			currencyUnit: currency === 'PLN' ? 'zł' : '€',
-
-			avgPrice: formatNumber(avgPriceValue, {
-				useSeparator,
-				decimals: 2,
-			}),
-			priceUnit: `${currency === 'PLN' ? 'zł' : '€'}/${isTons ? 't' : 'kg'}`,
+			totalMassValue: formatNumber(convertWeight(totalKg)),
+			totalRevenueValue: formatNumber(Math.round(userCurrency === 'EUR' ? toEURO(totalRevenuePln) : totalRevenuePln)),
+			avgPriceValue: formatNumber(userCurrency === 'EUR' ? toEURO(avgPricePlnPerKg) : avgPricePlnPerKg),
 		}
-	}, [actualTrades, appSettings, currency, eurRate])
+	}, [actualTrades, userCurrency, toEURO, convertWeight])
 
 	return (
 		<div className='w-full flex flex-col md:flex-row justify-between items-center gap-6'>
-			<KpiCard icon={faScaleBalanced} label='Łączna sprzedaż' value={totalMass} unit={massUnit} />
+			<KpiCard icon={faScaleBalanced} label='Łączna sprzedaż' value={totalMassValue} unit={getWeightSymbol()} />
 
-			<KpiCard icon={faSackDollar} label='Łączny przychód' value={totalRevenue} unit={currencyUnit} />
+			<KpiCard icon={faSackDollar} label='Łączny przychód' value={totalRevenueValue} unit={getCurrencySymbol()} />
 
-			<KpiCard icon={faTag} label='Średnia cena' value={avgPrice} unit={priceUnit} />
+			<KpiCard
+				icon={faTag}
+				label='Średnia cena'
+				value={avgPriceValue}
+				unit={`${getCurrencySymbol()}/kg`}
+			/>
 		</div>
 	)
 }

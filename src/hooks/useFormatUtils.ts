@@ -1,24 +1,60 @@
+import { useEffect, useState, useMemo } from 'react'
 import { useMeData } from './useMeData'
-import { useCurrencyRate } from './useCurrencyRate'
 
 type Currency = 'PLN' | 'EUR'
 type WeightUnit = 'kg' | 't'
-type DateFormat = 'DD-MM-YYYY' | 'YYYY-MM-DD'
+type DateFormat = 'DD-MM-YYYY' | 'YYYY-MM-DD' | 'DD.MM.YYYY' | 'YYYY.MM.DD'
+
+const CACHE_KEY = 'eur_rate'
+const CACHE_TS_KEY = 'eur_rate_ts'
+const CACHE_TTL = 1000 * 60 * 60 * 6
 
 export function useFormatUtils() {
 	const { appSettings } = useMeData()
-	const { eurRate } = useCurrencyRate()
+
+	const [EURRate, setEURRate] = useState<number | null>(null)
 
 	const userCurrency: Currency = appSettings?.currency === 'EUR' ? 'EUR' : 'PLN'
 	const userWeightUnit: WeightUnit = appSettings?.weightUnit === 't' ? 't' : 'kg'
-	const userDateFormat: DateFormat = appSettings?.dateFormat === 'DD-MM-YYYY' ? 'DD-MM-YYYY' : 'YYYY-MM-DD'
+	const userDateFormat: DateFormat =
+		appSettings?.dateFormat === 'DD-MM-YYYY' ||
+		appSettings?.dateFormat === 'YYYY-MM-DD' ||
+		appSettings?.dateFormat === 'DD.MM.YYYY' ||
+		appSettings?.dateFormat === 'YYYY.MM.DD'
+			? appSettings.dateFormat
+			: 'DD-MM-YYYY'
 
 	const useThousandsSeparator: boolean = appSettings?.useThousandsSeparator ?? true
 
-	/* =======================
-	   NUMBER
-	   123300 → 123 300 | 123300
-	======================= */
+	useEffect(() => {
+		if (userCurrency !== 'EUR') return
+
+		const cached = sessionStorage.getItem(CACHE_KEY)
+		const ts = sessionStorage.getItem(CACHE_TS_KEY)
+
+		if (cached && ts && Date.now() - Number(ts) < CACHE_TTL) {
+			setEURRate(Number(cached))
+			return
+		}
+
+		async function fetchRate() {
+			const res = await fetch('https://api.nbp.pl/api/exchangerates/rates/A/EUR/?format=json')
+			const data = await res.json()
+
+			sessionStorage.setItem(CACHE_KEY, data.rates[0].mid)
+			sessionStorage.setItem(CACHE_TS_KEY, String(Date.now()))
+
+			setEURRate(data.rates[0].mid)
+		}
+
+		fetchRate()
+	}, [userCurrency])
+
+	const isCurrencyReady = useMemo(() => {
+		if (userCurrency === 'PLN') return true
+		return !!EURRate && EURRate > 0
+	}, [userCurrency, EURRate])
+
 	function formatNumber(value: number | string): string {
 		if (value === null || value === undefined || value === '') return ''
 
@@ -26,67 +62,67 @@ export function useFormatUtils() {
 		if (isNaN(num)) return ''
 
 		if (!useThousandsSeparator) {
-			// bez separatorów tysięcy
-			return String(num)
+			return num.toFixed(2).replace(/\.00$/, '')
 		}
 
-		return num.toLocaleString('pl-PL')
+		return num.toLocaleString('pl-PL', {
+			minimumFractionDigits: num % 1 === 0 ? 0 : 2,
+			maximumFractionDigits: 2,
+		})
 	}
 
-	/* =======================
-	   CURRENCY SYMBOL
-	   PLN → zł | EUR → €
-	======================= */
 	function getCurrencySymbol(currency?: Currency): string {
 		const curr = currency ?? userCurrency
 		return curr === 'EUR' ? '€' : 'zł'
 	}
 
-	/* =======================
-	   CURRENCY CONVERSION
-	   BAZA: PLN
-	======================= */
-	function convertCurrency(value: number, target: Currency): number {
-		if (!eurRate || eurRate <= 0) return value
-
-		if (target === 'EUR') {
-			return Number((value / eurRate).toFixed(2))
-		}
-
-		// EUR → PLN
-		return Number((value * eurRate).toFixed(2))
+	function toEURO(valuePLN: number): number {
+		if (!EURRate || EURRate <= 0) return valuePLN
+		return Number((valuePLN / EURRate).toFixed(2))
 	}
 
-	/* =======================
-	   FORMAT CURRENCY
-	======================= */
+	function toPLN(valueEUR: number): number {
+		if (!EURRate || EURRate <= 0) return valueEUR
+		return Number((valueEUR * EURRate).toFixed(2))
+	}
+
 	function formatCurrency(value: number, currency?: Currency): string {
 		const curr = currency ?? userCurrency
-		const converted = convertCurrency(value, curr)
+
+		if (curr === 'EUR' && !isCurrencyReady) {
+			return `${formatNumber(value)} zł`
+		}
+
+		const converted = curr === 'EUR' ? value / EURRate! : value
 
 		return `${formatNumber(converted)} ${getCurrencySymbol(curr)}`
 	}
 
-	/* =======================
-	   DATE
-	======================= */
 	function formatDate(value: string, format?: DateFormat): string {
 		if (!value) return ''
 
 		const targetFormat = format ?? userDateFormat
 
-		if (targetFormat === 'YYYY-MM-DD') return value
-
 		const [y, m, d] = value.split('-')
-		if (!y || !m || !d) return value
 
-		return `${d}-${m}-${y}`
+		switch (targetFormat) {
+			case 'YYYY-MM-DD':
+				return `${y}-${m}-${d}`
+
+			case 'DD-MM-YYYY':
+				return `${d}-${m}-${y}`
+
+			case 'YYYY.MM.DD':
+				return `${y}.${m}.${d}`
+
+			case 'DD.MM.YYYY':
+				return `${d}.${m}.${y}`
+
+			default:
+				return value
+		}
 	}
 
-	/* =======================
-	   WEIGHT
-	   baza: kg
-	======================= */
 	function convertWeight(valueKg: number, target?: WeightUnit): number {
 		const unit = target ?? userWeightUnit
 		return unit === 't' ? valueKg / 1000 : valueKg
@@ -95,30 +131,28 @@ export function useFormatUtils() {
 	function formatWeight(valueKg: number, unit?: WeightUnit): string {
 		const u = unit ?? userWeightUnit
 		const converted = convertWeight(valueKg, u)
-
 		return `${formatNumber(converted)} ${u}`
 	}
 
+	function getWeightSymbol(unit?: WeightUnit): string {
+		const u = unit ?? userWeightUnit
+		return u === 't' ? 't' : 'kg'
+	}
+
 	return {
-		// settings
+		isCurrencyReady,
 		userCurrency,
 		userWeightUnit,
 		userDateFormat,
 		useThousandsSeparator,
-
-		// number
+		toEURO,
+		toPLN,
 		formatNumber,
-
-		// currency
 		getCurrencySymbol,
-		convertCurrency,
 		formatCurrency,
-
-		// date
 		formatDate,
-
-		// weight
-		convertWeight,
 		formatWeight,
+		convertWeight,
+		getWeightSymbol,
 	}
 }

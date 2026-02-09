@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPen, faTrash, faFilter, faDownload } from '@fortawesome/free-solid-svg-icons'
+import { faFilter, faDownload } from '@fortawesome/free-solid-svg-icons'
 
 import TradeOfPepperRow from './TradeOfPepperRow'
 import TradeOfPepperFiltersModal from './TradeOfPepperFiltersModal'

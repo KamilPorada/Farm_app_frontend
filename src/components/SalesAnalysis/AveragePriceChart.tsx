@@ -1,27 +1,23 @@
-import React, { useMemo } from 'react'
+import{ useMemo } from 'react'
 import Chart from 'react-apexcharts'
 import ChartCard from '../ui/ChartCard'
 import { greenPalette } from '../../theme/greenPalette'
 import type { TradeOfPepper } from '../../types/TradeOfPepper'
 import { MonthlyAverageCards } from './MonthlyAverageCards'
-import { useMeData } from '../../hooks/useMeData'
-import { useCurrencyRate } from '../../hooks/useCurrencyRate'
+import { useFormatUtils } from '../../hooks/useFormatUtils'
 
 type Props = {
 	actualTrades: TradeOfPepper[]
 }
 
 type IntervalPoint = {
-	avgPrice: number
+	avgPrice: number 
 	from: Date
 	to: Date
 	monthLabel: string
 	monthIndex: number
 }
 
-/* =======================
-   HELPERS
-======================= */
 function getAveragePrice(trades: TradeOfPepper[]) {
 	let totalKg = 0
 	let totalGross = 0
@@ -49,28 +45,22 @@ function formatIntervalLabel(from: Date, to: Date) {
 	return `${fromDay} ${fromMonth} – ${toDay} ${toMonth}`
 }
 
-/* =======================
-   COMPONENT
-======================= */
 export default function AveragePriceChart({ actualTrades }: Props) {
-	const { currency, eurRate } = useCurrencyRate()
+	const {
+		userCurrency,
+		toEURO,
+		formatNumber,
+		getCurrencySymbol,
+	} = useFormatUtils()
 
-	const { appSettings } = useMeData()
+	const currencySymbol = getCurrencySymbol()
 
-	function convertPrice(value: number, currency: 'PLN' | 'EUR', eurRate: number) {
-		if (currency === 'EUR') {
-			return value / eurRate
-		}
-		return value
-	}
-
-	/* =======================
-	   INTERWAŁY 10-DNIOWE
-	======================= */
 	const intervalData = useMemo<IntervalPoint[]>(() => {
 		if (!actualTrades.length) return []
 
-		const sorted = [...actualTrades].sort((a, b) => +new Date(a.tradeDate) - +new Date(b.tradeDate))
+		const sorted = [...actualTrades].sort(
+			(a, b) => +new Date(a.tradeDate) - +new Date(b.tradeDate),
+		)
 
 		const start = new Date(sorted[0].tradeDate)
 		const end = new Date(sorted[sorted.length - 1].tradeDate)
@@ -89,14 +79,13 @@ export default function AveragePriceChart({ actualTrades }: Props) {
 			})
 
 			if (tradesInInterval.length) {
-				const avg = getAveragePrice(tradesInInterval)
-				const monthIndex = from.getMonth()
+				const avgPln = getAveragePrice(tradesInInterval)
 
 				result.push({
-					avgPrice: Math.round(avg * 100) / 100,
+					avgPrice: avgPln,
 					from,
 					to,
-					monthIndex,
+					monthIndex: from.getMonth(),
 					monthLabel: from.toLocaleString('pl-PL', { month: 'long' }),
 				})
 			}
@@ -107,9 +96,6 @@ export default function AveragePriceChart({ actualTrades }: Props) {
 		return result
 	}, [actualTrades])
 
-	/* =======================
-	   ETYKIETY X – TYLKO POCZĄTEK MIESIĄCA
-	======================= */
 	const xLabels = useMemo(() => {
 		let lastMonth: number | null = null
 
@@ -122,30 +108,33 @@ export default function AveragePriceChart({ actualTrades }: Props) {
 		})
 	}, [intervalData])
 
-	/* =======================
-	   ŚREDNIA SEZONU
-	======================= */
-	const seasonAvg = useMemo(() => getAveragePrice(actualTrades), [actualTrades])
+	const seasonAvgPln = useMemo(
+		() => getAveragePrice(actualTrades),
+		[actualTrades],
+	)
 
-	/* =======================
-	   WYKRES
-	======================= */
-	const series = [
-		{
-			name: `Średnia cena kolejnych 10 dni sezonu`,
-			data: intervalData.map(p => convertPrice(p.avgPrice, currency, eurRate)),
-		},
-		{
-			name: 'Średnia sezonu',
-			data: intervalData.map(() => convertPrice(seasonAvg, currency, eurRate)),
-		},
-	]
+	const series = useMemo(
+		() => [
+			{
+				name: 'Średnia cena kolejnych 10 dni sezonu',
+				data: intervalData.map(p =>
+					userCurrency === 'EUR' ? toEURO(p.avgPrice) : p.avgPrice,
+				),
+			},
+			{
+				name: 'Średnia sezonu',
+				data: intervalData.map(() =>
+					userCurrency === 'EUR' ? toEURO(seasonAvgPln) : seasonAvgPln,
+				),
+			},
+		],
+		[intervalData, seasonAvgPln, userCurrency, toEURO],
+	)
 
 	const options: ApexCharts.ApexOptions = {
 		chart: {
 			type: 'area',
-			zoom: { enabled: false }, 
-
+			zoom: { enabled: false },
 			toolbar: { show: false },
 			fontFamily: 'inherit',
 		},
@@ -160,19 +149,19 @@ export default function AveragePriceChart({ actualTrades }: Props) {
 
 		xaxis: {
 			categories: xLabels,
+			axisBorder: { show: false },
+			axisTicks: { show: false },
 			labels: {
 				style: {
 					fontSize: '11px',
 					colors: '#6b7280',
 				},
 			},
-			axisBorder: { show: false },
-			axisTicks: { show: false },
 		},
 
 		yaxis: {
 			labels: {
-				formatter: v => `${v.toFixed(2)} ${currency === 'EUR' ? '€' : 'zł'}`,
+				formatter: v => `${formatNumber(v)} ${currencySymbol}`,
 			},
 		},
 
@@ -187,40 +176,35 @@ export default function AveragePriceChart({ actualTrades }: Props) {
 		},
 
 		tooltip: {
-			shared: false,
 			custom: ({ dataPointIndex }) => {
 				const p = intervalData[dataPointIndex]
 				if (!p) return ''
 
-				const value = convertPrice(p.avgPrice, currency, eurRate)
+				const value =
+					userCurrency === 'EUR' ? toEURO(p.avgPrice) : p.avgPrice
 
 				return `
-			<div style="padding:8px 10px;font-size:12px">
-				<div style="font-weight:600;margin-bottom:4px">
-					${formatIntervalLabel(p.from, p.to)}
-				</div>
-				<div>
-					Średnia cena:
-					<strong>
-						${value.toFixed(2)} ${currency === 'EUR' ? '€' : 'zł'}/kg
-					</strong>
-				</div>
-			</div>
-		`
+					<div style="padding:8px 10px;font-size:12px">
+						<div style="font-weight:600;margin-bottom:4px">
+							${formatIntervalLabel(p.from, p.to)}
+						</div>
+						<div>
+							Średnia cena:
+							<strong>
+								${formatNumber(value)} ${currencySymbol}/kg
+							</strong>
+						</div>
+					</div>
+				`
 			},
 		},
 	}
 
-	/* =======================
-	   KARTY MIESIĘCZNE
-	======================= */
 	const avgByMonth = useMemo(() => {
 		const map: Record<string, TradeOfPepper[]> = {}
 
 		actualTrades.forEach(t => {
-			const m = new Date(t.tradeDate).toLocaleString('pl-PL', {
-				month: 'long',
-			})
+			const m = new Date(t.tradeDate).toLocaleString('pl-PL', { month: 'long' })
 			map[m] ??= []
 			map[m].push(t)
 		})
@@ -231,24 +215,18 @@ export default function AveragePriceChart({ actualTrades }: Props) {
 		}))
 	}, [actualTrades])
 
-	/* =======================
-	   RENDER
-	======================= */
 	return (
 		<ChartCard title='Wykres zależności średniej ceny sprzedaży w sezonie'>
 			<div className='grid grid-cols-1 lg:grid-cols-12 gap-6 h-full'>
-				{/* WYKRES */}
-				<div className='lg:col-span-8'>
-					<div className='h-[420px] '>
-						<Chart type='line' options={options} series={series} height='100%' />
-					</div>
+				<div className='lg:col-span-8 h-[420px]'>
+					<Chart type='line' options={options} series={series} height='100%' />
 				</div>
 
-				{/* KARTY */}
-				<div className='lg:col-span-4'>
-					<div className='h-[420px] overflow-y-auto pr-1 space-y-3'>
-						<MonthlyAverageCards items={avgByMonth} seasonAvg={seasonAvg} currency={currency} eurRate={eurRate} />
-					</div>
+				<div className='lg:col-span-4 h-[420px] overflow-y-auto pr-1 space-y-3'>
+					<MonthlyAverageCards
+						items={avgByMonth}
+						seasonAvg={seasonAvgPln}
+					/>
 				</div>
 			</div>
 		</ChartCard>

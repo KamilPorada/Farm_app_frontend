@@ -1,38 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import SystemButton from '../ui/SystemButton'
 import type { TradeOfPepper } from '../../types/TradeOfPepper'
 import type { PointOfSale } from '../../types/PointOfSale'
-import { useMeData } from '../../hooks/useMeData'
-import { useCurrencyRate } from '../../hooks/useCurrencyRate'
-
-/* =======================
-   STRICT TYPES
-======================= */
-type WeightUnit = 'kg' | 't'
-type Currency = 'PLN' | 'EUR'
-
-/* =======================
-   TYPE GUARDS
-======================= */
-
-function isWeightUnit(v?: string): v is WeightUnit {
-	return v === 'kg' || v === 't'
-}
-
-function isCurrency(v?: string): v is Currency {
-	return v === 'PLN' || v === 'EUR'
-}
-
-/* =======================
-   HELPERS – WEIGHT
-======================= */
-function weightToUi(valueKg: number, unit: WeightUnit): number {
-	return unit === 't' ? valueKg / 1000 : valueKg
-}
-
-function weightToKg(value: number, unit: WeightUnit): number {
-	return unit === 't' ? value * 1000 : value
-}
+import { useFormatUtils } from '../../hooks/useFormatUtils'
 
 /* =======================
    TYPES
@@ -51,8 +21,8 @@ type TradeOfPepperFormState = {
 	tradeDate: string
 	pepperClass: 1 | 2 | 3
 	pepperColor: 'Czerwona' | 'Żółta' | 'Pomarańczowa' | 'Zielona'
-	tradePrice: number | ''
-	tradeWeight: number | ''
+	tradePrice: number | '' // UI currency
+	tradeWeight: number | '' // UI unit
 	vatRate: number | ''
 }
 
@@ -62,20 +32,13 @@ type Errors = Partial<Record<keyof TradeOfPepperFormState, string>>
    COMPONENT
 ======================= */
 export default function TradeOfPepperForm({ initial, points, onSave, onCancel }: Props) {
-	const { appSettings } = useMeData()
-	const { eurRate } = useCurrencyRate()
-
-	/* =======================
-	   SAFE SETTINGS
-	======================= */
-
-	const weightUnit: WeightUnit = isWeightUnit(appSettings?.weightUnit) ? appSettings!.weightUnit : 'kg'
-
-	const currency: Currency = isCurrency(appSettings?.currency) ? appSettings!.currency : 'PLN'
-
-	/* =======================
-	   FX RATE (EUR → PLN)
-	======================= */
+	const {
+		userCurrency,
+		userWeightUnit,
+		getCurrencySymbol,
+		isCurrencyReady,
+		toPLN,
+	} = useFormatUtils()
 
 	/* =======================
 	   STATE
@@ -91,11 +54,16 @@ export default function TradeOfPepperForm({ initial, points, onSave, onCancel }:
 		pepperColor: initial?.pepperColor ?? 'Czerwona',
 		tradePrice:
 			initial?.tradePrice !== undefined
-				? currency === 'EUR'
-					? Number((initial.tradePrice / eurRate).toFixed(2))
+				? userCurrency === 'EUR'
+					? toPLN(Number(initial.tradePrice))
 					: initial.tradePrice
 				: '',
-		tradeWeight: initial?.tradeWeight !== undefined ? weightToUi(initial.tradeWeight, weightUnit) : '',
+		tradeWeight:
+			initial?.tradeWeight !== undefined
+				? userWeightUnit === 't'
+					? initial.tradeWeight / 1000
+					: initial.tradeWeight
+				: '',
 		vatRate: initial?.vatRate ?? '',
 	})
 
@@ -105,9 +73,7 @@ export default function TradeOfPepperForm({ initial, points, onSave, onCancel }:
 	function validateAll(): boolean {
 		const e: Errors = {}
 
-		if (!form.tradeDate) {
-			e.tradeDate = 'Wybierz datę transakcji'
-		}
+		if (!form.tradeDate) e.tradeDate = 'Wybierz datę transakcji'
 		if (!form.pointOfSaleId) e.pointOfSaleId = 'Wybierz punkt sprzedaży'
 		if (![1, 2, 3].includes(form.pepperClass)) e.pepperClass = 'Wybierz klasę'
 		if (!form.pepperColor) e.pepperColor = 'Wybierz kolor'
@@ -120,10 +86,12 @@ export default function TradeOfPepperForm({ initial, points, onSave, onCancel }:
 	}
 
 	/* =======================
-	   SAVE → DEFAULT UNITS
+	   SAVE → BASE UNITS
+	   PLN + kg
 	======================= */
 	function handleSave() {
 		if (!validateAll()) return
+		if (!isCurrencyReady) return
 
 		const payload: TradeOfPepper = {
 			id: form.id,
@@ -132,8 +100,12 @@ export default function TradeOfPepperForm({ initial, points, onSave, onCancel }:
 			tradeDate: form.tradeDate,
 			pepperClass: form.pepperClass,
 			pepperColor: form.pepperColor,
-			tradePrice: currency === 'EUR' ? Number((Number(form.tradePrice) * eurRate).toFixed(2)) : Number(form.tradePrice),
-			tradeWeight: weightToKg(Number(form.tradeWeight), weightUnit),
+
+			// 🔒 ZŁOTA ZASADA
+			tradePrice: userCurrency === 'EUR' ? toPLN(Number(form.tradePrice)) : Number(form.tradePrice),
+
+			tradeWeight: userWeightUnit === 't' ? Number(form.tradeWeight) * 1000 : Number(form.tradeWeight),
+
 			vatRate: Number(form.vatRate),
 		}
 
@@ -153,7 +125,7 @@ export default function TradeOfPepperForm({ initial, points, onSave, onCancel }:
 					type='date'
 					value={form.tradeDate}
 					error={errors.tradeDate}
-					onChange={e => setForm(p => ({ ...p, tradeDate: e.target.value }))}
+					onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm(p => ({ ...p, tradeDate: e.target.value }))}
 				/>
 
 				<Select
@@ -164,7 +136,7 @@ export default function TradeOfPepperForm({ initial, points, onSave, onCancel }:
 						{ label: '— Wybierz punkt sprzedaży —', value: '' },
 						...points.map(p => ({ label: p.name, value: String(p.id) })),
 					]}
-					onChange={e =>
+					onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
 						setForm(p => ({
 							...p,
 							pointOfSaleId: e.target.value === '' ? '' : Number(e.target.value),
@@ -181,7 +153,7 @@ export default function TradeOfPepperForm({ initial, points, onSave, onCancel }:
 						{ label: '2', value: '2' },
 						{ label: 'Krojona', value: '3' },
 					]}
-					onChange={e =>
+					onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
 						setForm(p => ({
 							...p,
 							pepperClass: Number(e.target.value) as 1 | 2 | 3,
@@ -199,7 +171,7 @@ export default function TradeOfPepperForm({ initial, points, onSave, onCancel }:
 						{ label: 'Pomarańczowa', value: 'Pomarańczowa' },
 						{ label: 'Zielona', value: 'Zielona' },
 					]}
-					onChange={e =>
+					onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
 						setForm(p => ({
 							...p,
 							pepperColor: e.target.value as TradeOfPepperFormState['pepperColor'],
@@ -210,10 +182,10 @@ export default function TradeOfPepperForm({ initial, points, onSave, onCancel }:
 				<Input
 					type='number'
 					step='0.01'
-					label={`Cena (${currency} / kg)`}
+					label={`Cena (${getCurrencySymbol()} / kg)`}
 					value={form.tradePrice}
 					error={errors.tradePrice}
-					onChange={e =>
+					onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 						setForm(p => ({
 							...p,
 							tradePrice: e.target.value === '' ? '' : Number(e.target.value),
@@ -224,10 +196,10 @@ export default function TradeOfPepperForm({ initial, points, onSave, onCancel }:
 				<Input
 					type='number'
 					step='0.01'
-					label={`Waga (${weightUnit})`}
+					label={`Waga (${userWeightUnit})`}
 					value={form.tradeWeight}
 					error={errors.tradeWeight}
-					onChange={e =>
+					onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 						setForm(p => ({
 							...p,
 							tradeWeight: e.target.value === '' ? '' : Number(e.target.value),
@@ -240,7 +212,7 @@ export default function TradeOfPepperForm({ initial, points, onSave, onCancel }:
 					label='VAT (%)'
 					value={form.vatRate}
 					error={errors.vatRate}
-					onChange={e =>
+					onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 						setForm(p => ({
 							...p,
 							vatRate: e.target.value === '' ? '' : Number(e.target.value),
@@ -250,7 +222,9 @@ export default function TradeOfPepperForm({ initial, points, onSave, onCancel }:
 			</div>
 
 			<div className='mt-6 flex gap-3'>
-				<SystemButton onClick={handleSave}>Zapisz</SystemButton>
+				<SystemButton onClick={handleSave} disabled={!isCurrencyReady}>
+					Zapisz
+				</SystemButton>
 				<SystemButton variant='outline' onClick={onCancel}>
 					Anuluj
 				</SystemButton>

@@ -9,12 +9,8 @@ import {
 	faTents,
 	faWeightHanging,
 } from '@fortawesome/free-solid-svg-icons'
-import { useMeData } from '../../hooks/useMeData'
-import { useCurrencyRate } from '../../hooks/useCurrencyRate'
+import { useFormatUtils } from '../../hooks/useFormatUtils'
 
-/* =======================
-   TYPES
-======================= */
 type Props = {
 	tunnelsInActualSeason: number
 	tunnelsInPreviousSeason: number
@@ -35,9 +31,6 @@ type SeasonStats = {
 	tunnelsTrend: Trend
 }
 
-/* =======================
-   HELPERS
-======================= */
 function calculateTrend(current: number, previous: number): Trend {
 	if (!previous) return { direction: 'same', diff: 0 }
 
@@ -48,31 +41,6 @@ function calculateTrend(current: number, previous: number): Trend {
 	return { direction: 'same', diff: 0 }
 }
 
-function formatNumber(value: number, useSeparator: boolean, fractionDigits: number) {
-	return useSeparator
-		? new Intl.NumberFormat('pl-PL', {
-				minimumFractionDigits: fractionDigits,
-				maximumFractionDigits: fractionDigits,
-			}).format(value)
-		: value.toFixed(fractionDigits)
-}
-function convertCurrency(valuePln: number, currency: 'PLN' | 'EUR', eurRate?: number) {
-	if (currency === 'EUR' && eurRate) {
-		return valuePln / eurRate
-	}
-	return valuePln
-}
-
-function convertWeight(valueKg: number, unit: 'kg' | 't') {
-	if (unit === 't') {
-		return valueKg / 1000
-	}
-	return valueKg
-}
-
-/* =======================
-   TREND BADGE
-======================= */
 function TrendBadge({ trend, unit, decimals = 2 }: { trend: Trend; unit: string; decimals?: number }) {
 	const cfg = {
 		up: 'bg-green-50 text-green-700 border-green-200',
@@ -97,9 +65,6 @@ function TrendBadge({ trend, unit, decimals = 2 }: { trend: Trend; unit: string;
 	)
 }
 
-/* =======================
-   STAT CARD
-======================= */
 function StatCard({
 	label,
 	value,
@@ -115,41 +80,35 @@ function StatCard({
 }) {
 	return (
 		<div className='relative overflow-hidden rounded-xl bg-gradient-to-br from-white to-gray-50 p-3 shadow-sm'>
-			{' '}
-			{/* accent */} <div className='absolute left-0 top-0 h-full w-1 bg-mainColor' /> {/* watermark icon */}{' '}
+			<div className='absolute left-0 top-0 h-full w-1 bg-mainColor' />
 			<div className='absolute right-2 bottom-2 text-mainColor/20 text-4xl'>
-				{' '}
-				<FontAwesomeIcon icon={icon} />{' '}
-			</div>{' '}
+				<FontAwesomeIcon icon={icon} />
+			</div>
 			<div className='pl-4 space-y-3'>
-				{' '}
-				<p className='text-[11px] uppercase tracking-wide text-gray-500 leading-tight'>{label}</p>{' '}
+				<p className='text-[11px] uppercase tracking-wide text-gray-500 leading-tight'>{label}</p>
 				<div className='flex items-end gap-1'>
 					<span className='text-2xl font-semibold text-gray-900'>{value}</span>
 					{unit && <span className='text-xs text-gray-500 mb-0.5'>{unit}</span>}
 				</div>
 				{trend && (
 					<div>
-						{' '}
-						<TrendBadge trend={trend} unit={unit ?? ''} />{' '}
+						<TrendBadge trend={trend} unit={unit ?? ''} />
 					</div>
-				)}{' '}
-			</div>{' '}
+				)}
+			</div>
 		</div>
 	)
 }
 
-/* =======================
-   MAIN COMPONENT
-======================= */
 export default function SeasonTunnelStatsCards({
 	tunnelsInActualSeason,
 	tunnelsInPreviousSeason,
 	actualTrades,
 	previousTrades,
 }: Props) {
-	const { currency, eurRate } = useCurrencyRate()
-	const { appSettings } = useMeData()
+	const { formatNumber, convertWeight, toEURO, userCurrency, getCurrencySymbol, getWeightSymbol } = useFormatUtils()
+	const currencyUnit = getCurrencySymbol()
+	const weightUnit = getWeightSymbol()
 
 	const { avgProfitPerTunnel, avgHarvestPerTunnel, profitTrend, harvestTrend, tunnelsTrend } =
 		useMemo<SeasonStats>(() => {
@@ -163,7 +122,6 @@ export default function SeasonTunnelStatsCards({
 				}
 			}
 
-			/* ===== SUROWE ===== */
 			const totalHarvestKg = actualTrades.reduce((a, t) => a + t.tradeWeight, 0)
 			const totalRevenuePln = actualTrades.reduce((a, t) => a + t.tradeWeight * t.tradePrice * (1 + t.vatRate / 100), 0)
 
@@ -173,23 +131,18 @@ export default function SeasonTunnelStatsCards({
 				0,
 			)
 
-			/* ===== ŚREDNIE ===== */
 			const avgHarvestKg = totalHarvestKg / tunnelsInActualSeason
 			const avgProfitPln = totalRevenuePln / tunnelsInActualSeason
 
 			const prevAvgHarvestKg = prevHarvestKg / tunnelsInPreviousSeason
 			const prevAvgProfitPln = prevRevenuePln / tunnelsInPreviousSeason
 
-			/* ===== KONWERSJA ===== */
-			const weightUnit: 'kg' | 't' = appSettings?.weightUnit === 't' ? 't' : 'kg'
+			const avgHarvest = convertWeight(avgHarvestKg)
+			const prevAvgHarvest = convertWeight(prevAvgHarvestKg)
 
-			const avgHarvest = convertWeight(avgHarvestKg, weightUnit)
-			const prevAvgHarvest = convertWeight(prevAvgHarvestKg, weightUnit)
+			const avgProfit = userCurrency == 'EUR' ? toEURO(avgProfitPln) : avgProfitPln
+			const prevAvgProfit = userCurrency == 'EUR' ? toEURO(prevAvgProfitPln) : prevAvgProfitPln
 
-			const avgProfit = convertCurrency(avgProfitPln, currency, eurRate)
-			const prevAvgProfit = convertCurrency(prevAvgProfitPln, currency, eurRate)
-
-			/* ===== TRENDY ===== */
 			return {
 				avgProfitPerTunnel: avgProfit,
 				avgHarvestPerTunnel: avgHarvest,
@@ -197,15 +150,18 @@ export default function SeasonTunnelStatsCards({
 				harvestTrend: calculateTrend(avgHarvest, prevAvgHarvest),
 				tunnelsTrend: calculateTrend(tunnelsInActualSeason, tunnelsInPreviousSeason),
 			}
-		}, [actualTrades, previousTrades, tunnelsInActualSeason, tunnelsInPreviousSeason, appSettings, currency, eurRate])
+		}, [
+			actualTrades,
+			previousTrades,
+			tunnelsInActualSeason,
+			tunnelsInPreviousSeason,
+			userCurrency,
+			toEURO,
+			convertWeight,
+		])
 
-	/* ===== FORMATOWANIE ===== */
-	const useSeparator = appSettings?.useThousandsSeparator ?? true
-
-	const profitFormatted = formatNumber(avgProfitPerTunnel, useSeparator, 0)
-
-	const harvestFormatted = formatNumber(avgHarvestPerTunnel, useSeparator, appSettings?.weightUnit === 't' ? 2 : 0)
-
+	const profitFormatted = formatNumber(avgProfitPerTunnel)
+	const harvestFormatted = formatNumber(avgHarvestPerTunnel)
 
 	return (
 		<div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
@@ -219,7 +175,7 @@ export default function SeasonTunnelStatsCards({
 			<StatCard
 				label='Średni zysk z tunelu'
 				value={profitFormatted}
-				unit={currency === 'EUR' ? '€' : 'zł'}
+				unit={currencyUnit}
 				icon={faSackDollar}
 				trend={profitTrend}
 			/>
@@ -227,7 +183,7 @@ export default function SeasonTunnelStatsCards({
 			<StatCard
 				label='Średni zbiór z tunelu'
 				value={harvestFormatted}
-				unit={appSettings?.weightUnit ?? 'kg'}
+				unit={weightUnit}
 				icon={faWeightHanging}
 				trend={harvestTrend}
 			/>

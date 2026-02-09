@@ -7,10 +7,6 @@ type Props = {
 	actualTrades: TradeOfPepper[]
 }
 
-/* =======================
-   CONSTS
-======================= */
-
 const SEASON_MONTHS = [
 	{ label: 'Lipiec', index: 6 },
 	{ label: 'Sierpień', index: 7 },
@@ -19,19 +15,10 @@ const SEASON_MONTHS = [
 	{ label: 'Listopad', index: 10 },
 ]
 
-const DAYS = Array.from({ length: 31 }, (_, i) => ({
-	label: String(i + 1),
-	day: i + 1,
-}))
-
-/* =======================
-   COMPONENT
-======================= */
 export default function SalesIntensityHeatmap({ actualTrades }: Props) {
 	const series = useMemo(() => {
 		const matrix = SEASON_MONTHS.map(() => Array(31).fill(0))
 
-		// 👇 KLUCZ: konkretna data YYYY-MM-DD
 		const dateCounter: Record<string, number> = {}
 
 		actualTrades.forEach(t => {
@@ -44,7 +31,7 @@ export default function SalesIntensityHeatmap({ actualTrades }: Props) {
 
 			matrix[monthIdx][day - 1] += 1
 
-			const key = dateObj.toISOString().slice(0, 10) // YYYY-MM-DD
+			const key = dateObj.toISOString().slice(0, 10) 
 			dateCounter[key] = (dateCounter[key] ?? 0) + 1
 		})
 

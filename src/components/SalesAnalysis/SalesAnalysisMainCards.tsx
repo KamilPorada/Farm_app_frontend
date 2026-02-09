@@ -4,25 +4,11 @@ import type { TradeOfPepper } from '../../types/TradeOfPepper'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faWeightHanging, faCoins, faHandHoldingDollar, faListOl } from '@fortawesome/free-solid-svg-icons'
 import { useCountUp } from '../../hooks/useCountUp'
+import { useFormatUtils } from '../../hooks/useFormatUtils'
 
-/* =======================
-   PROPS
-======================= */
 type Props = {
-	actualTrades: TradeOfPepper[] // aktualny zakres
-	previousTrades: TradeOfPepper[] // wszystkie (do trendu r/r)
-}
-
-/* =======================
-   UTIL
-======================= */
-function formatNumber(value: number, decimals: number, useThousands?: boolean) {
-	const fixed = value.toFixed(decimals)
-	if (!useThousands) return fixed
-
-	const [intPart, decPart] = fixed.split('.')
-	const spaced = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-	return decPart ? `${spaced}.${decPart}` : spaced
+	actualTrades: TradeOfPepper[]
+	previousTrades: TradeOfPepper[]
 }
 
 function aggregateTrades(trades: TradeOfPepper[]) {
@@ -40,16 +26,13 @@ function aggregateTrades(trades: TradeOfPepper[]) {
 	}
 
 	return {
-		totalKg: kg, // zawsze kg
-		totalGross: gross, // zawsze PLN
-		avgGrossPerKg: kg > 0 ? gross / kg : 0, // PLN/kg
+		totalKg: kg,
+		totalGross: gross,
+		avgGrossPerKg: kg > 0 ? gross / kg : 0,
 		count,
 	}
 }
 
-/* =======================
-   TREND
-======================= */
 type Trend = {
 	direction: 'up' | 'down' | 'same'
 	diff: number
@@ -64,12 +47,8 @@ function calculateTrend(current: number, previous?: number): Trend | null {
 	return { direction: 'same', diff: 0 }
 }
 
-/* =======================
-   COMPONENT
-======================= */
 export default function SalesAnalysisMainCards({ actualTrades, previousTrades }: Props) {
-	const { appSettings } = useMeData()
-	const [eurRate, setEurRate] = useState(1)
+	const { formatCurrency, formatWeight, convertWeight, toEURO, userCurrency, getWeightSymbol } = useFormatUtils()
 	const [activeIndex, setActiveIndex] = useState(0)
 
 	useEffect(() => {
@@ -80,38 +59,9 @@ export default function SalesAnalysisMainCards({ actualTrades, previousTrades }:
 		return () => clearInterval(interval)
 	}, [])
 
-	/* =======================
-	   EUR RATE
-	======================= */
-	useEffect(() => {
-		if (appSettings?.currency !== 'EUR') return
-
-		async function fetchRate() {
-			try {
-				const res = await fetch('https://api.nbp.pl/api/exchangerates/rates/a/eur/?format=json')
-				const data = await res.json()
-				setEurRate(data.rates[0].mid)
-			} catch {
-				setEurRate(1)
-			}
-		}
-
-		fetchRate()
-	}, [appSettings?.currency])
-
-	/* =======================
-	   CURRENT AGG (BAZA)
-	======================= */
 	const currentAgg = useMemo(() => aggregateTrades(actualTrades), [actualTrades])
-
-	/* =======================
-   PREVIOUS YEAR AGG (BAZA)
-======================= */
 	const previousAgg = useMemo(() => (previousTrades.length ? aggregateTrades(previousTrades) : null), [previousTrades])
 
-	/* =======================
-	   BASE TRENDS (BAZA)
-	======================= */
 	const weightTrendBase = calculateTrend(currentAgg.totalKg, previousAgg?.totalKg)
 
 	const valueTrendBase = calculateTrend(currentAgg.totalGross, previousAgg?.totalGross)
@@ -120,95 +70,73 @@ export default function SalesAnalysisMainCards({ actualTrades, previousTrades }:
 
 	const countTrend = calculateTrend(currentAgg.count, previousAgg?.count)
 
-	/* =======================
-	   TREND → UI UNITS
-	======================= */
 	const weightTrend = weightTrendBase
 		? {
 				...weightTrendBase,
-				diff: appSettings?.weightUnit === 't' ? weightTrendBase.diff / 1000 : weightTrendBase.diff,
+				diff: convertWeight(weightTrendBase.diff),
 			}
 		: null
 
 	const valueTrend = valueTrendBase
 		? {
 				...valueTrendBase,
-				diff: appSettings?.currency === 'EUR' ? valueTrendBase.diff / eurRate : valueTrendBase.diff,
+				diff: userCurrency === 'EUR' ? toEURO(valueTrendBase.diff) : valueTrendBase.diff,
 			}
 		: null
 
 	const avgPriceTrend = avgPriceTrendBase
 		? {
 				...avgPriceTrendBase,
-				diff: appSettings?.currency === 'EUR' ? avgPriceTrendBase.diff / eurRate : avgPriceTrendBase.diff,
+				diff: userCurrency === 'EUR' ? toEURO(avgPriceTrendBase.diff) : avgPriceTrendBase.diff,
 			}
 		: null
 
-	/* =======================
-	   COUNT-UP VALUES
-	======================= */
-	const animatedWeight = useCountUp(appSettings?.weightUnit === 't' ? currentAgg.totalKg / 1000 : currentAgg.totalKg)
+	const animatedWeight = useCountUp(currentAgg.totalKg)
 
-	const animatedValue = useCountUp(
-		appSettings?.currency === 'EUR' ? currentAgg.totalGross / eurRate : currentAgg.totalGross,
-	)
+	const animatedValue = useCountUp(currentAgg.totalGross)
 
-	const animatedAvgPrice = useCountUp(
-		appSettings?.currency === 'EUR' ? currentAgg.avgGrossPerKg / eurRate : currentAgg.avgGrossPerKg,
-	)
+	const animatedAvgPrice = useCountUp(currentAgg.avgGrossPerKg)
 
 	const animatedCount = useCountUp(currentAgg.count)
 
-	/* =======================
-	   UI FORMAT
-	======================= */
-	const weightUi = formatNumber(
-		animatedWeight,
-		appSettings?.weightUnit === 't' ? 3 : 0,
-		appSettings?.useThousandsSeparator,
-	)
+	const weightUi = formatWeight(animatedWeight)
 
-	const valueUi = formatNumber(animatedValue, 2, appSettings?.useThousandsSeparator)
+	const valueUi = formatCurrency(animatedValue)
 
-	const avgPriceUi = formatNumber(animatedAvgPrice, 2, appSettings?.useThousandsSeparator)
+	const avgPriceUi = formatCurrency(animatedAvgPrice)
 
-	const currencySymbol = appSettings?.currency === 'EUR' ? '€' : 'zł'
+	const currencySymbol = userCurrency === 'EUR' ? '€' : 'zł'
+	const weightSymbol = getWeightSymbol()
 
-	/* =======================
-	   RENDER
-	======================= */
 	return (
 		<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4'>
 			<SummaryCard
 				label='Łączny dochód'
-				value={`${valueUi} ${currencySymbol}`}
+				value={`${valueUi}`}
 				icon={faCoins}
 				trend={valueTrend}
 				trendUnit={currencySymbol}
 				trendDecimals={2}
-				useThousands={appSettings?.useThousandsSeparator}
 				active={activeIndex === 0}
 			/>
 
 			<SummaryCard
 				label='Łączna masa'
-				value={`${weightUi} ${appSettings?.weightUnit}`}
+				value={`${weightUi}`}
 				icon={faWeightHanging}
 				trend={weightTrend}
-				trendUnit={appSettings?.weightUnit}
-				trendDecimals={appSettings?.weightUnit === 't' ? 3 : 0}
-				useThousands={appSettings?.useThousandsSeparator}
+				trendUnit={weightSymbol}
+				trendDecimals={weightSymbol === 't' ? 3 : 0}
 				active={activeIndex === 1}
 			/>
 
 			<SummaryCard
 				label='Średnia cena'
-				value={`${avgPriceUi} ${currencySymbol}`}
+				value={`${avgPriceUi}`}
 				icon={faHandHoldingDollar}
 				trend={avgPriceTrend}
 				trendUnit={`${currencySymbol}/kg`}
 				trendDecimals={2}
-				useThousands={appSettings?.useThousandsSeparator}
 				active={activeIndex === 2}
 			/>
 
@@ -224,20 +152,7 @@ export default function SalesAnalysisMainCards({ actualTrades, previousTrades }:
 	)
 }
 
-/* =======================
-   UI
-======================= */
-function TrendBadge({
-	trend,
-	unit,
-	useThousands,
-	decimals = 2,
-}: {
-	trend: Trend
-	unit?: string
-	useThousands?: boolean
-	decimals?: number
-}) {
+function TrendBadge({ trend, unit }: { trend: Trend; unit?: string; useThousands?: boolean; decimals?: number }) {
 	const cfg = {
 		up: {
 			icon: '↑',
@@ -253,7 +168,8 @@ function TrendBadge({
 		},
 	}[trend.direction]
 
-	const formattedDiff = formatNumber(Math.abs(trend.diff), decimals, useThousands)
+	const { formatNumber } = useFormatUtils()
+	const formattedDiff = formatNumber(Math.abs(trend.diff))
 
 	return (
 		<span
@@ -278,7 +194,6 @@ function SummaryCard({
 	trend,
 	trendUnit,
 	trendDecimals = 2,
-	useThousands,
 	active = false,
 }: {
 	label: string
@@ -321,7 +236,7 @@ function SummaryCard({
 
 			{trend && (
 				<div className='mt-2'>
-					<TrendBadge trend={trend} unit={trendUnit} decimals={trendDecimals} useThousands={useThousands} />
+					<TrendBadge trend={trend} unit={trendUnit} decimals={trendDecimals} />
 				</div>
 			)}
 		</div>

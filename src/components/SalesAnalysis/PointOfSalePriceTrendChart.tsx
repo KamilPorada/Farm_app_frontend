@@ -3,15 +3,12 @@ import Chart from 'react-apexcharts'
 import ChartCard from '../ui/ChartCard'
 import type { TradeOfPepper } from '../../types/TradeOfPepper'
 import { greenPalette } from '../../theme/greenPalette'
-import { useCurrencyRate } from '../../hooks/useCurrencyRate'
+import { useFormatUtils } from '../../hooks/useFormatUtils'
 
 type Props = {
 	actualTrades: TradeOfPepper[]
 }
 
-/* =======================
-   CONSTS & HELPERS
-======================= */
 const MONTHS_PL = [
 	'styczeń',
 	'luty',
@@ -65,18 +62,8 @@ function formatIntervalLabel(from: Date, to: Date) {
 	return `${fromDay} ${MONTHS_PL_GENITIVE[fromMonth]} – ${toDay} ${MONTHS_PL_GENITIVE[toMonth]}`
 }
 
-function convertPrice(valuePln: number, currency: 'PLN' | 'EUR', eurRate?: number) {
-	if (currency === 'EUR' && eurRate) {
-		return valuePln / eurRate
-	}
-	return valuePln
-}
-
-/* =======================
-   COMPONENT
-======================= */
 export default function PointOfSalePriceTrendChart({ actualTrades }: Props) {
-	const { currency, eurRate } = useCurrencyRate()
+	const { toEURO, userCurrency, getCurrencySymbol, formatNumber } = useFormatUtils()
 
 	const { series, categories, intervalData } = useMemo(() => {
 		if (actualTrades.length < 2) {
@@ -88,11 +75,7 @@ export default function PointOfSalePriceTrendChart({ actualTrades }: Props) {
 		const start = toDate(sorted[0].tradeDate)
 		const end = toDate(sorted[sorted.length - 1].tradeDate)
 
-		const buckets: {
-			from: Date
-			to: Date
-			avgPricePln: number
-		}[] = []
+		const buckets: { from: Date; to: Date; avgPricePln: number }[] = []
 
 		let cursor = start
 
@@ -122,7 +105,6 @@ export default function PointOfSalePriceTrendChart({ actualTrades }: Props) {
 			cursor = bucketEnd
 		}
 
-		/* ===== OŚ X – NAZWY MIESIĘCY ===== */
 		const categories: string[] = []
 		let lastMonth: number | null = null
 
@@ -136,16 +118,16 @@ export default function PointOfSalePriceTrendChart({ actualTrades }: Props) {
 			}
 		})
 
-		/* ===== ŚREDNIA CENA OKRESU ===== */
 		const avgPriceGlobalPln = buckets.reduce((acc, b) => acc + b.avgPricePln, 0) / buckets.length
 
-		const avgPriceGlobal = +convertPrice(avgPriceGlobalPln, currency, eurRate).toFixed(2)
+		const mapPrice = (pln: number) => (userCurrency === 'EUR' ? toEURO(pln) : pln)
 
-		/* ===== SERIE ===== */
+		const avgPriceGlobal = +mapPrice(avgPriceGlobalPln).toFixed(2)
+
 		const series = [
 			{
 				name: 'Średnia cena',
-				data: buckets.map(b => +convertPrice(b.avgPricePln, currency, eurRate).toFixed(2)),
+				data: buckets.map(b => +mapPrice(b.avgPricePln).toFixed(2)),
 			},
 			{
 				name: 'Średnia cena (okres)',
@@ -153,14 +135,12 @@ export default function PointOfSalePriceTrendChart({ actualTrades }: Props) {
 			},
 		]
 
-		return {
-			categories,
-			intervalData: buckets,
-			series,
-		}
-	}, [actualTrades, currency, eurRate])
+		return { categories, intervalData: buckets, series }
+	}, [actualTrades, userCurrency, toEURO])
 
 	if (!series.length) return null
+
+	const currencySymbol = getCurrencySymbol()
 
 	const options: ApexCharts.ApexOptions = {
 		chart: {
@@ -168,10 +148,7 @@ export default function PointOfSalePriceTrendChart({ actualTrades }: Props) {
 			toolbar: { show: false },
 			zoom: { enabled: false },
 		},
-		colors: [
-			greenPalette[5], // trend
-			greenPalette[3], // średnia (linia przerywana)
-		],
+		colors: [greenPalette[5], greenPalette[3]],
 		stroke: {
 			curve: 'smooth',
 			width: [3, 2],
@@ -201,20 +178,18 @@ export default function PointOfSalePriceTrendChart({ actualTrades }: Props) {
 		},
 		yaxis: {
 			labels: {
-				style: { colors: '#6b7280', fontSize: '11px' },
-				formatter: val => `${val.toFixed(2)} ${currency === 'EUR' ? '€' : 'zł'}/kg`,
+				formatter: val => `${formatNumber(Number(val.toFixed(2)))} ${currencySymbol}/kg`,
 			},
 		},
-		legend: {
-			show: false,
-		},
+
+		legend: { show: false },
 		tooltip: {
 			shared: false,
 			custom: ({ dataPointIndex }) => {
 				const p = intervalData[dataPointIndex]
 				if (!p) return ''
 
-				const value = convertPrice(p.avgPricePln, currency, eurRate)
+				const value = userCurrency === 'EUR' ? toEURO(p.avgPricePln) : p.avgPricePln
 
 				return `
 					<div style="padding:8px 10px;font-size:12px;color:#111827">
@@ -224,7 +199,7 @@ export default function PointOfSalePriceTrendChart({ actualTrades }: Props) {
 						<div>
 							Średnia cena:
 							<strong>
-								${value.toFixed(2)} ${currency === 'EUR' ? '€' : 'zł'}/kg
+								${formatNumber(value)} ${currencySymbol}/kg
 							</strong>
 						</div>
 					</div>

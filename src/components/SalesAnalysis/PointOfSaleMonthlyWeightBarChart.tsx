@@ -3,7 +3,7 @@ import Chart from 'react-apexcharts'
 import ChartCard from '../ui/ChartCard'
 import type { TradeOfPepper } from '../../types/TradeOfPepper'
 import { greenPalette } from '../../theme/greenPalette'
-import { useMeData } from '../../hooks/useMeData'
+import { useFormatUtils } from '../../hooks/useFormatUtils'
 
 type Props = {
 	actualTrades: TradeOfPepper[]
@@ -24,38 +24,10 @@ const MONTHS_PL = [
 	'Grudzień',
 ]
 
-/* =======================
-   HELPERS
-======================= */
-function convertWeight(valueKg: number, unit: 'kg' | 't') {
-	return unit === 't' ? valueKg / 1000 : valueKg
-}
-
-function formatWeight(
-	value: number,
-	unit: 'kg' | 't',
-	useSeparator: boolean,
-) {
-	const decimals = unit === 't' ? 2 : 0
-
-	return useSeparator
-		? new Intl.NumberFormat('pl-PL', {
-				minimumFractionDigits: decimals,
-				maximumFractionDigits: decimals,
-			}).format(value)
-		: value.toFixed(decimals)
-}
-
-/* =======================
-   COMPONENT
-======================= */
 export default function PointOfSaleMonthlyWeightBarChart({ actualTrades }: Props) {
-	const { appSettings } = useMeData()
+	const { convertWeight, formatNumber, getWeightSymbol, userWeightUnit, useThousandsSeparator } = useFormatUtils()
 
-	const weightUnit: 'kg' | 't' =
-		appSettings?.weightUnit === 't' ? 't' : 'kg'
-
-	const useSeparator = appSettings?.useThousandsSeparator ?? true
+	const weightUnit = getWeightSymbol()
 
 	const { categories, series, rawValues } = useMemo(() => {
 		if (!actualTrades.length) {
@@ -75,10 +47,10 @@ export default function PointOfSaleMonthlyWeightBarChart({ actualTrades }: Props
 
 		monthlyWeightKg.forEach((valKg, i) => {
 			if (valKg > 0) {
-				const converted = convertWeight(valKg, weightUnit)
+				const converted = convertWeight(valKg)
 
 				categories.push(MONTHS_PL[i])
-				data.push(+converted.toFixed(weightUnit === 't' ? 2 : 0))
+				data.push(converted)
 				rawValues.push(converted)
 			}
 		})
@@ -93,18 +65,17 @@ export default function PointOfSaleMonthlyWeightBarChart({ actualTrades }: Props
 				},
 			],
 		}
-	}, [actualTrades, weightUnit])
+	}, [actualTrades, convertWeight, weightUnit])
 
 	if (!series.length) return null
+
 
 	const options: ApexCharts.ApexOptions = {
 		chart: {
 			type: 'bar',
 			toolbar: { show: false },
 		},
-
 		colors: [greenPalette[5]],
-
 		plotOptions: {
 			bar: {
 				horizontal: false,
@@ -112,16 +83,13 @@ export default function PointOfSaleMonthlyWeightBarChart({ actualTrades }: Props
 				columnWidth: '35%',
 			},
 		},
-
 		dataLabels: {
 			enabled: false,
 		},
-
 		grid: {
 			strokeDashArray: 0,
 			borderColor: '#e5e7eb',
 		},
-
 		xaxis: {
 			categories,
 			labels: {
@@ -133,22 +101,15 @@ export default function PointOfSaleMonthlyWeightBarChart({ actualTrades }: Props
 			axisBorder: { show: false },
 			axisTicks: { show: false },
 		},
-
 		yaxis: {
 			labels: {
 				style: {
 					colors: '#6b7280',
 					fontSize: '11px',
 				},
-				formatter: val =>
-					`${formatWeight(
-						Number(val),
-						weightUnit,
-						useSeparator,
-					)} ${weightUnit}`,
+				formatter: val => `${formatNumber(val)} ${weightUnit}`,
 			},
 		},
-
 		tooltip: {
 			shared: false,
 			custom: ({ dataPointIndex }) => {
@@ -165,11 +126,7 @@ export default function PointOfSaleMonthlyWeightBarChart({ actualTrades }: Props
 						<div>
 							Sprzedaż:
 							<strong>
-								${formatWeight(
-									value,
-									weightUnit,
-									true,
-								)} ${weightUnit}
+								${formatNumber(value)} ${weightUnit}
 							</strong>
 						</div>
 					</div>

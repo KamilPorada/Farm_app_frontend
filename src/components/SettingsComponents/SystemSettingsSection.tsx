@@ -60,12 +60,13 @@ export default function SystemSettingsSection({ form, setForm, onSave }: Props) 
 					options={[
 						{ label: 'DD-MM-YYYY', value: 'DD-MM-YYYY' },
 						{ label: 'YYYY-MM-DD', value: 'YYYY-MM-DD' },
+						{ label: 'DD.MM.YYYY', value: 'DD.MM.YYYY' },
+						{ label: 'YYYY.MM.DD', value: 'YYYY.MM.DD' },
 					]}
 					onChange={e => setForm(p => ({ ...p, dateFormat: e.target.value }))}
 				/>
 			</div>
 
-			{/* ===== DODATKOWE ===== */}
 			<div className='mt-6 grid grid-cols-1 gap-4 md:grid-cols-2'>
 				<Input
 					label='Waga skrzyni z towarem (kg)'
@@ -77,7 +78,6 @@ export default function SystemSettingsSection({ form, setForm, onSave }: Props) 
 				/>
 			</div>
 
-			{/* ===== CHECKBOXY ===== */}
 			<div className='mt-6 space-y-3'>
 				<Checkbox
 					label='Używaj separatora tysięcy (100 000)'

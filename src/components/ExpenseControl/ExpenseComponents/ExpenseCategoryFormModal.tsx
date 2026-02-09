@@ -43,7 +43,6 @@ export default function ExpenseCategoryFormModal({ initial, onSubmit, onClose }:
 					Utwórz nową kategorię, aby lepiej porządkować wydatki w gospodarstwie.
 				</p>
 
-				{/* NAZWA */}
 				<div className='mt-4'>
 					<label className='text-xs sm:text-sm font-medium'>Nazwa kategorii</label>
 					<input
@@ -58,7 +57,6 @@ export default function ExpenseCategoryFormModal({ initial, onSubmit, onClose }:
 					{nameError && <p className='mt-1 text-xs text-red-500'>Nazwa kategorii jest wymagana</p>}
 				</div>
 
-				{/* IKONY */}
 				<div className='mt-5'>
 					<label className='text-xs sm:text-sm font-medium'>Ikona</label>
 
@@ -90,7 +88,6 @@ export default function ExpenseCategoryFormModal({ initial, onSubmit, onClose }:
 					{iconError && <p className='mt-2 text-xs text-red-500'>Wybierz ikonę dla kategorii</p>}
 				</div>
 
-				{/* ACTIONS */}
 				<div className='mt-6 flex flex-row justify-center items-center gap-3  sm:justify-end '>
 					<SystemButton
 						variant='outline'

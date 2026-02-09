@@ -8,9 +8,6 @@ type Props = {
 	actualTrades: TradeOfPepper[]
 }
 
-/* =======================
-   CONSTANTS
-======================= */
 const SEASON_MONTHS = [
 	{ label: 'Lipiec', index: 6 },
 	{ label: 'Sierpień', index: 7 },
@@ -19,9 +16,6 @@ const SEASON_MONTHS = [
 	{ label: 'Listopad', index: 10 },
 ]
 
-/* =======================
-   COMPONENT
-======================= */
 export default function PepperTransactionsRadarChart({ actualTrades }: Props) {
 	const { series, categories } = useMemo(() => {
 		const monthlyCounts = Array(12).fill(0)

@@ -3,7 +3,7 @@ import Chart from 'react-apexcharts'
 import ChartCard from '../ui/ChartCard'
 import type { TradeOfPepper } from '../../types/TradeOfPepper'
 import { greenPalette } from '../../theme/greenPalette'
-import { useCurrencyRate } from '../../hooks/useCurrencyRate'
+import { useFormatUtils } from '../../hooks/useFormatUtils'
 
 type Props = {
 	actualTrades: TradeOfPepper[]
@@ -24,27 +24,19 @@ const MONTHS_PL = [
 	'Grudzień',
 ]
 
-function convertCurrency(valuePln: number, currency: 'PLN' | 'EUR', eurRate?: number) {
-	if (currency === 'EUR' && eurRate) {
-		return valuePln / eurRate
-	}
-	return valuePln
-}
-
-function formatThousands(value: number, currency: 'PLN' | 'EUR') {
-	if (!value) return '0'
-	const rounded = Math.round(value / 1000)
-	return `${rounded} tyś. ${currency === 'EUR' ? '€' : 'zł'}`
-}
-
-/* =======================
-   COMPONENT
-======================= */
 export default function PointOfSaleMonthlyRevenueBarChart({ actualTrades }: Props) {
-	const { currency, eurRate } = useCurrencyRate()
+	const {
+		userCurrency,
+		formatNumber,
+		getCurrencySymbol,
+		toEURO,
+		isCurrencyReady,
+	} = useFormatUtils()
+
+	const currencySymbol = getCurrencySymbol()
 
 	const { categories, series, rawValues } = useMemo(() => {
-		if (!actualTrades.length) {
+		if (!actualTrades.length || !isCurrencyReady) {
 			return { categories: [], series: [], rawValues: [] }
 		}
 
@@ -52,7 +44,8 @@ export default function PointOfSaleMonthlyRevenueBarChart({ actualTrades }: Prop
 
 		actualTrades.forEach(t => {
 			const month = new Date(t.tradeDate).getMonth()
-			monthlyRevenuePln[month] += t.tradeWeight * t.tradePrice * (1 + t.vatRate / 100)
+			monthlyRevenuePln[month] +=
+				t.tradeWeight * t.tradePrice * (1 + t.vatRate / 100)
 		})
 
 		const categories: string[] = []
@@ -61,10 +54,10 @@ export default function PointOfSaleMonthlyRevenueBarChart({ actualTrades }: Prop
 
 		monthlyRevenuePln.forEach((val, i) => {
 			if (val > 0) {
-				const converted = convertCurrency(val, currency, eurRate)
+				const converted = userCurrency === 'EUR' ? toEURO(val) : val
 
 				categories.push(MONTHS_PL[i])
-				data.push(+converted.toFixed(0))
+				data.push(Math.round(converted))
 				rawValues.push(converted)
 			}
 		})
@@ -79,7 +72,7 @@ export default function PointOfSaleMonthlyRevenueBarChart({ actualTrades }: Prop
 				},
 			],
 		}
-	}, [actualTrades, currency, eurRate])
+	}, [actualTrades, userCurrency, toEURO, isCurrencyReady])
 
 	if (!series.length) return null
 
@@ -94,33 +87,29 @@ export default function PointOfSaleMonthlyRevenueBarChart({ actualTrades }: Prop
 				horizontal: true,
 				borderRadius: 0,
 				barHeight: '35%',
-				dataLabels: {
-					position: 'center',
-				},
 			},
 		},
-
-		/* ✅ TEKST NA BARACH */
 		dataLabels: {
 			enabled: false,
 		},
-
 		grid: {
 			strokeDashArray: 0,
 			borderColor: '#e5e7eb',
 		},
-
 		xaxis: {
-			categories, // ✅ TO JEST KLUCZ
+			categories,
 			labels: {
 				style: {
 					colors: '#6b7280',
 					fontSize: '11px',
 				},
-				formatter: val => formatThousands(Number(val), currency),
+				formatter: val => {
+					const n = Number(val)
+					if (!n) return '0'
+					return `${Math.round(n / 1000)} tys. ${currencySymbol}`
+				},
 			},
 		},
-
 		yaxis: {
 			labels: {
 				style: {
@@ -129,7 +118,6 @@ export default function PointOfSaleMonthlyRevenueBarChart({ actualTrades }: Prop
 				},
 			},
 		},
-
 		tooltip: {
 			shared: false,
 			custom: ({ dataPointIndex }) => {
@@ -145,8 +133,7 @@ export default function PointOfSaleMonthlyRevenueBarChart({ actualTrades }: Prop
 						<div>
 							Dochód:
 							<strong>
-								${value.toLocaleString('pl-PL', { maximumFractionDigits: 0 })}
-								${currency === 'EUR' ? ' €' : ' zł'}
+								${formatNumber(Math.round(value))} ${currencySymbol}
 							</strong>
 						</div>
 					</div>

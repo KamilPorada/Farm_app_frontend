@@ -3,8 +3,7 @@ import Chart from 'react-apexcharts'
 import ChartCard from '../ui/ChartCard'
 import { greenPalette } from '../../theme/greenPalette'
 import type { TradeOfPepper } from '../../types/TradeOfPepper'
-import { useMeData } from '../../hooks/useMeData'
-import { useCurrencyRate } from '../../hooks/useCurrencyRate'
+import { useFormatUtils } from '../../hooks/useFormatUtils'
 
 type Props = {
 	actualTrades: TradeOfPepper[]
@@ -18,107 +17,67 @@ const MONTHS = [
 	{ key: 10, label: 'Listopad' },
 ]
 
-/* =======================
-   HELPERS
-======================= */
-function formatNumber(
-	value: number,
-	useSeparator: boolean,
-	decimals: number,
-) {
-	return useSeparator
-		? new Intl.NumberFormat('pl-PL', {
-				minimumFractionDigits: decimals,
-				maximumFractionDigits: decimals,
-			}).format(value)
-		: value.toFixed(decimals)
+function aggregateTrades(trades: TradeOfPepper[]) {
+	const profit = Array(5).fill(0) 
+	const weight = Array(5).fill(0) 
+
+	trades.forEach(t => {
+		const d = new Date(t.tradeDate)
+		const m = d.getMonth()
+
+		const monthIndex = MONTHS.findIndex(mm => mm.key === m)
+		if (monthIndex === -1) return
+
+		const net = t.tradePrice * t.tradeWeight
+		const gross = net * (1 + t.vatRate / 100)
+
+		profit[monthIndex] += gross
+		weight[monthIndex] += t.tradeWeight
+	})
+
+	return { profit, weight }
 }
 
-function convertCurrency(
-	valuePln: number,
-	currency: 'PLN' | 'EUR',
-	eurRate?: number,
-) {
-	if (currency === 'EUR' && eurRate) {
-		return valuePln / eurRate
-	}
-	return valuePln
-}
+export default function TradesAndHarvestByMonthChart({ actualTrades }: Props) {
+	const {
+		userCurrency,
+		userWeightUnit,
+		formatNumber,
+		toEURO,
+		convertWeight,
+		getCurrencySymbol,
+		getWeightSymbol,
+	} = useFormatUtils()
 
-function convertWeight(valueKg: number, unit: 'kg' | 't') {
-	return unit === 't' ? valueKg / 1000 : valueKg
-}
-
-/* =======================
-   COMPONENT
-======================= */
-export default function TradesAndHarvestByMonthChart({
-	actualTrades,
-}: Props) {
-	const { appSettings } = useMeData()
-	const { currency, eurRate } = useCurrencyRate()
-
-	const useSeparator = appSettings?.useThousandsSeparator ?? true
-	const weightUnit: 'kg' | 't' =
-		appSettings?.weightUnit === 't' ? 't' : 'kg'
-
-	/* =======================
-	   AGREGACJA DANYCH
-	======================= */
-	const { profitByMonth, weightByMonth } = useMemo(() => {
-		const profit = Array(5).fill(0)
-		const weight = Array(5).fill(0)
-
-		actualTrades.forEach(t => {
-			const d = new Date(t.tradeDate)
-			const m = d.getMonth()
-
-			const monthIndex = MONTHS.findIndex(mm => mm.key === m)
-			if (monthIndex === -1) return
-
-			const gross =
-				t.tradePrice * t.tradeWeight * (1 + t.vatRate / 100)
-
-			profit[monthIndex] += gross
-			weight[monthIndex] += t.tradeWeight
-		})
-
-		return {
-			profitByMonth: profit,
-			weightByMonth: weight,
-		}
-	}, [actualTrades])
-
-	/* =======================
-	   KONWERSJE
-	======================= */
-	const profitData = profitByMonth.map(v =>
-		convertCurrency(v, currency, eurRate),
+	const { profit, weight } = useMemo(
+		() => aggregateTrades(actualTrades),
+		[actualTrades],
 	)
 
-	const weightData = weightByMonth.map(v =>
-		convertWeight(v, weightUnit),
-	)
+	const profitData =
+		userCurrency === 'EUR'
+			? profit.map(v => toEURO(v))
+			: profit
 
-	const currencySymbol = currency === 'EUR' ? '€' : 'zł'
+	const weightData =
+		userWeightUnit === 't'
+			? weight.map(v => convertWeight(v))
+			: weight
 
-	/* =======================
-	   SERIE
-	======================= */
+	const currencySymbol = getCurrencySymbol()
+	const weightSymbol = getWeightSymbol()
+
 	const series = [
 		{
 			name: `Dochód (${currencySymbol})`,
 			data: profitData,
 		},
 		{
-			name: `Zbiory (${weightUnit})`,
+			name: `Zbiory (${weightSymbol})`,
 			data: weightData,
 		},
 	]
 
-	/* =======================
-	   OPCJE
-	======================= */
 	const options: ApexCharts.ApexOptions = {
 		chart: {
 			type: 'bar',
@@ -137,11 +96,6 @@ export default function TradesAndHarvestByMonthChart({
 
 		colors: [greenPalette[5], greenPalette[2]],
 
-		states: {
-			hover: { filter: { type: 'none' } },
-			active: { filter: { type: 'none' } },
-		},
-
 		xaxis: {
 			categories: MONTHS.map(m => m.label),
 			axisBorder: { show: false },
@@ -152,34 +106,20 @@ export default function TradesAndHarvestByMonthChart({
 			{
 				title: { text: `Dochód (${currencySymbol})` },
 				labels: {
-					formatter: v =>
-						`${formatNumber(v, useSeparator, 0)} ${currencySymbol}`,
+					formatter: v => `${formatNumber(v)} ${currencySymbol}`,
 				},
 			},
 			{
 				opposite: true,
-				title: { text: `Zbiory (${weightUnit})` },
+				title: { text: `Zbiory (${weightSymbol})` },
 				labels: {
 					formatter: v =>
 						`${formatNumber(
 							v,
-							useSeparator,
-							weightUnit === 't' ? 2 : 0,
-						)} ${weightUnit}`,
+						)} ${weightSymbol}`,
 				},
 			},
 		],
-
-		legend: {
-			show: true,
-			position: 'bottom',
-			horizontalAlign: 'center',
-			fontSize: '12px',
-			markers: {
-				size: 8,
-				shape: 'square',
-			},
-		},
 
 		tooltip: {
 			shared: true,
@@ -187,18 +127,15 @@ export default function TradesAndHarvestByMonthChart({
 			y: {
 				formatter: (val, { seriesIndex }) =>
 					seriesIndex === 0
-						? `${formatNumber(val, true, 2)} ${currencySymbol}`
-						: `${formatNumber(
-								val,
-								true,
-								weightUnit === 't' ? 2 : 0,
-						  )} ${weightUnit}`,
+						? `${formatNumber(val)} ${currencySymbol}`
+						: `${formatNumber(val)} ${weightSymbol}`,
 			},
 		},
 
-		grid: {
-			strokeDashArray: 0,
-			borderColor: '#dddddd',
+		legend: {
+			position: 'bottom',
+			fontSize: '12px',
+			markers: { size: 8 },
 		},
 	}
 

@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import SystemButton from '../../ui/SystemButton'
 import type { Expense, ExpenseCategory } from '../../../types/Expense'
-import { useMeData } from '../../../hooks/useMeData'
-import { useCurrencyRate } from '../../../hooks/useCurrencyRate'
+import { useFormatUtils } from '../../../hooks/useFormatUtils'
 
 type Props = {
 	initial: Expense | null
@@ -17,16 +16,13 @@ type FormState = {
 	expenseCategoryId: number | ''
 	unit: string
 	quantity: number | ''
-	price: number | '' 
+	price: number | ''
 }
 
 type Errors = Partial<Record<keyof FormState, string>>
 
 export default function ExpenseForm({ initial, categories, onSave, onCancel }: Props) {
-	const { appSettings } = useMeData()
-	const { eurRate } = useCurrencyRate()
-
-	const currency = appSettings?.currency === 'EUR' ? 'EUR' : 'PLN'
+	const { userCurrency, toPLN, toEURO } = useFormatUtils()
 
 	const [errors, setErrors] = useState<Errors>({})
 
@@ -38,15 +34,12 @@ export default function ExpenseForm({ initial, categories, onSave, onCancel }: P
 		quantity: initial?.quantity ?? '',
 		price:
 			initial?.price !== undefined
-				? currency === 'EUR'
-					? Number((initial.price / eurRate).toFixed(2))
+				? userCurrency === 'EUR'
+					? toEURO(initial.price)
 					: initial.price
 				: '',
 	})
 
-	/* =======================
-	   VALIDATION
-	======================= */
 	function validate(): boolean {
 		const e: Errors = {}
 
@@ -61,15 +54,12 @@ export default function ExpenseForm({ initial, categories, onSave, onCancel }: P
 		return Object.keys(e).length === 0
 	}
 
-	/* =======================
-	   SAVE
-	======================= */
 	function handleSave() {
 		if (!validate()) return
 
 		const pricePln =
-			currency === 'EUR'
-				? Number((Number(form.price) * eurRate).toFixed(2))
+			userCurrency === 'EUR'
+				? toPLN(Number(form.price))
 				: Number(form.price)
 
 		const payload: Expense = {
@@ -86,9 +76,6 @@ export default function ExpenseForm({ initial, categories, onSave, onCancel }: P
 		onSave(payload)
 	}
 
-	/* =======================
-	   RENDER
-	======================= */
 	return (
 		<section className='mt-6 border-t pt-6'>
 			<h2 className='text-xl font-semibold'>
@@ -151,7 +138,7 @@ export default function ExpenseForm({ initial, categories, onSave, onCancel }: P
 				<Input
 					type='number'
 					step='0.01'
-					label={`Kwota (${currency})`}
+					label={`Kwota (${userCurrency})`}
 					value={form.price}
 					error={errors.price}
 					onChange={e =>
@@ -173,9 +160,6 @@ export default function ExpenseForm({ initial, categories, onSave, onCancel }: P
 	)
 }
 
-/* =======================
-   INPUT
-======================= */
 type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
 	label: string
 	error?: string
@@ -196,9 +180,6 @@ function Input({ label, error, ...props }: InputProps) {
 	)
 }
 
-/* =======================
-   SELECT
-======================= */
 type SelectOption = { label: string; value: string }
 
 type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {

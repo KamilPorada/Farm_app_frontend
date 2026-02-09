@@ -9,15 +9,13 @@ type Props = {
 	activeCategoryId: number | null
 	onSelect: (categoryId: number | null) => void
 	onAdd: () => void
-	onManage: () => void // ⬅️ DODANE
+	onManage: () => void 
 }
 
 export default function ExpenseCategoryHeader({ categories, activeCategoryId, onSelect, onAdd, onManage }: Props) {
 	return (
 		<div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
-			{/* LEWA STRONA: kategorie */}
 			<div className='flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:gap-3'>
-				{/* Wszystkie */}
 				<button
 					onClick={() => onSelect(null)}
 					className={`flex items-center justify-center md:justify-start gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium transition hover:cursor-pointer
@@ -30,7 +28,6 @@ export default function ExpenseCategoryHeader({ categories, activeCategoryId, on
 					Wszystkie
 				</button>
 
-				{/* Kategorie */}
 				{categories.map(cat => (
 					<button
 						key={cat.id}
@@ -49,7 +46,6 @@ export default function ExpenseCategoryHeader({ categories, activeCategoryId, on
 				))}
 			</div>
 
-			{/* PRAWA STRONA: dodaj kategorię */}
 			<div className='flex flex-col items-center md:items-start gap-1 md:self-start'>
 				<SystemButton onClick={onAdd} className='normal-case w-full md:w-42 justify-center'>
 					<FontAwesomeIcon icon={faPlus} className='hidden sm:inline' />
