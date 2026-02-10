@@ -14,6 +14,7 @@ import SalesAnalysisPage from './pages/TradeOfPepper/SalesAnalysisPage'
 
 import ExpensePage from './pages/ExpenseControl/ExpensePage'
 import InvoicePage from './pages/ExpenseControl/InvoicePage'
+import CashFlowPage from './pages/ExpenseControl/CashFlowPage'
 
 import SettingsPage from './pages/SettingsPage'
 import { SidebarProvider } from './context/SidebarContext'
@@ -60,6 +61,7 @@ function App() {
 							<Route path='sales-analysis' element={<SalesAnalysisPage />} />
 							<Route path='expense' element={<ExpensePage />} />
 							<Route path='invoice' element={<InvoicePage />} />
+							<Route path='cash-flow' element={<CashFlowPage />} />
 							<Route path='settings' element={<SettingsPage />} />
 						</Route>
 					</Routes>
