@@ -16,6 +16,8 @@ import ExpensePage from './pages/ExpenseControl/ExpensePage'
 import InvoicePage from './pages/ExpenseControl/InvoicePage'
 import CashFlowPage from './pages/ExpenseControl/CashFlowPage'
 
+import VarietySeasonPage from './pages/HarvestControl/VarietySeasonPage'
+
 import SettingsPage from './pages/SettingsPage'
 import { SidebarProvider } from './context/SidebarContext'
 import { Toaster } from 'sonner'
@@ -62,6 +64,7 @@ function App() {
 							<Route path='expense' element={<ExpensePage />} />
 							<Route path='invoice' element={<InvoicePage />} />
 							<Route path='cash-flow' element={<CashFlowPage />} />
+							<Route path='variete' element={<VarietySeasonPage />} />
 							<Route path='settings' element={<SettingsPage />} />
 						</Route>
 					</Routes>

@@ -22,7 +22,7 @@ export interface Farmer {
     id: number;
     farmerId: number;
     year: number;
-    tunnelsCount: string; 
+    count: string; 
   }
   
   export interface AppSettings {
