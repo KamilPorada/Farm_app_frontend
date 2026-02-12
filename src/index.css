@@ -60,6 +60,19 @@
 	}
 }
 
+/* Chrome, Safari, Edge */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+
 @layer utilities {
 	.primaryFont {
 		font-family: var(--font-);

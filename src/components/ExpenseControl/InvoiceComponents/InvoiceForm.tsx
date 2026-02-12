@@ -32,7 +32,7 @@ export default function InvoiceForm({ initial, points, onSave, onCancel }: Props
 	/* =======================
      STATE
   ======================= */
-	const { userCurrency, getCurrencySymbol, convertCurrency } = useFormatUtils()
+	const { userCurrency, getCurrencySymbol, toPLN } = useFormatUtils()
 	const [errors, setErrors] = useState<Errors>({})
 
 	const [form, setForm] = useState<InvoiceFormState>({
@@ -65,7 +65,7 @@ export default function InvoiceForm({ initial, points, onSave, onCancel }: Props
 	function handleSave() {
 		if (!validateAll()) return
 
-		const amountInPln = userCurrency === 'EUR' ? convertCurrency(Number(form.amount), 'PLN') : Number(form.amount)
+		const amountInPln = userCurrency === 'EUR' ? toPLN(Number(form.amount)) : Number(form.amount)
 
 		const payload: Invoice = {
 			id: form.id,
