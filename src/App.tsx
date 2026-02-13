@@ -18,6 +18,7 @@ import CashFlowPage from './pages/ExpenseControl/CashFlowPage'
 
 import VarietySeasonPage from './pages/HarvestControl/VarietySeasonPage'
 import HarvestPage from './pages/HarvestControl/HarvestPage'
+import CultivationCalendarPage from './pages/HarvestControl/CultivationCalendarPage'
 
 import SettingsPage from './pages/SettingsPage'
 import { SidebarProvider } from './context/SidebarContext'
@@ -67,6 +68,7 @@ function App() {
 							<Route path='cash-flow' element={<CashFlowPage />} />
 							<Route path='variete' element={<VarietySeasonPage />} />
 							<Route path='harvest' element={<HarvestPage />} />
+							<Route path='cultivation-calendar' element={<CultivationCalendarPage />} />
 							<Route path='settings' element={<SettingsPage />} />
 						</Route>
 					</Routes>
