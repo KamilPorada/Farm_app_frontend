@@ -20,6 +20,8 @@ import VarietySeasonPage from './pages/HarvestControl/VarietySeasonPage'
 import HarvestPage from './pages/HarvestControl/HarvestPage'
 import CultivationCalendarPage from './pages/HarvestControl/CultivationCalendarPage'
 
+import EmployePage from './pages/Employee/EmployeePage'
+
 import SettingsPage from './pages/SettingsPage'
 import { SidebarProvider } from './context/SidebarContext'
 import { Toaster } from 'sonner'
@@ -69,6 +71,7 @@ function App() {
 							<Route path='variete' element={<VarietySeasonPage />} />
 							<Route path='harvest' element={<HarvestPage />} />
 							<Route path='cultivation-calendar' element={<CultivationCalendarPage />} />
+							<Route path='employe' element={<EmployePage />} />
 							<Route path='settings' element={<SettingsPage />} />
 						</Route>
 					</Routes>

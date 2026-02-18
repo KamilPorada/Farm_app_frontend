@@ -57,7 +57,7 @@ const sections: Section[] = [
 	{
 		label: 'Pracownicy',
 		icon: faUsers,
-		items: [{ label: 'Lista pracowników', path: '/app/employee' }],
+		items: [{ label: 'Lista pracowników', path: '/app/employe' }],
 	},
 	{
 		label: 'Ochrona roślin',

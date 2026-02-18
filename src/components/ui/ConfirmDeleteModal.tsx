@@ -1,4 +1,4 @@
-import SystemButton from '../../ui/SystemButton'
+import SystemButton from './SystemButton'
 
 type Props = {
 	title?: string
@@ -25,7 +25,7 @@ export default function ConfirmDeleteModal({
 						Anuluj
 					</SystemButton>
 
-					<SystemButton onClick={onConfirm} className='w-full sm:w-auto bg-red-600 hover:bg-red-700'>
+					<SystemButton onClick={onConfirm}>
 						Usuń
 					</SystemButton>
 				</div>
