@@ -53,85 +53,102 @@ export default function WorkTimeTable({ items, onCreate, onUpdate, onDelete, isF
 
 	return (
 		<div className='bg-white rounded-xl py-3'>
-			{/* HEADER */}
-			<div className='flex justify-between items-center gap-2 mb-4 px-5'>
-				<h3 className='md:text-lg font-semibold'>Ewidencja pracy</h3>
-				<SystemButton
-					className='normal-case w-full justify-center md:w-auto'
-					onClick={() => (isFinished ? blockedEditInfo() : setShowModal(true))}>
-					+ Dodaj wpis
-				</SystemButton>
-			</div>
+			{/* BRAK WPISÓW */}
+			{items.length === 0 ? (
+				<div className='flex flex-col items-center justify-center py-16 text-center h-[39vh]'>
+					<p className='text-base font-medium text-gray-700'>Brak wpisów czasu pracy</p>
 
-			{/* COLUMN HEADERS */}
-			<div className='grid grid-cols-[3fr_2fr_2fr_1fr] bg-gray-50 text-gray-600 text-xs md:text-sm font-medium py-2 px-5'>
-				<span>Data</span>
-				<span>Godziny</span>
-				<span>Wypłata</span>
-				<span className='text-right'>Akcja</span>
-			</div>
+					<p className='mt-2 text-sm text-gray-500 max-w-md'>
+						Dodaj pierwszy wpis, aby rozpocząć ewidencję pracy pracownika.
+					</p>
 
-			{/* ROWS */}
-			<div className='max-h-82.5 overflow-y-auto'>
-				{items.map(w => (
-					<div
-						key={w.id}
-						className='grid grid-cols-[3fr_2fr_2fr_1fr] items-center py-2 px-5 border-t last:border-b border-gray-200 hover:bg-gray-50'>
-						<span className='text-xs md:text-sm text-gray-800'>{formatDate(w.workDate)}</span>
-
-						{/* HOURS */}
-						<span
-							className='text-xs md:text-sm cursor-pointer hover:text-mainColor'
-							onClick={() => (isFinished ? '' : startEdit(w.id, 'hours', w.hoursWorked))}>
-							{editingId === w.id && editingField === 'hours' ? (
-								<input
-									autoFocus
-									type='number'
-									value={value}
-									onChange={e => setValue(e.target.value)}
-									onBlur={saveEdit}
-									onKeyDown={e => e.key === 'Enter' && saveEdit()}
-									className='border rounded px-2 py-1 w-16'
-								/>
-							) : (
-								`${w.hoursWorked} h`
-							)}
-						</span>
-
-						{/* PAID */}
-						<span
-							className='text-xs md:text-sm cursor-pointer hover:text-mainColor'
-							onClick={() => (isFinished ? '' : startEdit(w.id, 'paid', w.paidAmount ?? null))}>
-							{editingId === w.id && editingField === 'paid' ? (
-								<input
-									autoFocus
-									type='number'
-									value={value}
-									onChange={e => setValue(e.target.value)}
-									onBlur={saveEdit}
-									onKeyDown={e => e.key === 'Enter' && saveEdit()}
-									className='border rounded px-2 py-1 w-20'
-								/>
-							) : w.paidAmount ? (
-								`${w.paidAmount} ${getCurrencySymbol()}`
-							) : (
-								'—'
-							)}
-						</span>
-
-						{/* DELETE */}
-						<div className='flex justify-end text-xs md:text-sm'>
-							<button
-								onClick={() => (isFinished ? blockedEditInfo() : setToDeleteId(w.id))}
-								className='text-gray-400 hover:text-red-500 cursor-pointer'>
-								<FontAwesomeIcon icon={faTrash} />
-							</button>
-						</div>
+					{!isFinished && (
+						<SystemButton className='mt-5 normal-case' onClick={() => setShowModal(true)}>
+							+ Dodaj wpis
+						</SystemButton>
+					)}
+				</div>
+			) : (
+				<>
+					{/* HEADER */}
+					<div className='flex justify-between items-center gap-2 mb-4 px-5'>
+						<h3 className='md:text-lg font-semibold'>Ewidencja pracy</h3>
+						<SystemButton
+							className='normal-case w-full justify-center md:w-auto'
+							onClick={() => (isFinished ? blockedEditInfo() : setShowModal(true))}>
+							+ Dodaj wpis
+						</SystemButton>
 					</div>
-				))}
 
-				{items.length === 0 && <p className='p-6 text-sm text-gray-500 text-center'>Brak wpisów czasu pracy</p>}
-			</div>
+					{/* COLUMN HEADERS */}
+					<div className='grid grid-cols-[3fr_2fr_2fr_1fr] bg-gray-50 text-gray-600 text-xs md:text-sm font-medium py-2 px-5'>
+						<span>Data</span>
+						<span>Godziny</span>
+						<span>Wypłata</span>
+						<span className='text-right'>Akcja</span>
+					</div>
+
+					{/* ROWS */}
+					<div className='max-h-[39vh] overflow-y-auto'>
+						{items.map(w => (
+							<div
+								key={w.id}
+								className='grid grid-cols-[3fr_2fr_2fr_1fr] items-center py-2 px-5 border-t last:border-b border-gray-200 hover:bg-gray-50'>
+								<span className='text-xs md:text-sm text-gray-800'>{formatDate(w.workDate)}</span>
+
+								{/* HOURS */}
+								<span
+									className={`text-xs md:text-sm ${!isFinished ? 'cursor-pointer hover:text-mainColor' : ''}`}
+									onClick={() => (isFinished ? blockedEditInfo() : startEdit(w.id, 'hours', w.hoursWorked))}>
+									{editingId === w.id && editingField === 'hours' ? (
+										<input
+											autoFocus
+											type='number'
+											value={value}
+											onChange={e => setValue(e.target.value)}
+											onBlur={saveEdit}
+											onKeyDown={e => e.key === 'Enter' && saveEdit()}
+											className='border rounded px-2 py-1 w-16'
+										/>
+									) : (
+										`${w.hoursWorked} h`
+									)}
+								</span>
+
+								{/* PAID */}
+								<span
+									className={`text-xs md:text-sm ${!isFinished ? 'cursor-pointer hover:text-mainColor' : ''}`}
+									onClick={() => (isFinished ? blockedEditInfo() : startEdit(w.id, 'paid', w.paidAmount ?? null))}>
+									{editingId === w.id && editingField === 'paid' ? (
+										<input
+											autoFocus
+											type='number'
+											value={value}
+											onChange={e => setValue(e.target.value)}
+											onBlur={saveEdit}
+											onKeyDown={e => e.key === 'Enter' && saveEdit()}
+											className='border rounded px-2 py-1 w-20'
+										/>
+									) : w.paidAmount ? (
+										`${w.paidAmount} ${getCurrencySymbol()}`
+									) : (
+										'—'
+									)}
+								</span>
+
+								{/* DELETE */}
+								<div className='flex justify-end text-xs md:text-sm'>
+									<button
+										onClick={() => (isFinished ? blockedEditInfo() : setToDeleteId(w.id))}
+										className='text-gray-400 hover:text-red-500 cursor-pointer'>
+										<FontAwesomeIcon icon={faTrash} />
+									</button>
+								</div>
+							</div>
+						))}
+					</div>
+				</>
+			)}
 
 			{/* ADD MODAL */}
 			{showModal && (

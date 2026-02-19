@@ -337,7 +337,7 @@ export default function EmployeePage() {
 	return (
 		<div className='container p-8'>
 			<SectionHeader
-				title='Pracownicy'
+				title='Pracownicy sezonowi'
 				description='Zarządzaj pracownikami sezonowymi oraz kontroluj czas pracy i wypłaty.'
 				buttonTitle='Dodaj pracownika'
 				year={year}
@@ -406,21 +406,31 @@ export default function EmployeePage() {
 			)}
 
 			{/* LIST */}
-			{mode === 'list' && (
-				<EmployeeList
-					items={employees}
-					onEdit={emp => {
-						setActive(emp)
-						setMode('edit')
-					}}
-					onDelete={emp => setToDelete(emp)}
-					onWorkTime={emp => {
-						setActive(emp)
-						setMode('details')
-						fetchWorkTimes(emp.id)
-					}}
-				/>
-			)}
+			{/* LIST */}
+			{mode === 'list' &&
+				(!employees.length ? (
+					<div className='flex flex-col items-center justify-center py-24 text-center'>
+						<p className='text-base font-medium text-gray-700'>Brak pracowników w tym sezonie</p>
+
+						<p className='mt-2 text-sm text-gray-500 max-w-md'>
+							Dodaj pracownika sezonowego, aby rozpocząć ewidencję czasu pracy oraz kontrolę wypłat.
+						</p>
+					</div>
+				) : (
+					<EmployeeList
+						items={employees}
+						onEdit={emp => {
+							setActive(emp)
+							setMode('edit')
+						}}
+						onDelete={emp => setToDelete(emp)}
+						onWorkTime={emp => {
+							setActive(emp)
+							setMode('details')
+							fetchWorkTimes(emp.id)
+						}}
+					/>
+				))}
 
 			{/* DELETE MODAL */}
 			{toDelete && (

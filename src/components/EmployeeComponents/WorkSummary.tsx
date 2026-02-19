@@ -21,8 +21,12 @@ export default function WorkSummary({ items, employee }: Props) {
 
 	if (!items.length) {
 		return (
-			<div className='bg-white rounded-xl p-6'>
-				<p className='text-sm text-gray-500 text-center'>Brak danych do podsumowania</p>
+			<div className='bg-white rounded-xl py-28 flex flex-col items-center justify-start text-center h-[54vh]'>
+				<p className='text-base font-medium text-gray-700'>Brak danych do podsumowania</p>
+
+				<p className='mt-2 text-sm text-gray-500 max-w-md'>
+					Podsumowanie pojawi się automatycznie po dodaniu wpisów czasu pracy.
+				</p>
 			</div>
 		)
 	}
@@ -62,7 +66,7 @@ export default function WorkSummary({ items, employee }: Props) {
 	const max = Math.max(...monthlyEntries.map(([, v]) => v))
 
 	return (
-		<div className='bg-white rounded-xl px-6 pt-3 pb-6 space-y-6 max-h-110 overflow-y-auto'>
+		<div className='bg-white rounded-xl px-6 pt-3 pb-6 space-y-6 max-h-[54vh] overflow-y-auto'>
 			<h3 className='text-lg font-semibold'>Podsumowanie pracy</h3>
 
 			{/* ===== KLUCZOWE METRYKI ===== */}
