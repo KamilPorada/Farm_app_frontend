@@ -145,9 +145,21 @@ export default function PesticidePage() {
 		if (!user) return
 		setLoading(true)
 
+		const isEdit = data.id !== 0
+
+		// ✅ sprawdzanie duplikatu nazwy
+		const exists = pesticides.some(
+			p => p.name.trim().toLowerCase() === data.name.trim().toLowerCase() && (!isEdit || p.id !== data.id),
+		)
+
+		if (exists) {
+			notify(notificationsEnabled, 'info', 'Środek o tej nazwie już istnieje.')
+			setLoading(false)
+			return
+		}
+
 		try {
 			const token = await getToken()
-			const isEdit = data.id !== 0
 
 			const url = isEdit
 				? `http://localhost:8080/api/pesticides/${data.id}?farmerId=${user.id}`
