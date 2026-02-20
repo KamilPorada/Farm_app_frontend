@@ -31,7 +31,6 @@ function SalesAnalysisPage() {
 	const [toDate, setToDate] = useState(todayISO)
 	const tunnelsInActualSeason = farmerTunnels.find(t => t.year === year)?.count ?? 0
 	const tunnelsInPreviousSeason = farmerTunnels.find(t => t.year === year - 1)?.count ?? 0
-	console.log(tunnelsInPreviousSeason)
 
 	// 👉 zakres analizy (JEDNO ŹRÓDŁO PRAWDY)
 	const dateRange = useMemo(() => {

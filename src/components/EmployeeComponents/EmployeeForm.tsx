@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import SystemButton from '../ui/SystemButton'
 import type { Employee } from '../../types/Employee'
 import { useFormatUtils } from '../../hooks/useFormatUtils'

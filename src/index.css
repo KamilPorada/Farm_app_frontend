@@ -63,15 +63,33 @@
 /* Chrome, Safari, Edge */
 input[type='number']::-webkit-outer-spin-button,
 input[type='number']::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+	-webkit-appearance: none;
+	margin: 0;
 }
 
 /* Firefox */
 input[type='number'] {
-  -moz-appearance: textfield;
+	-moz-appearance: textfield;
 }
 
+/* ✅ checkbox + radio */
+input[type='checkbox'],
+input[type='radio'] {
+	accent-color: #599f17;
+	cursor: pointer;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+	outline: none;
+	border: 2px solid #5fab18;
+}
+
+input[type='checkbox']:checked {
+	background-color: #599f17;
+	border-color: #599f17;
+}
 
 @layer utilities {
 	.primaryFont {

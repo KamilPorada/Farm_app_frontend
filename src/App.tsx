@@ -23,6 +23,7 @@ import CultivationCalendarPage from './pages/HarvestControl/CultivationCalendarP
 import EmployePage from './pages/Employee/EmployeePage'
 
 import PesticidePage from './pages/Pesticide/PesticidePage'
+import TreatmentPage from './pages/Pesticide/TreatmentPage.tsx'
 
 import SettingsPage from './pages/SettingsPage'
 import { SidebarProvider } from './context/SidebarContext'
@@ -75,6 +76,7 @@ function App() {
 							<Route path='cultivation-calendar' element={<CultivationCalendarPage />} />
 							<Route path='employe' element={<EmployePage />} />
 							<Route path='pesticide' element={<PesticidePage />} />
+							<Route path='treatment' element={<TreatmentPage />} />
 							<Route path='settings' element={<SettingsPage />} />
 						</Route>
 					</Routes>
