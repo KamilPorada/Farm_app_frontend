@@ -43,8 +43,6 @@ export default function EmployeeForm({ initial, farmerId, seasonYear, onSave, on
 		startDate: initial?.startDate ?? new Date().toISOString().slice(0, 10),
 	})
 
-	console.log(initial?.salary !== undefined ? (userCurrency === 'EUR' ? toEURO(initial.salary) : initial.salary) : '')
-
 	/* =======================
 	   VALIDATION
 	======================= */

@@ -4,6 +4,7 @@ import { faPen, faTrash, faSearch, faDownload } from '@fortawesome/free-solid-sv
 
 import ConfirmDeleteModal from '../ui/ConfirmDeleteModal'
 import type { Fertilizer } from '../../types/Fertilizer'
+import { useFormatUtils } from '../../hooks/useFormatUtils'
 
 type Props = {
 	items: Fertilizer[]
@@ -12,27 +13,27 @@ type Props = {
 }
 
 export default function FertilizerList({ items, onEdit, onDelete }: Props) {
+	const { getCurrencySymbol } = useFormatUtils()
 	const [query, setQuery] = useState('')
 	const [toDelete, setToDelete] = useState<Fertilizer | null>(null)
 
-	/* =======================
-	   SEARCH
-	======================= */
 	const filteredItems = useMemo(() => {
 		if (!query.trim()) return items
 		const q = query.toLowerCase()
 		return items.filter(f => f.name.toLowerCase().includes(q))
 	}, [items, query])
 
-	/* =======================
-	   EXPORT CSV
-	======================= */
 	function exportToCSV(items: Fertilizer[]) {
 		if (!items.length) return
 
-		const headers = ['Lp', 'Nazwa nawozu', 'Forma nawozu']
+		const headers = ['Lp', 'Nazwa nawozu', 'Forma', 'Cena']
 
-		const rows = items.map((f, i) => [i + 1, f.name, f.form])
+		const rows = items.map((f, i) => [
+			i + 1,
+			f.name,
+			f.form,
+			typeof f.price === 'number' ? `${f.price} ${getUnit(f.form)}` : '',
+		])
 
 		const csvContent = [
 			headers.join(';'),
@@ -49,6 +50,16 @@ export default function FertilizerList({ items, onEdit, onDelete }: Props) {
 		link.download = 'Nawozy.csv'
 		link.click()
 		URL.revokeObjectURL(url)
+	}
+
+	function getUnit(form: string) {
+		return form.toLowerCase() === 'płynny' ? `${getCurrencySymbol()}/l` : `${getCurrencySymbol()}/kg`
+	}
+
+	// 🔥 bezpieczne formatowanie ceny
+	function formatPrice(price: unknown, form: string) {
+		if (typeof price !== 'number' || isNaN(price)) return '—'
+		return `${price.toFixed(2)} ${getUnit(form)}`
 	}
 
 	if (!items.length) {
@@ -84,15 +95,15 @@ export default function FertilizerList({ items, onEdit, onDelete }: Props) {
 				{filteredItems.map((f, index) => (
 					<div key={f.id} className='rounded-lg border bg-white p-4 shadow-sm'>
 						<div className='flex justify-between items-center gap-3'>
-							{/* LEFT */}
 							<div>
 								<p className='font-semibold text-gray-900'>
 									{index + 1}. {f.name}
 								</p>
 								<p className='text-sm text-gray-500'>{f.form}</p>
+
+								<p className='text-sm text-gray-700 mt-1 font-medium'>{formatPrice(f.price, f.form)}</p>
 							</div>
 
-							{/* ACTIONS */}
 							<div className='flex gap-2 text-gray-400 shrink-0'>
 								<button onClick={() => onEdit(f)} className='p-2 rounded-md hover:text-yellow-500'>
 									<FontAwesomeIcon icon={faPen} />
@@ -107,12 +118,13 @@ export default function FertilizerList({ items, onEdit, onDelete }: Props) {
 				))}
 			</div>
 
-			{/* 🖥 DESKTOP TABLE */}
+			{/* 🖥 DESKTOP */}
 			<div className='hidden md:block'>
 				<div className='grid grid-cols-12 gap-3 px-3 py-2 text-xs font-medium bg-mainColor text-white rounded-t-lg'>
 					<div className='col-span-1'>LP</div>
-					<div className='col-span-6'>Nazwa nawozu</div>
+					<div className='col-span-4'>Nazwa nawozu</div>
 					<div className='col-span-3'>Forma</div>
+					<div className='col-span-2'>Cena</div>
 					<div className='col-span-2'>Akcje</div>
 				</div>
 
@@ -121,8 +133,10 @@ export default function FertilizerList({ items, onEdit, onDelete }: Props) {
 						key={f.id}
 						className='grid grid-cols-12 gap-3 px-3 py-1 border-b border-gray-300 items-center text-sm bg-white'>
 						<div className='col-span-1 text-gray-500'>{index + 1}</div>
-						<div className='col-span-6 font-medium text-gray-800'>{f.name}</div>
+						<div className='col-span-4 font-medium text-gray-800'>{f.name}</div>
 						<div className='col-span-3 text-gray-600'>{f.form}</div>
+
+						<div className='col-span-2 text-gray-700 font-medium'>{formatPrice(f.price, f.form)}</div>
 
 						<div className='col-span-2 flex gap-2 text-gray-500'>
 							<button onClick={() => onEdit(f)} className='p-2 rounded-md hover:text-yellow-500 cursor-pointer'>
@@ -144,7 +158,6 @@ export default function FertilizerList({ items, onEdit, onDelete }: Props) {
 				</div>
 			)}
 
-			{/* CONFIRM DELETE */}
 			{toDelete && (
 				<ConfirmDeleteModal
 					onCancel={() => setToDelete(null)}

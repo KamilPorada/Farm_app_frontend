@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import SystemButton from '../ui/SystemButton'
 import type { Fertilizer } from '../../types/Fertilizer'
+import { useFormatUtils } from '../../hooks/useFormatUtils'
 
 type Props = {
 	initial: Fertilizer | null
@@ -11,11 +12,14 @@ type Props = {
 type Errors = {
 	name?: string
 	form?: string
+	price?: string
 }
 
 const FORM_OPTIONS = ['Płynny', 'Krystaliczny', 'Granulowany', 'Proszkowy']
 
 export default function FertilizerForm({ initial, onSave, onCancel }: Props) {
+	const { getCurrencySymbol } = useFormatUtils()
+
 	const [errors, setErrors] = useState<Errors>({})
 
 	const [form, setForm] = useState<Fertilizer>({
@@ -23,6 +27,8 @@ export default function FertilizerForm({ initial, onSave, onCancel }: Props) {
 		farmerId: initial?.farmerId ?? 0,
 		name: initial?.name ?? '',
 		form: initial?.form ?? FORM_OPTIONS[0],
+		price: initial?.price ?? null,
+		seasonYear: initial?.seasonYear ?? new Date().getFullYear(),
 	})
 
 	/* =======================
@@ -41,8 +47,16 @@ export default function FertilizerForm({ initial, onSave, onCancel }: Props) {
 			e.form = 'Wybierz formę nawozu'
 		}
 
+		if (form.price !== null && form.price < 0) {
+			e.price = 'Cena nie może być ujemna'
+		}
+
 		setErrors(e)
 		return Object.keys(e).length === 0
+	}
+
+	function getUnit(form: string) {
+		return form.toLowerCase() === 'płynny' ? 'l' : 'kg'
 	}
 
 	function handleSave() {
@@ -68,6 +82,20 @@ export default function FertilizerForm({ initial, onSave, onCancel }: Props) {
 					error={errors.form}
 					options={FORM_OPTIONS}
 					onChange={e => setForm(p => ({ ...p, form: e.target.value }))}
+				/>
+
+				<Input
+					label={`Cena (${getCurrencySymbol()} / ${getUnit(form.form)})`}
+					type='number'
+					step='0.01'
+					value={form.price ?? ''}
+					error={errors.price}
+					onChange={e =>
+						setForm(p => ({
+							...p,
+							price: e.target.value === '' ? null : Number(e.target.value),
+						}))
+					}
 				/>
 			</div>
 

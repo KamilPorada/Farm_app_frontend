@@ -3,4 +3,6 @@ export type Fertilizer = {
   farmerId: number
   name: string
   form: string
+  price: number | null
+  seasonYear: number
 }

@@ -7,12 +7,14 @@ import { useAuthUser } from '../../hooks/useAuthUser'
 import { MoonLoader } from 'react-spinners'
 import { notify } from '../../utils/notify'
 import { useMeData } from '../../hooks/useMeData'
+import { useFormatUtils } from '../../hooks/useFormatUtils'
 
 export default function FertilizerPage() {
 	const { user, getToken, isLoading } = useAuthUser()
 	const { appSettings: globalSettings } = useMeData()
 	const notificationsEnabled = globalSettings?.notificationsEnabled
 	const [year, setYear] = useState(new Date().getFullYear())
+	const { userCurrency, toEURO, toPLN } = useFormatUtils()
 
 	const [fertilizers, setFertilizers] = useState<Fertilizer[]>([])
 	const [mode, setMode] = useState<'list' | 'add' | 'edit'>('list')
@@ -24,34 +26,40 @@ export default function FertilizerPage() {
 	/* =======================
 	   FETCH FERTILIZERS
 	======================= */
-	useEffect(() => {
-		if (!user?.id) return
 
-		async function fetchFertilizers() {
-			setLoading(true)
-			try {
-				const token = await getToken()
+	async function fetchFertilizers() {
+		setLoading(true)
+		try {
+			const token = await getToken()
 
-				const res = await fetch(`http://localhost:8080/api/fertilizers/farmer/${user?.id}`, {
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				})
+			const res = await fetch(`http://localhost:8080/api/fertilizers/farmer/${user?.id}/season/${year}`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
 
-				if (!res.ok) {
-					notify(notificationsEnabled, 'error', 'Nie udało się pobrać nawozów!')
-					return
-				}
-
-				const data: Fertilizer[] = await res.json()
-				setFertilizers(data)
-			} finally {
-				setLoading(false)
+			if (!res.ok) {
+				notify(notificationsEnabled, 'error', 'Nie udało się pobrać nawozów!')
+				return
 			}
-		}
 
+			const data: Fertilizer[] = await res.json()
+
+			const converted = data.map(f => ({
+				...f,
+				price: typeof f.price === 'number' ? (userCurrency === 'EUR' ? toEURO(f.price) : f.price) : null,
+			}))
+
+			setFertilizers(converted)
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	useEffect(() => {
+		if (!user || !globalSettings) return
 		fetchFertilizers()
-	}, [user])
+	}, [year, user, globalSettings])
 
 	/* =======================
 	   SAVE (ADD / EDIT)
@@ -72,6 +80,15 @@ export default function FertilizerPage() {
 
 		const token = await getToken()
 
+		const priceInPLN = f.price == null ? null : userCurrency === 'EUR' ? toPLN(f.price) : f.price
+
+		const payload = {
+			...f,
+			farmerId: user.id,
+			price: priceInPLN,
+			seasonYear: year, // 🔥 KLUCZOWE
+		}
+
 		try {
 			const res = await fetch(`http://localhost:8080/api/fertilizers${isEdit ? `/${f.id}` : `/${user.id}`}`, {
 				method: isEdit ? 'PUT' : 'POST',
@@ -79,7 +96,7 @@ export default function FertilizerPage() {
 					Authorization: `Bearer ${token}`,
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify(f),
+				body: JSON.stringify(payload),
 			})
 
 			if (!res.ok) {
@@ -87,9 +104,7 @@ export default function FertilizerPage() {
 				return
 			}
 
-			const saved: Fertilizer = await res.json()
-
-			setFertilizers(prev => (isEdit ? prev.map(x => (x.id === saved.id ? saved : x)) : [...prev, saved]))
+			await fetchFertilizers()
 
 			notify(notificationsEnabled, 'success', isEdit ? 'Nawóz został zaktualizowany!' : 'Nawóz został dodany!')
 
