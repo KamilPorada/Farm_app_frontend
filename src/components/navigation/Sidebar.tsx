@@ -72,7 +72,7 @@ const sections: Section[] = [
 		icon: faSeedling,
 		items: [
 			{ label: 'Nawozy', path: '/app/fertilizer' },
-			{ label: 'Fertygacja', path: '/app/fertilisation' },
+			{ label: 'Fertygacja', path: '/app/fertigation' },
 		],
 	},
 	{

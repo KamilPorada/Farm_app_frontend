@@ -25,7 +25,8 @@ import EmployePage from './pages/Employee/EmployeePage'
 import PesticidePage from './pages/Pesticide/PesticidePage'
 import TreatmentPage from './pages/Pesticide/TreatmentPage.tsx'
 
-import FertilizerPage from './pages/Ferilizer/FertilizerPage.tsx'
+import FertilizerPage from './pages/Fertigation/FertilizerPage.tsx'
+import FertigationPage from './pages/Fertigation/FertigationPage.tsx'
 
 import SettingsPage from './pages/SettingsPage'
 import { SidebarProvider } from './context/SidebarContext'
@@ -80,6 +81,7 @@ function App() {
 							<Route path='pesticide' element={<PesticidePage />} />
 							<Route path='treatment' element={<TreatmentPage />} />
 							<Route path='fertilizer' element={<FertilizerPage />} />
+							<Route path='fertigation' element={<FertigationPage />} />
 							<Route path='settings' element={<SettingsPage />} />
 						</Route>
 					</Routes>
