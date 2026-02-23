@@ -28,6 +28,8 @@ import TreatmentPage from './pages/Pesticide/TreatmentPage.tsx'
 import FertilizerPage from './pages/Fertigation/FertilizerPage.tsx'
 import FertigationPage from './pages/Fertigation/FertigationPage.tsx'
 
+import NotePage from './pages/Notee/NotePage.tsx'
+
 import SettingsPage from './pages/SettingsPage'
 import { SidebarProvider } from './context/SidebarContext'
 import { Toaster } from 'sonner'
@@ -82,6 +84,7 @@ function App() {
 							<Route path='treatment' element={<TreatmentPage />} />
 							<Route path='fertilizer' element={<FertilizerPage />} />
 							<Route path='fertigation' element={<FertigationPage />} />
+							<Route path='note' element={<NotePage />} />
 							<Route path='settings' element={<SettingsPage />} />
 						</Route>
 					</Routes>
