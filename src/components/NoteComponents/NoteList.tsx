@@ -10,9 +10,7 @@ type Props = {
 	onDelete: (note: Note) => void
 }
 
-/* =======================
-   MONTH NAMES
-======================= */
+/* MONTH NAMES */
 const monthNames = [
 	'Styczeń',
 	'Luty',
@@ -33,9 +31,7 @@ function getMonthName(monthKey: string) {
 	return monthNames[monthIndex]
 }
 
-/* =======================
-   DAY INFO
-======================= */
+/* DAY INFO */
 const dayNames = ['niedziela', 'poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek', 'sobota']
 
 function getDayInfo(date: string) {
@@ -50,18 +46,14 @@ export default function NoteList({ items, onEdit, onDelete }: Props) {
 	const [query, setQuery] = useState('')
 	const [toDelete, setToDelete] = useState<Note | null>(null)
 
-	/* =======================
-	   FILTER
-	======================= */
+	/* FILTER */
 	const filtered = useMemo(() => {
 		if (!query.trim()) return items
 		const q = query.toLowerCase()
 		return items.filter(n => n.title.toLowerCase().includes(q))
 	}, [items, query])
 
-	/* =======================
-	   GROUP BY MONTH
-	======================= */
+	/* GROUP */
 	const grouped = useMemo(() => {
 		const map: Record<string, Note[]> = {}
 
@@ -74,14 +66,11 @@ export default function NoteList({ items, onEdit, onDelete }: Props) {
 		return Object.entries(map).sort((a, b) => b[0].localeCompare(a[0]))
 	}, [filtered])
 
-	/* =======================
-	   EXPORT CSV
-	======================= */
+	/* EXPORT */
 	function exportToCSV(notes: Note[]) {
 		if (!notes.length) return
 
 		const headers = ['Lp', 'Data', 'Tytuł', 'Treść']
-
 		const rows = notes.map((n, i) => [i + 1, n.noteDate, n.title, n.content.replace(/\n/g, ' ')])
 
 		const csv = [
@@ -107,7 +96,7 @@ export default function NoteList({ items, onEdit, onDelete }: Props) {
 		<div className='mt-4'>
 			{/* SEARCH + EXPORT */}
 			<div className='mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
-				<div className='relative w-full sm:max-w-xs cursor-pointer'>
+				<div className='relative w-full sm:max-w-xs'>
 					<FontAwesomeIcon icon={faSearch} className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400' />
 					<input
 						type='text'
@@ -121,58 +110,82 @@ export default function NoteList({ items, onEdit, onDelete }: Props) {
 				<button
 					type='button'
 					onClick={() => exportToCSV(filtered)}
-					className='inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm hover:bg-gray-50'>
+					className='inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer'>
 					<FontAwesomeIcon icon={faDownload} />
 					Eksport CSV
 				</button>
 			</div>
 
-			{/* TIMELINE */}
-			<div className='space-y-8'>
+			{/* NOTES */}
+			<div className='space-y-6 md:space-y-8'>
 				{grouped.map(([monthKey, notes]) => (
 					<div key={monthKey}>
-						{/* MONTH HEADER */}
-						<h3 className='text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3'>
+						<h3 className='text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3'>
 							{getMonthName(monthKey)}
 						</h3>
 
-						<div className='rounded-md border border-gray-400 shadow-md overflow-hidden'>
+						<div className='rounded-md border border-gray-300 shadow-sm overflow-hidden'>
 							{notes.map(note => {
 								const dayInfo = getDayInfo(note.noteDate)
 
 								return (
 									<div
 										key={note.id}
-										className='flex items-center justify-between gap-4 px-4 py-3 border-b border-gray-300 last:border-none bg-white hover:bg-gray-50 transition'>
-										{/* LEFT */}
-										<div className='flex gap-4'>
-											{/* DATE */}
-											<div className='flex flex-col justify-center items-center min-w-17'>
-												<span className='text-2xl font-semibold text-mainColor leading-none'>{dayInfo.day}</span>
-												<span className='text-[11px] text-gray-500 leading-none mt-1 capitalize'>
-													{dayInfo.weekday}
-												</span>
+										className='px-4 py-4 border-b border-gray-200 last:border-none bg-white hover:bg-gray-50 transition'>
+										{/* ================= MOBILE ================= */}
+										<div className='md:hidden'>
+											<div className='flex items-center gap-2 text-mainColor font-semibold'>
+												<span className='text-xl'>{dayInfo.day}</span>
+												<span className='text-sm text-gray-500 capitalize font-normal'>{dayInfo.weekday}</span>
 											</div>
 
-											{/* CONTENT */}
-											<div>
-												<p className='font-medium text-gray-900'>{note.title}</p>
+											<p className='mt-2 font-semibold text-gray-900'>{note.title}</p>
 
-												<p className='text-sm text-gray-600 whitespace-pre-line'>{note.content}</p>
+											<p className='mt-1 text-sm text-gray-600 whitespace-pre-line'>{note.content}</p>
+
+											<div className='flex justify-end gap-2 mt-3 text-gray-400'>
+												<button
+													onClick={() => onEdit(note)}
+													className='p-2 rounded-md hover:text-yellow-500 cursor-pointer'>
+													<FontAwesomeIcon icon={faPen} />
+												</button>
+
+												<button
+													onClick={() => setToDelete(note)}
+													className='p-2 rounded-md hover:text-red-500 cursor-pointer'>
+													<FontAwesomeIcon icon={faTrash} />
+												</button>
 											</div>
 										</div>
 
-										{/* ACTIONS */}
-										<div className='flex flex-row justify-center items-center gap-1 text-gray-400 shrink-0 '>
-											<button onClick={() => onEdit(note)} className='p-2 rounded-md hover:text-yellow-500 cursor-pointer'>
-												<FontAwesomeIcon icon={faPen} />
-											</button>
+										{/* ================= DESKTOP ================= */}
+										<div className='hidden md:flex items-center justify-between gap-4'>
+											<div className='flex gap-3 flex-1'>
+												<div className='flex flex-col items-center min-w-[56px]'>
+													<span className='text-2xl font-semibold text-mainColor leading-none'>{dayInfo.day}</span>
+													<span className='text-[11px] text-gray-500 capitalize'>{dayInfo.weekday}</span>
+												</div>
 
-											<button
-												onClick={() => setToDelete(note)}
-												className='p-2 rounded-md hover:text-red-500 cursor-pointer'>
-												<FontAwesomeIcon icon={faTrash} />
-											</button>
+												<div className='flex-1'>
+													<p className='font-medium text-gray-900'>{note.title}</p>
+
+													<p className='text-sm text-gray-600 whitespace-pre-line'>{note.content}</p>
+												</div>
+											</div>
+
+											<div className='flex items-center gap-1 text-gray-400 shrink-0'>
+												<button
+													onClick={() => onEdit(note)}
+													className='p-2 rounded-md hover:text-yellow-500 cursor-pointer'>
+													<FontAwesomeIcon icon={faPen} />
+												</button>
+
+												<button
+													onClick={() => setToDelete(note)}
+													className='p-2 rounded-md hover:text-red-500 cursor-pointer'>
+													<FontAwesomeIcon icon={faTrash} />
+												</button>
+											</div>
 										</div>
 									</div>
 								)
@@ -184,7 +197,6 @@ export default function NoteList({ items, onEdit, onDelete }: Props) {
 
 			{filtered.length === 0 && <div className='mt-6 text-center text-sm text-gray-500'>Nie znaleziono notatek.</div>}
 
-			{/* DELETE MODAL */}
 			{toDelete && (
 				<ConfirmDeleteModal
 					onCancel={() => setToDelete(null)}

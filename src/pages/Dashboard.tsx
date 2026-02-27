@@ -1,73 +1,128 @@
-import Button from '../components/ui/Button'
+import { useState, useEffect } from 'react'
 import { useAuthUser } from '../hooks/useAuthUser'
 import { useMeData } from '../hooks/useMeData'
+import { notify } from '../utils/notify'
+
+import DashboardHeader from '../components/DashboardComponents/DashboardHeader'
+import SeasonOverviewCard from '../components/DashboardComponents/SeasonOverviewCard'
+import DashboardStats from '../components/DashboardComponents/DashboardStats'
+import AveragePepperPriceAreaChart from '../components/DashboardComponents/AveragePepperPriceAreaChart'
+import HarvestFromTradesBarChart from '../components/DashboardComponents/HarvestFromTradesBarChart'
+import TreatmentTimeline from '../components/DashboardComponents/TreatmentTimeline'
+import FertigationTimeline from '../components/DashboardComponents/FertigationTimeline'
 
 function Dashboard() {
-	const { user, logout } = useAuthUser()
-	const data = useMeData()
-	console.log(data)
+	const today = new Date()
+	const todayISO = today.toISOString().slice(0, 10)
+
+	const [year, setYear] = useState(today.getFullYear())
+	const [toDate, setToDate] = useState(todayISO)
+
+	const [seasonStarted, setSeasonStarted] = useState<boolean | null>(null)
+
+	const { user, getToken } = useAuthUser()
+	const { appSettings } = useMeData()
+	const notificationsEnabled = appSettings?.notificationsEnabled
+
+	/* ===============================
+	   SPRAWDZENIE CZY SEZON RUSZYŁ
+	================================ */
+	useEffect(() => {
+		if (!user?.id) return
+
+		const checkSeason = async () => {
+			try {
+				const token = await getToken()
+
+				const res = await fetch(
+					`http://localhost:8080/api/cultivation-calendar?farmerId=${user.id}&seasonYear=${year}`,
+					{
+						headers: { Authorization: `Bearer ${token}` },
+					}
+				)
+
+				// brak kalendarza → sezon nie rozpoczęty
+				if (res.status === 404) {
+					setSeasonStarted(false)
+					return
+				}
+
+				if (!res.ok) throw new Error()
+
+				const data = await res.json()
+
+				// jeżeli brak daty pikowania → sezon nie ruszył
+				setSeasonStarted(!!data?.prickingStartDate)
+			} catch {
+				notify(notificationsEnabled, 'error', 'Nie udało się sprawdzić statusu sezonu')
+			}
+		}
+
+		checkSeason()
+	}, [user, year])
 
 	return (
-		<div className='flex flex-col min-h-screen items-center justify-center'>
-			<div className='w-full max-w-2xl rounded-xl border border-gray-200 bg-white p-6 shadow-sm'>
-				<h2 className='mb-6 text-2xl font-bold text-gray-800'>👤 Dashboard</h2>
+		<div className='flex flex-col gap-6 container p-8'>
+			{/* HEADER */}
+			<DashboardHeader
+				year={year}
+				setYear={setYear}
+				toDate={toDate}
+				setToDate={setToDate}
+			/>
 
-				<section className='mb-8'>
-					<h3 className='mb-4 text-lg font-semibold text-gray-700'>Dane autoryzacyjne (Kinde)</h3>
+			{/* KARTA SEZONU */}
+			<SeasonOverviewCard seasonYear={year} currentDate={toDate} />
 
-					<div className='space-y-4'>
-						<UserRow label='Email' value={user?.email} />
-						<UserRow label='Imię' value={user?.firstName} />
-						<UserRow label='Nazwisko' value={user?.lastName} />
+			{/* ===== JEŚLI SEZON NIE ROZPOCZĘTY ===== */}
+			{seasonStarted === false && (
+				<div className='rounded-2xl bg-white border border-gray-100 shadow-sm p-10 text-center'>
+					<p className='text-lg font-semibold text-gray-800'>
+						Sezon nie został jeszcze rozpoczęty
+					</p>
 
-						{/* AVATAR USERA */}
-						<div className='h-28 w-28 rounded-full border-2 border-white overflow-hidden flex items-center justify-center bg-white'>
-							{hasRealAvatar(user?.picture ?? undefined) ? (
-								<img src={user!.picture!} alt='Avatar' className='h-full w-full object-cover' />
-							) : (
-								<span className='text-mainColor text-5xl font-bold select-none'>
-									{getInitials(user?.firstName, user?.lastName)}
-								</span>
-							)}
+					<p className='mt-3 text-sm text-gray-500 max-w-md mx-auto'>
+						Aby wyświetlić analizy, statystyki oraz podsumowanie produkcji,
+						rozpocznij sezon w kalendarzu uprawy ustawiając datę rozpoczęcia pikowania!
+					</p>
+				</div>
+			)}
+
+			{/* ===== DASHBOARD (tylko po starcie sezonu) ===== */}
+			{seasonStarted && (
+				<>
+					<DashboardStats seasonYear={year} currentDate={toDate} />
+
+					<div className='grid grid-cols-1 xl:grid-cols-4 gap-3 w-full xl:h-117'>
+						{/* LEWA KOLUMNA — wykresy */}
+						<div className='xl:col-span-2 flex flex-col gap-3'>
+							<AveragePepperPriceAreaChart
+								seasonYear={year}
+								currentDate={toDate}
+							/>
+							<HarvestFromTradesBarChart
+								seasonYear={year}
+								currentDate={toDate}
+							/>
+						</div>
+
+						{/* PRAWA STRONA */}
+						<div className='xl:col-span-1'>
+							<TreatmentTimeline
+								seasonYear={year}
+								currentDate={toDate}
+							/>
+						</div>
+
+						<div className='xl:col-span-1'>
+							<FertigationTimeline
+								seasonYear={year}
+								currentDate={toDate}
+							/>
 						</div>
 					</div>
-				</section>
-
-				<div className='flex gap-3'>
-					<Button onClick={logout} className='w-full'>
-						Wyloguj się
-					</Button>
-				</div>
-			</div>
-		</div>
-	)
-}
-
-function getInitials(firstName?: string, lastName?: string) {
-	if (!firstName && !lastName) return '?'
-
-	const first = firstName?.charAt(0) ?? ''
-	const last = lastName?.charAt(0) ?? ''
-
-	return (first + last).toUpperCase()
-}
-
-function hasRealAvatar(picture?: string) {
-	if (!picture) return false
-
-	return !picture.includes('gravatar.com') && !picture.includes('d=blank')
-}
-
-type UserRowProps = {
-	label: string
-	value?: string | null
-}
-
-function UserRow({ label, value }: UserRowProps) {
-	return (
-		<div>
-			<p className='text-sm font-medium text-gray-500'>{label}</p>
-			<p className='break-all text-gray-800'>{value || <span className='text-gray-400'>Brak</span>}</p>
+				</>
+			)}
 		</div>
 	)
 }
