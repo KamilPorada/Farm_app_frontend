@@ -1,14 +1,18 @@
 import { useState } from 'react'
-import Button from '../ui/Button'
+import SystemButton from '../ui/SystemButton'
 
 type Props = {
 	userEmail: string
 	onDeactivateAccount: () => Promise<void>
+	onDownloadBackup: () => void
+	onSendBackupEmail: () => void
 }
 
 export default function SecuritySection({
 	userEmail,
 	onDeactivateAccount,
+	onDownloadBackup,
+	onSendBackupEmail,
 }: Props) {
 	const [isOpen, setIsOpen] = useState(false)
 	const [email, setEmail] = useState('')
@@ -30,25 +34,45 @@ export default function SecuritySection({
 
 	return (
 		<section className='mt-6 border-t pt-5'>
-			<h2 className='text-xl font-semibold text-red-600'>
+			<h2 className='text-xl font-semibold text-black'>
 				Konto i bezpieczeństwo
 			</h2>
 
-			<p className='mt-1 text-sm text-gray-600'>
-				Możesz dezaktywować swoje konto w aplikacji. Spowoduje to trwałe
-				usunięcie wszystkich Twoich danych aplikacyjnych. Konto logowania pozostanie aktywne – w przyszłości będziesz mógł
-				zalogować się ponownie tym samym adresem e-mail i hasłem.
+			{/* ===== BACKUP DATA ===== */}
+
+			<p className='mt-3 text-sm text-gray-600'>
+				Dla bezpieczeństwa możesz utworzyć kopię swoich danych z aplikacji.
+				Pobrany plik JSON zawiera wszystkie informacje zapisane w Twoim
+				gospodarstwie i może posłużyć jako kopia zapasowa na wypadek utraty
+				danych lub przeniesienia ich do innego systemu.
 			</p>
 
-			
+			<div className='mt-4 flex flex-wrap gap-2'>
+				<SystemButton onClick={onDownloadBackup}>
+					Pobierz kopię danych (JSON)
+				</SystemButton>
+
+				<SystemButton onClick={onSendBackupEmail}>
+					Wyślij kopię danych na e-mail
+				</SystemButton>
+			</div>
+
+			{/* ===== ACCOUNT DEACTIVATION ===== */}
+
+			<p className='mt-6 text-sm text-gray-600'>
+				Możesz dezaktywować swoje konto w aplikacji. Spowoduje to trwałe
+				usunięcie wszystkich Twoich danych aplikacyjnych. Konto logowania
+				pozostanie aktywne – w przyszłości będziesz mógł zalogować się ponownie
+				tym samym adresem e-mail i hasłem.
+			</p>
 
 			<div className='mt-6'>
-				<Button
+				<SystemButton
 					onClick={() => setIsOpen(true)}
 					className='bg-red-500 hover:bg-red-700'
 				>
 					Dezaktywuj konto
-				</Button>
+				</SystemButton>
 			</div>
 
 			{isOpen && (

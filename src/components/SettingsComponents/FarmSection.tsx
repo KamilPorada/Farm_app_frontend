@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import Button from '../ui/Button'
+import SystemButton from '../ui/SystemButton'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faPen, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons'
 
 export type TunnelYear = {
 	year: string
@@ -236,24 +236,36 @@ export default function FarmSection({
 
 				{/* ===== LISTA ===== */}
 				{tunnels.length > 0 && (
-					<div className='mt-4 md:w-1/2 '>
-						<div className='rounded-md border bg-white'>
+					<div className='mt-4 md:w-1/2'>
+						<div className='rounded-md border border-gray-400 bg-white'>
 							{/* HEADER */}
-							<div className='flex text-xs font-bold text-white bg-mainColor px-3 py-2 '>
-								<div className='w-20 text-center'>Rok</div>
-								<div className='flex-1 text-center'>Tunele</div>
-								<div className='w-20 text-center'>Akcja</div>
+							<div className='grid grid-cols-[0.5fr_1fr_0.9fr_0.4fr] text-xs font-bold text-white bg-mainColor px-3 py-2'>
+								<div className='text-left'>LP</div>
+								<div className='text-left'>Rok</div>
+								<div className='text-left'>Tunele</div>
+								<div className='text-left'>Akcja</div>
 							</div>
 
 							{/* BODY */}
-							<div className='max-h-60 overflow-y-auto divide-y'>
+							<div className='max-h-60 overflow-y-auto'>
 								{[...tunnels]
 									.sort((a, b) => Number(a.year) - Number(b.year))
-									.map(t => (
-										<div key={t.year} className='flex items-center px-3 py-2 text-sm'>
-											<div className='w-20 font-medium  text-center'>{t.year}</div>
-											<div className='flex-1 text-center '>{t.count}</div>
-											<div className='w-20 flex justify-center gap-1'>
+									.map((t, index) => (
+										<div
+											key={t.year}
+											className='grid grid-cols-[0.5fr_1fr_0.9fr_0.4fr] items-center w-full px-3 py-2 text-sm border-b
+					border-gray-300'>
+											{/* LP */}
+											<div className='text-left text-gray-500'>{index + 1}</div>
+
+											{/* ROK */}
+											<div className='font-medium text-left'>{t.year}</div>
+
+											{/* TUNELE */}
+											<div className='text-left'>{t.count}</div>
+
+											{/* AKCJE */}
+											<div className='flex gap-2'>
 												<button
 													onClick={() => {
 														setMode('edit')
@@ -261,13 +273,13 @@ export default function FarmSection({
 														setNewYear(t.year)
 														setNewCount(t.count)
 													}}
-													className='p-1 text-gray-400 hover:text-mainColor hover:cursor-pointer'>
+													className='text-gray-400 hover:text-yellow-500 cursor-pointer'>
 													<FontAwesomeIcon icon={faPen} />
 												</button>
 
 												<button
 													onClick={() => handleDelete(t.year)}
-													className='p-1 text-gray-400 hover:text-red-600 hover:cursor-pointer'>
+													className='text-gray-400 hover:text-red-500 cursor-pointer'>
 													<FontAwesomeIcon icon={faTrash} />
 												</button>
 											</div>
@@ -398,14 +410,14 @@ export default function FarmSection({
 			</div>
 			{formError && <p className='mt-3 text-sm text-red-600'>{formError}</p>}
 
-			<Button
+			<SystemButton
 				className='mt-4'
 				onClick={() => {
 					if (!validateForm()) return
 					onSave()
 				}}>
 				Zapisz dane
-			</Button>
+			</SystemButton>
 		</section>
 	)
 }

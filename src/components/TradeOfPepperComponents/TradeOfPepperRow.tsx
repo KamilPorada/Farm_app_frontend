@@ -38,10 +38,10 @@ export default function TradeOfPepperRow({ item, onEdit, onDelete }: Props) {
 					</p>
 
 					<div className='flex gap-2 text-gray-500'>
-						<button onClick={() => onEdit(item)} className='hover:text-yellow-500 hover:cusor-pointer'>
+						<button onClick={() => onEdit(item)} className='hover:text-yellow-500 cusor-pointer'>
 							<FontAwesomeIcon icon={faPen} />
 						</button>
-						<button onClick={onDelete} className='hover:text-red-500 hover:cusor-pointer'>
+						<button onClick={onDelete} className='hover:text-red-500 cusor-pointer'>
 							<FontAwesomeIcon icon={faTrash} />
 						</button>
 					</div>
@@ -98,10 +98,10 @@ export default function TradeOfPepperRow({ item, onEdit, onDelete }: Props) {
 				<div className='truncate px-2'>{item.pointName}</div>
 
 				<div className='flex justify-center gap-2 text-gray-500'>
-					<button onClick={() => onEdit(item)} className='hover:text-yellow-500 hover:cusor-pointer'>
+					<button onClick={() => onEdit(item)} className='hover:text-yellow-500 cusor-pointer'>
 						<FontAwesomeIcon icon={faPen} />
 					</button>
-					<button onClick={onDelete} className='hover:text-red-500 hover:cusor-pointer'>
+					<button onClick={onDelete} className='hover:text-red-500 cusor-pointer'>
 						<FontAwesomeIcon icon={faTrash} />
 					</button>
 				</div>

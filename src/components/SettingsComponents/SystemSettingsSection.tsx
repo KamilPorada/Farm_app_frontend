@@ -1,4 +1,4 @@
-import Button from '../ui/Button'
+import SystemButton from "../ui/SystemButton"
 
 type AppSettingsForm = {
 	language: string
@@ -92,9 +92,9 @@ export default function SystemSettingsSection({ form, setForm, onSave }: Props) 
 				/>
 			</div>
 
-			<Button className='mt-4' onClick={onSave}>
+			<SystemButton className='mt-4' onClick={onSave}>
 				Zapisz dane
-			</Button>
+			</SystemButton>
 		</section>
 	)
 }

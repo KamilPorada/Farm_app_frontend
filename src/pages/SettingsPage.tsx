@@ -6,9 +6,7 @@ import SystemSettingsSection from '../components/SettingsComponents/SystemSettin
 import SecuritySection from '../components/SettingsComponents/SecuritySection'
 import { notify } from '../utils/notify'
 import { useMeData } from '../hooks/useMeData'
-import {
-	MoonLoader,
-} from 'react-spinners'
+import { MoonLoader } from 'react-spinners'
 
 export type TunnelYear = {
 	year: string
@@ -235,7 +233,7 @@ function SettingsPage() {
 								.split(',')
 								.map(c => c.trim())
 								.filter(Boolean)
-						: []
+						: [],
 				)
 			} finally {
 				setLoadingDetails(false)
@@ -270,7 +268,7 @@ function SettingsPage() {
 					data.map(t => ({
 						year: String(t.year),
 						count: String(t.count),
-					}))
+					})),
 				)
 			} catch (e) {
 				console.error('Błąd pobierania tuneli', e)
@@ -330,6 +328,68 @@ function SettingsPage() {
 		fetchAppSettings()
 	}, [user?.id])
 
+	const handleSendBackupEmail = async () => {
+		try {
+			const token = await getToken()
+			if (!token || !user) return
+
+			const res = await fetch(`http://localhost:8080/api/export/email/${user.id}`, {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			if (!res.ok) {
+				notify(notificationsEnabled, 'error', 'Nie udało się wysłać kopii danych na email')
+				return
+			}
+
+			notify(notificationsEnabled, 'success', 'Kopia danych została wysłana na email!')
+		} catch (e) {
+			console.error('Błąd wysyłki maila', e)
+			notify(notificationsEnabled, 'error', 'Błąd wysyłki maila')
+		}
+	}
+
+	const handleDownloadBackup = async () => {
+		try {
+			const token = await getToken()
+			if (!token || !user) return
+
+			const res = await fetch(`http://localhost:8080/api/export/${user.id}`, {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			if (!res.ok) {
+				notify(notificationsEnabled, 'error', 'Nie udało się wygenerować kopii danych')
+				return
+			}
+
+			const json = await res.text()
+
+			const blob = new Blob([json], { type: 'application/json' })
+			const url = window.URL.createObjectURL(blob)
+
+			const a = document.createElement('a')
+			a.href = url
+			a.download = `farmapp-backup-${new Date().toISOString().slice(0, 10)}.json`
+			document.body.appendChild(a)
+			a.click()
+
+			a.remove()
+			window.URL.revokeObjectURL(url)
+
+			notify(notificationsEnabled, 'success', 'Kopia danych została pobrana')
+		} catch (e) {
+			console.error(e)
+			notify(notificationsEnabled, 'error', 'Błąd pobierania kopii danych')
+		}
+	}
+
 	/* ===== BLOKADY RENDERU ===== */
 
 	if (isLoading || loadingDetails) {
@@ -364,7 +424,12 @@ function SettingsPage() {
 			/>
 
 			<SystemSettingsSection form={appSettings} setForm={setAppSettings} onSave={handleSaveAppSettings} />
-			<SecuritySection userEmail={user.email} onDeactivateAccount={handleDeleteAccount} />
+			<SecuritySection
+				userEmail={user.email}
+				onDeactivateAccount={handleDeleteAccount}
+				onDownloadBackup={handleDownloadBackup}
+				onSendBackupEmail={handleSendBackupEmail}
+			/>
 		</div>
 	)
 }
