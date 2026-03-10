@@ -6,12 +6,14 @@ import { EXPENSE_CATEGORY_ICON_MAP } from '../../../constans/expenseCategoryIcon
 type FormData = {
 	name: string
 	icon: string | null
+	productionCost: boolean
 }
 
 type Props = {
 	initial?: {
 		name: string
 		icon: string | null
+		productionCost: boolean
 	}
 	onSubmit: (data: FormData) => void
 	onClose: () => void
@@ -21,6 +23,7 @@ export default function ExpenseCategoryFormModal({ initial, onSubmit, onClose }:
 	const [form, setForm] = useState<FormData>({
 		name: initial?.name ?? '',
 		icon: initial?.icon ?? null,
+		productionCost: initial?.productionCost ?? false,
 	})
 
 	const [touched, setTouched] = useState({
@@ -88,11 +91,28 @@ export default function ExpenseCategoryFormModal({ initial, onSubmit, onClose }:
 					{iconError && <p className='mt-2 text-xs text-red-500'>Wybierz ikonę dla kategorii</p>}
 				</div>
 
-				<div className='mt-6 flex flex-row justify-center items-center gap-3  sm:justify-end '>
+				{/* NOWE POLE */}
+				<div className='mt-5'>
+					<label className='flex items-center gap-2 text-xs sm:text-sm font-medium cursor-pointer'>
+						<input
+							type='checkbox'
+							checked={form.productionCost}
+							onChange={e => setForm({ ...form, productionCost: e.target.checked })}
+							className='h-4 w-4 accent-mainColor'
+						/>
+						Koszt produkcji
+					</label>
+
+					<p className='mt-1 text-xs text-gray-500'>
+						Zaznacz jeśli ta kategoria powinna być liczona jako koszt produkcji.
+					</p>
+				</div>
+
+				<div className='mt-6 flex flex-row justify-center items-center gap-3 sm:justify-end'>
 					<SystemButton
 						variant='outline'
 						onClick={onClose}
-						className=' text-mainColor border-mainColor/40'>
+						className='text-mainColor border-mainColor/40'>
 						Anuluj
 					</SystemButton>
 
@@ -103,8 +123,7 @@ export default function ExpenseCategoryFormModal({ initial, onSubmit, onClose }:
 								onSubmit(form)
 							}
 						}}
-						disabled={isInvalid}
-						className=''>
+						disabled={isInvalid}>
 						Zapisz
 					</SystemButton>
 				</div>

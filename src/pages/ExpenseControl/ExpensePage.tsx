@@ -41,7 +41,7 @@ export default function ExpensePage() {
 	/* =======================
    		CREATE CATEGORY
 	======================= */
-	async function handleCreateCategory(data: { name: string; icon: string | null }) {
+	async function handleCreateCategory(data: { name: string; icon: string | null; productionCost: boolean }) {
 		if (!user) return
 
 		setLoading(true)
@@ -58,6 +58,7 @@ export default function ExpensePage() {
 				body: JSON.stringify({
 					name: data.name,
 					icon: data.icon,
+					productionCost: data.productionCost,
 				}),
 			})
 
@@ -72,13 +73,9 @@ export default function ExpensePage() {
 
 			const saved: ExpenseCategory = await res.json()
 
-			// dodaj do listy
 			setCategories(prev => [...prev, saved])
-
-			// ustaw jako aktywną
 			setActiveCategoryId(saved.id)
 
-			// zamknij modal
 			setShowCategoryFormModal(false)
 
 			notify(notificationsEnabled, 'success', 'Kategoria wydatków została dodana!')
@@ -89,7 +86,7 @@ export default function ExpensePage() {
 		}
 	}
 
-	async function handleUpdateCategory(data: { name: string; icon: string | null }) {
+	async function handleUpdateCategory(data: { name: string; icon: string | null; productionCost: boolean }) {
 		if (!editingCategory || !user) return
 		setLoading(true)
 
@@ -107,6 +104,7 @@ export default function ExpensePage() {
 					body: JSON.stringify({
 						name: data.name,
 						icon: data.icon,
+						productionCost: data.productionCost,
 					}),
 				},
 			)
@@ -275,41 +273,40 @@ export default function ExpensePage() {
    		FETCH EXPENSES
 	======================= */
 	useEffect(() => {
-	if (!user?.id) return
+		if (!user?.id) return
 
-	async function fetchExpenses() {
-		setLoading(true)
+		async function fetchExpenses() {
+			setLoading(true)
 
-		try {
-			const token = await getToken()
+			try {
+				const token = await getToken()
 
-			const url = activeCategoryId
-				? `http://localhost:8080/api/expenses/category/${activeCategoryId}?farmerId=${user?.id}&year=${year}`
-				: `http://localhost:8080/api/expenses?farmerId=${user?.id}&year=${year}`
+				const url = activeCategoryId
+					? `http://localhost:8080/api/expenses/category/${activeCategoryId}?farmerId=${user?.id}&year=${year}`
+					: `http://localhost:8080/api/expenses?farmerId=${user?.id}&year=${year}`
 
-			const res = await fetch(url, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			})
+				const res = await fetch(url, {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				})
 
-			if (!res.ok) {
-				notify(notificationsEnabled, 'error', 'Nie udało się pobrać wydatków')
-				return
+				if (!res.ok) {
+					notify(notificationsEnabled, 'error', 'Nie udało się pobrać wydatków')
+					return
+				}
+
+				const data: Expense[] = await res.json()
+				setExpenses(data)
+			} catch {
+				notify(notificationsEnabled, 'error', 'Błąd podczas pobierania wydatków')
+			} finally {
+				setLoading(false)
 			}
-
-			const data: Expense[] = await res.json()
-			setExpenses(data)
-		} catch {
-			notify(notificationsEnabled, 'error', 'Błąd podczas pobierania wydatków')
-		} finally {
-			setLoading(false)
 		}
-	}
 
-	fetchExpenses()
-}, [user, year, activeCategoryId])
-
+		fetchExpenses()
+	}, [user, year, activeCategoryId])
 
 	/* =======================
 	   LOADING
@@ -359,6 +356,7 @@ export default function ExpensePage() {
 							? {
 									name: editingCategory.name,
 									icon: editingCategory.icon ?? null,
+									productionCost: editingCategory.productionCost,
 								}
 							: undefined
 					}

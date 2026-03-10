@@ -2,6 +2,7 @@ export type ExpenseCategory = {
 	id: number
 	name: string
 	icon?: string | null
+	productionCost: boolean
 }
 
 export type Expense = {

@@ -9,40 +9,56 @@ type Props = {
 	activeCategoryId: number | null
 	onSelect: (categoryId: number | null) => void
 	onAdd: () => void
-	onManage: () => void 
+	onManage: () => void
 }
 
 export default function ExpenseCategoryHeader({ categories, activeCategoryId, onSelect, onAdd, onManage }: Props) {
+	const sortedCategories = [...categories].sort((a, b) => {
+		if (a.productionCost !== b.productionCost) {
+			return a.productionCost ? -1 : 1
+		}
+
+		return a.name.localeCompare(b.name, 'pl')
+	})
 	return (
 		<div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
 			<div className='flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:gap-3'>
 				<button
 					onClick={() => onSelect(null)}
 					className={`flex items-center justify-center md:justify-start gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium transition hover:cursor-pointer
-		${
-			activeCategoryId === null
-				? 'bg-mainColor text-white border-mainColor'
-				: 'bg-gray-50 text-gray-700 hover:bg-gray-200'
-		}`}>
+					${
+						activeCategoryId === null
+							? 'bg-mainColor text-white border-mainColor'
+							: 'bg-gray-50 text-gray-700 hover:bg-gray-200'
+					}`}>
 					<FontAwesomeIcon icon={faLayerGroup} />
 					Wszystkie
 				</button>
 
-				{categories.map(cat => (
-					<button
-						key={cat.id}
-						onClick={() => onSelect(cat.id)}
-						className={`flex items-center justify-center md:justify-start gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium transition hover:cursor-pointer
-		${
-			activeCategoryId === cat.id
-				? 'bg-mainColor text-white border-mainColor'
-				: 'bg-gray-50 text-gray-700 hover:bg-gray-200'
-		}`}>
-						{cat.icon && (
-							<FontAwesomeIcon icon={EXPENSE_CATEGORY_ICON_MAP[cat.icon] ?? EXPENSE_CATEGORY_ICON_MAP['fa-ellipsis']} />
+				{sortedCategories.map(cat => (
+					<div key={cat.id} className='relative group'>
+						<button
+							onClick={() => onSelect(cat.id)}
+							className={`flex items-center justify-center md:justify-start gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium transition hover:cursor-pointer
+			${
+				activeCategoryId === cat.id
+					? 'bg-mainColor text-white border-mainColor'
+					: 'bg-gray-50 text-gray-700 hover:bg-gray-200'
+			}`}>
+							{cat.icon && (
+								<FontAwesomeIcon
+									icon={EXPENSE_CATEGORY_ICON_MAP[cat.icon] ?? EXPENSE_CATEGORY_ICON_MAP['fa-ellipsis']}
+								/>
+							)}
+							{cat.name}
+						</button>
+
+						{cat.productionCost && (
+							<div className='pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-100 px-2 py-1 text-xs text-gray-800 opacity-0 transition-opacity group-hover:opacity-100'>
+								Koszty produkcji
+							</div>
 						)}
-						{cat.name}
-					</button>
+					</div>
 				))}
 			</div>
 
