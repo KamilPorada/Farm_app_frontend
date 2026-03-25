@@ -49,7 +49,7 @@ export default function ExpensePage() {
 		try {
 			const token = await getToken()
 
-			const res = await fetch(`http://localhost:8080/api/expense-categories?farmerId=${user.id}`, {
+			const res = await fetch(`http://localhost:8080/api/expense-categories?farmerId=${user.id}&seasonYear=${year}`, {
 				method: 'POST',
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -94,7 +94,7 @@ export default function ExpensePage() {
 			const token = await getToken()
 
 			const res = await fetch(
-				`http://localhost:8080/api/expense-categories/${editingCategory.id}?farmerId=${user.id}`,
+				`http://localhost:8080/api/expense-categories/${editingCategory.id}?farmerId=${user.id}&seasonYear=${year}`,
 				{
 					method: 'PUT',
 					headers: {
@@ -247,11 +247,14 @@ export default function ExpensePage() {
 			try {
 				const token = await getToken()
 
-				const res = await fetch(`http://localhost:8080/api/expense-categories?farmerId=${user?.id}`, {
-					headers: {
-						Authorization: `Bearer ${token}`,
+				const res = await fetch(
+					`http://localhost:8080/api/expense-categories?farmerId=${user?.id}&seasonYear=${year}`,
+					{
+						headers: {
+							Authorization: `Bearer ${token}`,
+						},
 					},
-				})
+				)
 
 				if (!res.ok) {
 					notify(notificationsEnabled, 'error', 'Nie udało się pobrać kategorii wydatków!')
@@ -267,7 +270,7 @@ export default function ExpensePage() {
 		}
 
 		fetchCategories()
-	}, [user])
+	}, [user, year])
 
 	/* =======================
    		FETCH EXPENSES

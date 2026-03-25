@@ -187,6 +187,34 @@ export default function CultivationCalendarPage() {
 		setActiveStage(nextStage)
 	}
 
+	const handleGenerateReport = async () => {
+		try {
+			const token = await getToken()
+
+			const res = await fetch(`http://localhost:8080/api/reports/season/${year}?farmerId=${user?.id}`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			if (!res.ok) {
+				throw new Error()
+			}
+
+			const blob = await res.blob()
+			const url = window.URL.createObjectURL(blob)
+
+			const a = document.createElement('a')
+			a.href = url
+			a.download = `raport_sezon_${year}.docx`
+			a.click()
+
+			window.URL.revokeObjectURL(url)
+		} catch {
+			notify(notificationsEnabled, 'error', 'Nie udało się wygenerować raportu')
+		}
+	}
+
 	/* =======================
 	   LOADING
 	======================= */
@@ -240,7 +268,7 @@ export default function CultivationCalendarPage() {
 							</button>
 						</div>
 						<div className='w-full md:w-1/2 pr-8 pl-4 py-5'>
-							<CultivationSeasonReportCard item={item} />
+							<CultivationSeasonReportCard item={item} onGenerateReport={handleGenerateReport} />{' '}
 						</div>
 					</div>
 				</div>
@@ -287,4 +315,3 @@ export default function CultivationCalendarPage() {
 		</div>
 	)
 }
-
