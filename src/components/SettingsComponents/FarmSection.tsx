@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import SystemButton from '../ui/SystemButton'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons'
+import ConfirmDeleteModal from '../ui/ConfirmDeleteModal'
 
 export type TunnelYear = {
 	year: string
@@ -56,6 +57,8 @@ export default function FarmSection({
 	const [newCount, setNewCount] = useState('')
 	const [error, setError] = useState<string | null>(null)
 	const [formError, setFormError] = useState<string | null>(null)
+	const [tunnelToDelete, setTunnelToDelete] = useState<string | null>(null)
+	const [cropToDelete, setCropToDelete] = useState<string | null>(null)
 
 	/* ===== UPRAWY ===== */
 
@@ -278,7 +281,7 @@ export default function FarmSection({
 												</button>
 
 												<button
-													onClick={() => handleDelete(t.year)}
+													onClick={() => setTunnelToDelete(t.year)}
 													className='text-gray-400 hover:text-red-500 cursor-pointer'>
 													<FontAwesomeIcon icon={faTrash} />
 												</button>
@@ -292,7 +295,7 @@ export default function FarmSection({
 
 				{/* ===== FORMULARZ (ADD + EDIT) ===== */}
 				{mode && (
-					<div className='mt-4 md:w-1/2 rounded-md border bg-white p-4'>
+					<div className='mt-4 md:w-1/2 rounded-md bg-white'>
 						<div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
 							<Input
 								label='Rok'
@@ -354,8 +357,8 @@ export default function FarmSection({
 
 				{/* ===== FORMULARZ ===== */}
 				{isAddingCrop && (
-					<div className='mt-4 md:w-1/2 rounded-md border bg-white p-4'>
-						<div className='flex gap-3'>
+					<div className='my-3 md:w-1/2 rounded-md bg-white'>
+						<div className='flex flex-col gap-3'>
 							<Input
 								label='Nazwa uprawy'
 								value={cropInput}
@@ -363,7 +366,7 @@ export default function FarmSection({
 								onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && addCrop()}
 							/>
 
-							<div className='flex items-end gap-2'>
+							<div className='flex justify-end items-end gap-2'>
 								<button
 									type='button'
 									onClick={() => {
@@ -398,8 +401,8 @@ export default function FarmSection({
 								{crop}
 								<button
 									type='button'
-									onClick={() => setCrops(prev => prev.filter(c => c !== crop))}
-									className='text-gray-400 hover:text-red-500'
+									onClick={() => setCropToDelete(crop)}
+									className='text-gray-400 hover:text-red-500 cursor-pointer'
 									aria-label={`Usuń ${crop}`}>
 									×
 								</button>
@@ -418,6 +421,33 @@ export default function FarmSection({
 				}}>
 				Zapisz dane
 			</SystemButton>
+
+			{/* ===== DELETE TUNNEL ===== */}
+			{tunnelToDelete && (
+				<ConfirmDeleteModal
+					title='Usuń wpis o tunelach'
+					description={`Czy na pewno chcesz usunąć dane dla roku ${tunnelToDelete}?`}
+					onCancel={() => setTunnelToDelete(null)}
+					onConfirm={() => {
+						setTunnels(prev => prev.filter(t => t.year !== tunnelToDelete))
+						if (editingYear === tunnelToDelete) resetForm()
+						setTunnelToDelete(null)
+					}}
+				/>
+			)}
+
+			{/* ===== DELETE CROP ===== */}
+			{cropToDelete && (
+				<ConfirmDeleteModal
+					title='Usuń uprawę'
+					description={`Czy na pewno chcesz usunąć "${cropToDelete}"?`}
+					onCancel={() => setCropToDelete(null)}
+					onConfirm={() => {
+						setCrops(prev => prev.filter(c => c !== cropToDelete))
+						setCropToDelete(null)
+					}}
+				/>
+			)}
 		</section>
 	)
 }

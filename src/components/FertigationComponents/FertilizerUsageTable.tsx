@@ -146,7 +146,7 @@ export default function FertilizerUsageTable({ fertigations, fertilizers, tunnel
 					return (
 						<div
 							key={s.name}
-							className='px-3 py-3 border-b border-gray-300 text-sm items-center bg-white'
+							className={`px-3 py-3 border-b border-gray-300 text-sm items-center ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
 							style={{ display: 'grid', gridTemplateColumns: '0.5fr 2fr 1fr 1fr 1fr 1fr 0.6fr' }}>
 							<div className='text-gray-500'>{index + 1}</div>
 							<div className='font-medium'>{s.name}</div>

@@ -150,7 +150,7 @@ export default function PesticideList({ items, types, onEdit, onDelete }: Props)
 				{filteredItems.map((p, i) => (
 					<div
 						key={p.id}
-						className='grid grid-cols-[0.5fr_3fr_2fr_3fr_2fr_1fr] gap-3 px-3 py-2 text-sm text-center border-b border-gray-300'>
+						className={`grid grid-cols-[0.5fr_3fr_2fr_3fr_2fr_1fr] gap-3 px-3 py-2 text-sm text-center border-b border-gray-300 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
 						<div>{i + 1}</div>
 						<div className='font-medium'>{p.name}</div>
 						<div>{p.isLiquid ? 'płynny' : 'proszek'}</div>

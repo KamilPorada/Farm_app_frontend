@@ -280,7 +280,7 @@ export default function TreatmentList({ items, pesticides, types, onEdit, onDele
 					return (
 						<div
 							key={t.id}
-							className='grid grid-cols-[0.4fr_1fr_2fr_1.2fr_0.9fr_0.5fr_1.2fr_1.2fr_0.6fr] gap-3 px-3 py-2 border-b border-gray-300 items-center text-sm'>
+							className={`grid grid-cols-[0.4fr_1fr_2fr_1.2fr_0.9fr_0.5fr_1.2fr_1.2fr_0.6fr] gap-3 px-3 py-2 border-b border-gray-300 items-center text-sm ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
 							<div>{i + 1}</div>
 
 							<div>

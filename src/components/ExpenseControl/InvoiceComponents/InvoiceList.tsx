@@ -1,9 +1,10 @@
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faDownload, faFilter } from '@fortawesome/free-solid-svg-icons'
 
 import InvoiceRow from './InvoiceRow'
 import InvoiceFiltersModal from './InoiveFiltersModal'
+import ConfirmDeleteModal from './ConfirmDeleteModal'
 import type { Invoice } from '../../../types/Invoice'
 import type { PointOfSale } from '../../../types/PointOfSale'
 import { useFormatUtils } from '../../../hooks/useFormatUtils'
@@ -27,6 +28,7 @@ type Props = {
 export default function InvoiceList({ items, points, onEdit, onDelete, onMarkAsRealized }: Props) {
 	const { formatCurrency } = useFormatUtils()
 	const [tab, setTab] = useState<Tab>('PENDING')
+	const [toDelete, setToDelete] = useState<Invoice | null>(null)
 
 	const [filters, setFilters] = useState<InvoiceFilters>({})
 	const [draftFilters, setDraftFilters] = useState<InvoiceFilters>(filters)
@@ -83,8 +85,6 @@ export default function InvoiceList({ items, points, onEdit, onDelete, onMarkAsR
 	const sumAmount = useMemo(() => {
 		return filtered.reduce((acc, i) => acc + i.amount, 0)
 	}, [filtered])
-
-	
 
 	/* =====================================================
 	   EXPORT CSV
@@ -179,7 +179,7 @@ export default function InvoiceList({ items, points, onEdit, onDelete, onMarkAsR
 			)}
 
 			{/* ===== HEADER (DESKTOP) ===== */}
-			<div className='hidden xl:grid grid-cols-[0.5fr_2fr_2fr_1.5fr_4fr_2fr_2fr] bg-mainColor text-white text-xs font-semibold py-2 rounded-t-lg text-center'>
+			<div className='hidden xl:grid grid-cols-[0.5fr_1.2fr_2.7fr_1.8fr_4.5fr_1.5fr_2fr] bg-mainColor text-white text-xs font-semibold py-2 rounded-t-lg text-center'>
 				<div>LP</div>
 				<div>Data</div>
 				<div>Numer faktury</div>
@@ -191,12 +191,13 @@ export default function InvoiceList({ items, points, onEdit, onDelete, onMarkAsR
 
 			{/* ===== ROWS ===== */}
 			<div>
-				{filtered.map(i => (
+				{filtered.map((i, index) => (
 					<InvoiceRow
 						key={i.id}
 						item={i}
+						index={index}
 						onEdit={onEdit}
-						onDelete={() => onDelete(i)}
+						onDelete={() => setToDelete(i)}
 						onMarkAsRealized={onMarkAsRealized}
 					/>
 				))}
@@ -205,6 +206,15 @@ export default function InvoiceList({ items, points, onEdit, onDelete, onMarkAsR
 			{/* ===== EMPTY STATE AFTER FILTERS ===== */}
 			{filtered.length === 0 && (
 				<p className='mt-4 text-sm text-gray-500 text-center'>Brak faktur spełniających wybrane kryteria.</p>
+			)}
+			{toDelete && (
+				<ConfirmDeleteModal
+					onCancel={() => setToDelete(null)}
+					onConfirm={() => {
+						onDelete(toDelete)
+						setToDelete(null)
+					}}
+				/>
 			)}
 		</div>
 	)

@@ -45,7 +45,7 @@ export default function PointOfSaleRow({ point, onView, onEdit, onDelete }: Prop
 			rounded-md
 			text-gray-500
 			transition
-			hover:text-blue-500 hover:cursor-pointer
+			hover:text-mainColor hover:cursor-pointer
 		'>
 					<FontAwesomeIcon icon={faEye}/>
 				</button>

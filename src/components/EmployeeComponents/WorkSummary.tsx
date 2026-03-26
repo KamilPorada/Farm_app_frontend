@@ -66,7 +66,7 @@ export default function WorkSummary({ items, employee }: Props) {
 	const max = Math.max(...monthlyEntries.map(([, v]) => v))
 
 	return (
-		<div className='bg-white rounded-xl px-6 pt-3 pb-6 space-y-6 max-h-[54vh] overflow-y-auto'>
+		<div className='bg-white rounded-xl px-6 pt-3 pb-6 space-y-6 max-h-[80vh] overflow-y-auto'>
 			<h3 className='text-lg font-semibold'>Podsumowanie pracy</h3>
 
 			{/* ===== KLUCZOWE METRYKI ===== */}

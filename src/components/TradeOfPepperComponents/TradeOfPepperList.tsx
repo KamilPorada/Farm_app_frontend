@@ -5,7 +5,7 @@ import { faFilter, faDownload } from '@fortawesome/free-solid-svg-icons'
 import TradeOfPepperRow from './TradeOfPepperRow'
 import TradeOfPepperFiltersModal from './TradeOfPepperFiltersModal'
 import TradeOfPepperSummary from './TradeOfPepperSummary'
-import ConfirmDeleteModal from '../PointOfSaleComponents/ConfirmDeleteModal'
+import ConfirmDeleteModal from './ConfirmDeleteModal'
 
 import type { TradeOfPepper } from '../../types/TradeOfPepper'
 import type { PointOfSale } from '../../types/PointOfSale'
@@ -201,8 +201,15 @@ export default function TradeOfPepperList({ items, allFarmerTrades, points, onVi
 				</div>
 
 				<div className='flex flex-row flex-wrap justify-center gap-4 xl:gap-0'>
-					{filtered.map(t => (
-						<TradeOfPepperRow key={t.id} item={t} onView={onView} onEdit={onEdit} onDelete={() => setToDelete(t)} />
+					{filtered.map((t, index) => (
+						<TradeOfPepperRow
+							key={t.id}
+							item={t}
+							index={index}
+							onView={onView}
+							onEdit={onEdit}
+							onDelete={() => setToDelete(t)}
+						/>
 					))}
 				</div>
 			</div>

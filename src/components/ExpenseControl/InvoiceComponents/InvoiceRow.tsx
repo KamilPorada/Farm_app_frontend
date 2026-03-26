@@ -10,18 +10,17 @@ type RowItem = Invoice & {
 
 type Props = {
 	item: RowItem
+	index: number
 	onEdit: (i: Invoice) => void
 	onDelete: () => void
 	onMarkAsRealized: (i: Invoice) => void
 }
 
-export default function InvoiceRow({ item, onEdit, onDelete, onMarkAsRealized }: Props) {
+export default function InvoiceRow({ item, index, onEdit, onDelete, onMarkAsRealized }: Props) {
 	const { formatDate, formatCurrency } = useFormatUtils()
 
 	const statusLabel = item.status ? 'Zrealizowana' : 'Oczekująca'
-	const statusClass = item.status
-		? 'bg-green-100 text-green-700'
-		: 'bg-yellow-100 text-yellow-800'
+	const statusClass = item.status ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-800'
 
 	return (
 		<>
@@ -82,9 +81,9 @@ export default function InvoiceRow({ item, onEdit, onDelete, onMarkAsRealized }:
 			{/* 🖥 DESKTOP – TABELA */}
 			{/* ===================== */}
 			<div
-				className='
+				className={`
 					hidden xl:grid
-					grid-cols-[0.5fr_2fr_2fr_1.5fr_4fr_2fr_2fr]
+					grid-cols-[0.5fr_1.2fr_2.7fr_1.8fr_4.5fr_1.5fr_2fr]
 					w-full
 					text-sm
 					text-center
@@ -92,18 +91,16 @@ export default function InvoiceRow({ item, onEdit, onDelete, onMarkAsRealized }:
 					py-2
 					border-b
 					border-gray-300
-					hover:bg-gray-50
-				'>
+					${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+				`}>
 				<div>{item.lp}</div>
 				<div>{formatDate(item.invoiceDate)}</div>
-				<div>{item.invoiceNumber}</div>
+				<div className=''>{item.invoiceNumber}</div>
 				<div className='font-medium'>{formatCurrency(item.amount)}</div>
 				<div className='truncate px-2'>{item.pointName}</div>
 
 				<div>
-					<span className={`rounded-full px-3 py-1 text-xs font-medium ${statusClass}`}>
-						{statusLabel}
-					</span>
+					<span className={`rounded-full px-3 py-1 text-xs font-medium ${statusClass}`}>{statusLabel}</span>
 				</div>
 
 				<div className='flex justify-center gap-3 text-gray-500'>

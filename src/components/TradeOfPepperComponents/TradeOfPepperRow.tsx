@@ -11,6 +11,7 @@ type RowItem = TradeOfPepper & {
 
 type Props = {
 	item: RowItem
+	index: number
 	onView: (t: TradeOfPepper) => void
 	onEdit: (t: TradeOfPepper) => void
 	onDelete: () => void
@@ -20,7 +21,7 @@ function formatPepperClass(v: number) {
 	return v === 3 ? 'Krojona' : String(v)
 }
 
-export default function TradeOfPepperRow({ item, onEdit, onDelete }: Props) {
+export default function TradeOfPepperRow({ item, onEdit, index, onDelete }: Props) {
 	const { formatDate, formatCurrency, formatWeight, isCurrencyReady } = useFormatUtils()
 
 	/* ⛔ blokada błędnego renderu (EUR bez kursu) */
@@ -75,18 +76,19 @@ export default function TradeOfPepperRow({ item, onEdit, onDelete }: Props) {
 
 			{/* 🖥 DESKTOP */}
 			<div
-				className='
-					hidden xl:grid
-					grid-cols-[1fr_2fr_1.5fr_2fr_1fr_2fr_1fr_2fr_5.5fr_1.5fr]
-					w-full
-					py-2
-					text-sm
-					text-center
-					items-center
-					border-b
-					border-gray-300
-					hover:bg-gray-50
-				'>
+				className={`
+		hidden xl:grid
+		grid-cols-[1fr_2fr_1.5fr_2fr_1fr_2fr_1fr_2fr_5.5fr_1.5fr]
+		w-full
+		py-2
+		text-sm
+		text-center
+		items-center
+		border-b
+		border-gray-300
+		${index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}
+		
+	`}>
 				<div>{item.lp}</div>
 				<div>{formatDate(item.tradeDate)}</div>
 				<div>{formatPepperClass(item.pepperClass)}</div>
@@ -98,10 +100,10 @@ export default function TradeOfPepperRow({ item, onEdit, onDelete }: Props) {
 				<div className='truncate px-2'>{item.pointName}</div>
 
 				<div className='flex justify-center gap-2 text-gray-500'>
-					<button onClick={() => onEdit(item)} className='hover:text-yellow-500 cusor-pointer'>
+					<button onClick={() => onEdit(item)} className='hover:text-yellow-500 cursor-pointer'>
 						<FontAwesomeIcon icon={faPen} />
 					</button>
-					<button onClick={onDelete} className='hover:text-red-500 cusor-pointer'>
+					<button onClick={onDelete} className='hover:text-red-500 cursor-pointer'>
 						<FontAwesomeIcon icon={faTrash} />
 					</button>
 				</div>

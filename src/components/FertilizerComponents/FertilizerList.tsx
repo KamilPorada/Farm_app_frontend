@@ -131,7 +131,7 @@ export default function FertilizerList({ items, onEdit, onDelete }: Props) {
 				{filteredItems.map((f, index) => (
 					<div
 						key={f.id}
-						className='grid grid-cols-12 gap-3 px-3 py-1 border-b border-gray-300 items-center text-sm bg-white'>
+						className={`grid grid-cols-12 gap-3 px-3 py-1 border-b border-gray-300 items-center text-sm ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
 						<div className='col-span-1 text-gray-500'>{index + 1}</div>
 						<div className='col-span-4 font-medium text-gray-800'>{f.name}</div>
 						<div className='col-span-3 text-gray-600'>{f.form}</div>

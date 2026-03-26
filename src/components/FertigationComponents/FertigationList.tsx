@@ -160,7 +160,7 @@ export default function FertigationList({ items, fertilizers, onEdit, onDelete }
 					return (
 						<div
 							key={f.id}
-							className='px-3 py-1 border-b border-gray-300 items-center text-sm bg-white'
+							className={`px-3 py-1 border-b border-gray-300 items-center text-sm ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
 							style={{
 								display: 'grid',
 								gridTemplateColumns: '0.6fr 1.2fr 2fr 1.2fr 1fr 0.6fr',

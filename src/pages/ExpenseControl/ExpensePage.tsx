@@ -4,7 +4,7 @@ import ExpenseCategoryHeader from '../../components/ExpenseControl/ExpenseCompon
 import ExpenseCategoryFormModal from '../../components/ExpenseControl/ExpenseComponents/ExpenseCategoryFormModal'
 import ConfirmDeleteCategoryModal from '../../components/ExpenseControl/ExpenseComponents/ConfirmDeleteCategoryModal'
 import ExpenseCategoryManageModal from '../../components/ExpenseControl/ExpenseComponents/ExpenseCategoryManageModal'
-import ConfirmDeleteModal from '../../components/PointOfSaleComponents/ConfirmDeleteModal'
+import ConfirmDeleteModal from '../../components/ExpenseControl/ExpenseComponents/ConfirmDeleteModal'
 import ExpenseForm from '../../components/ExpenseControl/ExpenseComponents/ExpenseForm'
 import ExpenseList from '../../components/ExpenseControl/ExpenseComponents/ExpenseList'
 import type { Expense, ExpenseCategory } from '../../types/Expense'

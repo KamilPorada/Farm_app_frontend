@@ -10,6 +10,7 @@ import {
 	faWarehouse,
 	faFlask,
 	faCoins,
+	faDroplet,
 	faBook,
 	faChevronDown,
 	faChevronUp,
@@ -69,7 +70,7 @@ const sections: Section[] = [
 	},
 	{
 		label: 'Nawożenie',
-		icon: faSeedling,
+		icon: faDroplet,
 		items: [
 			{ label: 'Nawozy', path: '/app/fertilizer' },
 			{ label: 'Fertygacja', path: '/app/fertigation' },

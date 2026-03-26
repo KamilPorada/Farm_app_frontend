@@ -244,7 +244,7 @@ export default function DecreaseSection({
 
 			{deleteTypeId !== null && (
 				<ConfirmDeleteModal
-					title='Usunąć kategorię przychodu?'
+					title='Usunąć kategorię kosztów?'
 					description='Wszystkie pozycje w tej kategorii zostaną trwale usunięte.'
 					onConfirm={() => {
 						onDeleteType(deleteTypeId)
@@ -256,8 +256,8 @@ export default function DecreaseSection({
 
 			{deleteItemId !== null && (
 				<ConfirmDeleteModal
-					title='Usunąć pozycję przychodu?'
-					description='Ta pozycja przychodu zostanie trwale usunięta.'
+					title='Usunąć pozycję kosztu?'
+					description='Ta pozycja kosztów zostanie trwale usunięta.'
 					onConfirm={() => {
 						onDeleteItem(deleteItemId)
 						setDeleteItemId(null)
@@ -268,7 +268,7 @@ export default function DecreaseSection({
 
 			{cannotDeleteType && (
 				<CannotDeleteTypeModal
-					description={`Kategoria "${cannotDeleteType.name}" zawiera przypisane pozycje przychodów. Usuń najpierw wszystkie pozycje w tej kategorii.`}
+					description={`Kategoria "${cannotDeleteType.name}" zawiera przypisane pozycje kosztów. Usuń najpierw wszystkie pozycje w tej kategorii.`}
 					onClose={() => setCannotDeleteType(null)}
 				/>
 			)}

@@ -55,7 +55,7 @@ export default function WorkTimeTable({ items, onCreate, onUpdate, onDelete, isF
 		<div className='bg-white rounded-xl py-3'>
 			{/* BRAK WPISÓW */}
 			{items.length === 0 ? (
-				<div className='flex flex-col items-center justify-center py-16 text-center h-[39vh]'>
+				<div className='flex flex-col items-center justify-center py-16 text-center h-[80vh]'>
 					<p className='text-base font-medium text-gray-700'>Brak wpisów czasu pracy</p>
 
 					<p className='mt-2 text-sm text-gray-500 max-w-md'>
@@ -89,7 +89,7 @@ export default function WorkTimeTable({ items, onCreate, onUpdate, onDelete, isF
 					</div>
 
 					{/* ROWS */}
-					<div className='max-h-[39vh] overflow-y-auto'>
+					<div className='max-h-[63vh] overflow-y-auto'>
 						{items.map(w => (
 							<div
 								key={w.id}

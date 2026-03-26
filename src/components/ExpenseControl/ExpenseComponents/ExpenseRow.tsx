@@ -11,13 +11,7 @@ type Props = {
 }
 
 export default function ExpenseRow({ index, expense, onEdit, onDelete }: Props) {
-	const {
-		formatCurrency,
-		formatNumber,
-		formatDate,
-		userCurrency,
-		toEURO,
-	} = useFormatUtils()
+	const { formatCurrency, formatNumber, formatDate, userCurrency, toEURO } = useFormatUtils()
 
 	const price = userCurrency === 'EUR' ? toEURO(expense.price) : expense.price
 	const sum = price * expense.quantity
@@ -27,7 +21,7 @@ export default function ExpenseRow({ index, expense, onEdit, onDelete }: Props) 
 
 	return (
 		<div
-			className='
+			className={`
 				grid
 				grid-cols-[0.5fr_1.5fr_3fr_1fr_2fr_1.5fr_1fr]
 				gap-3
@@ -37,9 +31,8 @@ export default function ExpenseRow({ index, expense, onEdit, onDelete }: Props) 
 				text-center
 				border-b border-gray-300
 				text-sm
-				hover:bg-gray-50
-			'
-		>
+				hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+			`}>
 			<div className='text-gray-500'>{index}</div>
 
 			<div>{formatDate(expense.expenseDate)}</div>
@@ -52,21 +45,13 @@ export default function ExpenseRow({ index, expense, onEdit, onDelete }: Props) 
 				{formatNumber(price)} {displayUnit}
 			</div>
 
-			<div className='font-medium'>
-				{formatCurrency(sum)}
-			</div>
+			<div className='font-medium'>{formatCurrency(sum)}</div>
 
 			<div className='flex justify-center gap-2 text-gray-500'>
-				<button
-					onClick={() => onEdit(expense)}
-					className='hover:text-yellow-500 transition hover:cursor-pointer'
-				>
+				<button onClick={() => onEdit(expense)} className='hover:text-yellow-500 transition hover:cursor-pointer'>
 					<FontAwesomeIcon icon={faPen} />
 				</button>
-				<button
-					onClick={() => onDelete(expense)}
-					className='hover:text-red-500 transition hover:cursor-pointer'
-				>
+				<button onClick={() => onDelete(expense)} className='hover:text-red-500 transition hover:cursor-pointer'>
 					<FontAwesomeIcon icon={faTrash} />
 				</button>
 			</div>
